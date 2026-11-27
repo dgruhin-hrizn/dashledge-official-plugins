@@ -1,0 +1,41 @@
+# Releases one plugin when a tag named <folder>-v<version> is pushed, such as
+# download-clients-v1.0.0. The release carries the packed ZIP and its registry listing.
+name: Release a plugin
+
+on:
+  push:
+    tags: ['*-v*']
+
+permissions:
+  contents: write
+
+env:
+  # The Dashledge source dashledge-package is built from.
+  DASHLEDGE_REF: feat/package-pack
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the Dashledge package rules
+        uses: actions/checkout@v4
+        with:
+          repository: dgruhin-hrizn/dashledge
+          ref: ${{ env.DASHLEDGE_REF }}
+          path: .dashledge
+          sparse-checkout: src-tauri
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            .dashledge/src-tauri/target
+          key: dashledge-package-${{ runner.os }}-${{ hashFiles('.dashledge/src-tauri/Cargo.lock', '.dashledge/src-tauri/package-core/**') }}
+      - name: Build dashledge-package
+        run: cargo build --release --locked --manifest-path .dashledge/src-tauri/package-core/Cargo.toml --bin dashledge-package
+      - name: Pack and release
+        env:
+          TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+          DASHLEDGE_PACKAGE: .dashledge/src-tauri/target/release/dashledge-package
+        run: bash scripts/release.sh

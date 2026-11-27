@@ -1,0 +1,46 @@
+# Packs every plugin with the validator the Dashledge app runs, on each pull request and push.
+name: Check plugins
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  # The Dashledge source dashledge-package is built from.
+  DASHLEDGE_REF: feat/package-pack
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check out the Dashledge package rules
+        uses: actions/checkout@v4
+        with:
+          repository: dgruhin-hrizn/dashledge
+          ref: ${{ env.DASHLEDGE_REF }}
+          path: .dashledge
+          sparse-checkout: src-tauri
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            .dashledge/src-tauri/target
+          key: dashledge-package-${{ runner.os }}-${{ hashFiles('.dashledge/src-tauri/Cargo.lock', '.dashledge/src-tauri/package-core/**') }}
+      - name: Build dashledge-package
+        run: cargo build --release --locked --manifest-path .dashledge/src-tauri/package-core/Cargo.toml --bin dashledge-package
+      - name: Pack and check every plugin
+        env:
+          DASHLEDGE_PACKAGE: .dashledge/src-tauri/target/release/dashledge-package
+        run: bash scripts/check.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist/*.zip
+          if-no-files-found: ignore
