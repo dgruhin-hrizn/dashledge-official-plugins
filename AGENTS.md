@@ -18,7 +18,7 @@ The Dashledge repository's `AGENTS.md` (section *First-party and third-party plu
 
 - **(CI)** The ID is `plugin.dashledge.<folder>`. The folder name is lowercase words joined by hyphens, and is never renamed after a release.
 - **(CI)** `version` is semver. Raise it for any change to what ships. A released version's package never changes.
-- Release with a tag `<folder>-v<version>` on `main`. The release workflow packs it with `dashledge-package pack` and creates the GitHub release. Never upload a ZIP by hand, and never Submit from Widget Studio.
+- **(CI)** Release with a tag `<folder>-v<version>` on a commit already merged to `main`. The release workflow reruns every check and test, then packs it with `dashledge-package pack` and creates the GitHub release. Never upload a ZIP by hand, and never Submit from Widget Studio.
 - List it in [dashledge-plugins](https://github.com/dgruhin-hrizn/dashledge-plugins) with the listing from the release notes, in a maintainer's pull request.
 
 ### Manifest

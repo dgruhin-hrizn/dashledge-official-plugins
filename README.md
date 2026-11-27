@@ -40,7 +40,7 @@ The packed ZIPs are attached to each run as the `packages` artifact, so you can 
    git tag download-clients-v1.0.0 && git push origin download-clients-v1.0.0
    ```
 
-3. The release workflow checks that the tag and `widget.json` agree, packs the plugin and creates a GitHub release with `<folder>-<version>.zip`. It never replaces a published ZIP, because its listing pins the sha256.
+3. The release workflow runs the same checks and tests as a pull request. It refuses a tag that isn't on `main`, or one that disagrees with `widget.json`. It then packs the plugin and creates a GitHub release with `<folder>-<version>.zip`. It never replaces a published ZIP, because its listing pins the sha256.
 4. The release notes hold the registry listing. Add it to [dashledge-plugins](https://github.com/dgruhin-hrizn/dashledge-plugins) as `listings/plugin.dashledge.<folder>/<version>.json` in a pull request. After it merges, the plugin appears in the Marketplace within a few minutes.
 
 ## Building the checker locally
