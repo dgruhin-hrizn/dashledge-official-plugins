@@ -32,23 +32,27 @@
 
   // ---- Posters: reserved space, filled when Sonarr has one ----
 
-  function poster(seriesId) {
+  // The series' initial shows until (or unless) Sonarr has a poster.
+  function poster(seriesId, name) {
+    const box = document.createElement('span');
+    box.className = 'poster';
+    box.dataset.initial = (String(name || '').replace(/^(the|a|an)\s+/i, '').trim()[0] || '').toUpperCase();
     const img = document.createElement('img');
-    img.className = 'poster';
     img.alt = '';
     img.decoding = 'async';
-    if (!Number.isInteger(seriesId)) return img;
+    box.append(img);
+    if (!Number.isInteger(seriesId)) return box;
+    img.dataset.series = String(seriesId);
     const known = posters.get(seriesId);
     if (known) img.src = known;
     else if (known === undefined) {
       posters.set(seriesId, '');
       D.image('api/v3/mediacover/' + seriesId + '/poster-250.jpg').then(url => {
         posters.set(seriesId, url);
-        for (const el of document.querySelectorAll('img.poster[data-series="' + seriesId + '"]')) el.src = url;
+        for (const el of document.querySelectorAll('img[data-series="' + seriesId + '"]')) el.src = url;
       }, () => posters.set(seriesId, null));
     }
-    img.dataset.series = String(seriesId);
-    return img;
+    return box;
   }
 
   const text = (tag, className, value) => {
@@ -70,20 +74,23 @@
     side.className = 'side';
     side.append(text('span', 'when', r.day + ' · ' + r.time));
     const failed = searchErrors.get(r.id);
+    const status = document.createElement('span');
+    status.className = 'status';
     if (r.canSearch && !pending.has(r.id)) {
-      if (failed) side.append(text('span', 'note problem', failed.error));
-      else side.append(text('span', 'note', r.label));
+      if (failed) status.append(text('span', 'note problem', failed.error));
+      else status.append(text('span', 'note', r.label));
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'dl-button search';
       button.textContent = 'Search';
       button.setAttribute('aria-label', 'Search for ' + r.series + ' ' + r.detail.split(' · ')[0]);
       button.addEventListener('click', () => search(r.id));
-      side.append(button);
+      status.append(button);
     } else {
-      side.append(text('span', 'note', pending.has(r.id) ? 'Searching…' : r.label));
+      status.append(text('span', 'note', pending.has(r.id) ? 'Searching…' : r.label));
     }
-    li.append(poster(r.seriesId), main, side);
+    side.append(status);
+    li.append(poster(r.seriesId, r.series), main, side);
     return li;
   }
 
@@ -104,7 +111,7 @@
     const side = document.createElement('div');
     side.className = 'side';
     side.append(text('span', 'percent', r.percent), text('span', 'note', r.note));
-    li.append(poster(r.seriesId), main, side);
+    li.append(poster(r.seriesId, r.series), main, side);
     return li;
   }
 
@@ -141,7 +148,7 @@
     $('countQueue').textContent = rows.length ? String(total) : '';
     $('queueNote').textContent = rows.length ? String(total) : '';
     const p = M.pane(q);
-    if (p.kind !== 'list') return showPane('queue', p.kind, p.error);
+    if (p.kind !== 'list') return showPane('queue', p.kind, p.kind === 'empty' ? 'Nothing downloading' : p.error);
     const list = rows.map(queueRow);
     if (q.more) list.push(text('li', 'dl-row more', '+' + q.more + ' more in Sonarr'));
     $('queueList').replaceChildren(...list);
@@ -164,7 +171,7 @@
     if (s.kind === 'loading') return show('loading');
     if (s.kind === 'noconnection') return show('empty');
     if (s.kind === 'failed') {
-      $('failedText').textContent = (s.auth ? '' : 'Sonarr unavailable · ') + s.error;
+      $('failedText').textContent = s.error;   // already says what Sonarr did
       $('fix').hidden = !s.auth;
       return show('failed');
     }
