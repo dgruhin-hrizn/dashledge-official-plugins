@@ -21,7 +21,8 @@
     const day = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : diff === -1 ? 'Yesterday'
       : new Intl.DateTimeFormat('en-US', diff > 1 && diff < 7 ? {timeZone: zone, weekday: 'short'}
         : {timeZone: zone, weekday: 'short', month: 'short', day: 'numeric'}).format(at);
-    const time = new Intl.DateTimeFormat('en-US', {timeZone: zone, hour: 'numeric', minute: '2-digit'}).format(at);
+    // Some ICU versions put a narrow no-break space before AM/PM.
+    const time = new Intl.DateTimeFormat('en-US', {timeZone: zone, hour: 'numeric', minute: '2-digit'}).format(at).replace(/\s/g, ' ');
     return {day, time};
   }
 
@@ -87,7 +88,8 @@
 
   // Episodes from today through `days` days (counting today) in `zone`, joined with the
   // queue: each says whether it's downloaded, downloading, being searched for, missing
-  // (aired, monitored, no file: it can be searched) or still to air.
+  // (aired, monitored, no file: it can be searched) or still to air. Yesterday's episodes
+  // stay while they have no file, so last night's missed episode can still be searched.
   function upcoming(data, settings, now, zone) {
     const days = Math.min(14, Math.max(1, Math.round(Number(settings?.days) || 7)));
     const today = dayIndex(now, zone);
@@ -99,7 +101,7 @@
       const at = Date.parse(e.airDateUtc);
       if (!Number.isFinite(at)) continue;
       const diff = dayIndex(at, zone) - today;
-      if (diff < 0 || diff >= days) continue;
+      if (diff < -1 || diff >= days || (diff === -1 && e.hasFile)) continue;
       if (settings?.hideDownloaded && e.hasFile) continue;
       const q = queued.get(e.id);
       let state, label, progress = null, canSearch = false;

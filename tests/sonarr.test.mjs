@@ -226,11 +226,12 @@ test('Search asks Sonarr for one missing episode, and only one that qualifies', 
   const refused = 'Only a missing episode that has aired can be searched';
   assert.deepEqual(await c.command('search', {episodeId: 5001}), {ok: false, error: refused}, 'already downloaded');
   assert.deepEqual(await c.command('search', {episodeId: 5006}), {ok: false, error: refused}, 'not aired yet');
+  assert.deepEqual(await c.command('search', {episodeId: 5009}), {ok: true}, 'aired yesterday, still missing');
   for (const id of [424242, '5002', -1, null]) {
     assert.deepEqual(await c.command('search', {episodeId: id}), {ok: false, error: 'That episode isn’t in Sonarr’s calendar'});
   }
-  assert.equal(c.requests.filter(r => r.method === 'POST').length, 1);
-  await c.advance(3 * 60 * 1000);
+  assert.equal(c.requests.filter(r => r.method === 'POST').length, 2);
+  await c.advance(3 * 60 * 1000 + 15 * 1000);
   assert.deepEqual(c.last().searching, [], 'Searching… fades after a few minutes');
 });
 
@@ -248,8 +249,9 @@ test('Upcoming follows the placement’s days, time zone and hidden downloads', 
 
   const utc = M.upcoming(data, {days: 7}, START, 'UTC');
   assert.equal(utc.days, 7);
-  assert.deepEqual(ids(utc), [5001, 5002, 5003, 5004, 5005], 'today in UTC and the 6 days after; not yesterday');
-  const [beam, docking, high, opening, harvest] = utc.rows;
+  assert.deepEqual(ids(utc), [5009, 5001, 5002, 5003, 5004, 5005], 'yesterday’s missed episode, then today in UTC and the 6 days after');
+  const [ebb, beam, docking, high, opening, harvest] = utc.rows;
+  assert.deepEqual([ebb.state, ebb.day, ebb.canSearch], ['missing', 'Yesterday', true], 'last night’s missed episode can still be searched');
   assert.deepEqual([beam.state, beam.label, beam.day, beam.time], ['downloaded', 'Downloaded', 'Today', '2:00 AM']);
   assert.deepEqual([docking.state, docking.label, docking.canSearch], ['missing', 'Missing', true]);
   assert.deepEqual([high.state, high.label, high.progress], ['downloading', 'Downloading 75%', 75], 'joined with the queue');
@@ -257,16 +259,17 @@ test('Upcoming follows the placement’s days, time zone and hidden downloads', 
   assert.equal(harvest.detail, 'S01E08 · Harvest · Season finale');
   assert.equal(harvest.day, 'Mon');
   const week = M.upcoming(data, {days: 8}, START, 'UTC');
-  assert.deepEqual(ids(week), [5001, 5002, 5003, 5004, 5005, 5006, 5007]);
-  assert.equal(week.rows[5].day, 'Fri, Dec 4', 'a week out names the date');
+  assert.deepEqual(ids(week), [5009, 5001, 5002, 5003, 5004, 5005, 5006, 5007]);
+  assert.equal(week.rows[6].day, 'Fri, Dec 4', 'a week out names the date');
   assert.ok(!ids(M.upcoming(data, {days: 14}, START, 'UTC')).includes(5008), 'two weeks on is past the longest window');
 
-  // In New York the 02:00 UTC episode aired yesterday evening, and 01:00 UTC tomorrow is tonight.
+  // In New York the 02:00 UTC episode aired yesterday evening and is downloaded, so it's
+  // gone; 01:00 UTC tomorrow is tonight.
   const ny = M.upcoming(data, {days: 1}, START, 'America/New_York');
-  assert.deepEqual(ids(ny), [5002, 5003, 5004]);
-  assert.deepEqual([ny.rows[2].day, ny.rows[2].time], ['Today', '8:00 PM']);
+  assert.deepEqual(ids(ny), [5009, 5002, 5003, 5004]);
+  assert.deepEqual([ny.rows[3].day, ny.rows[3].time], ['Today', '8:00 PM']);
 
-  assert.deepEqual(ids(M.upcoming(data, {days: 2, hideDownloaded: true}, START, 'UTC')), [5002, 5003, 5004]);
+  assert.deepEqual(ids(M.upcoming(data, {days: 2, hideDownloaded: true}, START, 'UTC')), [5009, 5002, 5003, 5004]);
   assert.equal(M.upcoming(data, {days: 99}, START, 'UTC').days, 14);
   assert.equal(M.upcoming(data, {}, START, 'UTC').days, 7, 'the default');
 

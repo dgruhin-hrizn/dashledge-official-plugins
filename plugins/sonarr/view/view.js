@@ -11,6 +11,7 @@
   const posters = new Map();        // seriesId → blob URL, '' while loading, null when missing
   const searchErrors = new Map();   // episodeId → {error, at}
   const pending = new Set();        // episode IDs whose search is on its way
+  const drawn = {};                 // what each list last showed, so an unchanged poll leaves it alone
 
   const readSettings = values => ({
     days: Math.min(14, Math.max(1, Math.round(Number(values?.days) || 7))),
@@ -115,6 +116,17 @@
     return li;
   }
 
+  // Rebuild a list only when what it shows changed, so a poll every 10 seconds keeps
+  // the scroll position and never swaps a button out from under a finger.
+  function fill(id, rows, make, ...extra) {
+    const signature = JSON.stringify([rows, extra]);
+    if (drawn[id] === signature) return;
+    drawn[id] = signature;
+    const items = rows.map(make);
+    if (id === 'queueList' && extra[0]) items.push(text('li', 'dl-row more', '+' + extra[0] + ' more in Sonarr'));
+    $(id).replaceChildren(...items);
+  }
+
   function showPane(name, kind, message) {
     $(name + 'List').hidden = kind !== 'list';
     $(name + 'Empty').hidden = kind !== 'empty';
@@ -137,7 +149,7 @@
         : 'Nothing airing ' + (days === 1 ? 'today' : 'in the next ' + days + ' days'));
     }
     $('upcomingNote').textContent += missing ? ' · ' + missing + ' missing' : '';
-    $('upcomingList').replaceChildren(...rows.map(upcomingRow));
+    fill('upcomingList', rows, upcomingRow, [...pending], [...searchErrors]);
     showPane('upcoming', 'list');
   }
 
@@ -149,9 +161,7 @@
     $('queueNote').textContent = rows.length ? String(total) : '';
     const p = M.pane(q);
     if (p.kind !== 'list') return showPane('queue', p.kind, p.kind === 'empty' ? 'Nothing downloading' : p.error);
-    const list = rows.map(queueRow);
-    if (q.more) list.push(text('li', 'dl-row more', '+' + q.more + ' more in Sonarr'));
-    $('queueList').replaceChildren(...list);
+    fill('queueList', rows, queueRow, q.more);
     showPane('queue', 'list');
   }
 

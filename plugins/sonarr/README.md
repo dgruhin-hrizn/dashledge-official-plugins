@@ -10,6 +10,8 @@ Upcoming episodes and the download queue from your [Sonarr](https://sonarr.tv) s
   - **Missing**, for a monitored episode that has aired without a file, with a **Search** button;
   - **Searching…** for a few minutes after you tap Search;
   - nothing yet, for one still to air.
+
+  Yesterday's episodes stay listed while they have no file, so last night's missed episode can still be searched in the morning.
 - **Queue:** what Sonarr is downloading, one row per download. A season pack's episodes share one row ("Season 1 · 10 episodes"). Rows show a progress bar, percent and time left, or Paused, Queued, Delayed, Importing, Needs attention or Failed with Sonarr's reason. Problems come first, then downloads by time left. Past 50 downloads it says how many more Sonarr has.
 - **Layout:** a placement 1000 px or wider, such as the full Edge, shows Upcoming and Queue side by side. A narrower one shows one, with a button for each and its count, so the other is a tap away. A short placement drops the posters and detail lines before shrinking anything. A series without a poster shows its initial in the poster's place.
 - **States:**

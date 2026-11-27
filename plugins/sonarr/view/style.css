@@ -30,6 +30,8 @@ body{overflow:hidden}
 .pane-note{font-variant-numeric:tabular-nums}
 .pane-note:empty{display:none}
 .pane-state{align-self:center}
+/* The list stays in the scrolling row even when a compact pane hides its title. */
+.pane>.rows,.pane>.pane-state{grid-row:2}
 /* Rows keep their height when there are few; the list scrolls by touch, without a bar
    over the right-hand column. */
 .rows{min-height:0;overflow:auto;overscroll-behavior:contain;align-content:start;scrollbar-width:none;padding-bottom:calc(var(--dl-gap)*.5)}
