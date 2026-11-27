@@ -6,6 +6,8 @@
 # where the ZIPs go; default dist). GITHUB_STEP_SUMMARY (optional, a Markdown summary).
 set -euo pipefail
 
+# The oldest Dashledge a first-party plugin may target: the first with the Marketplace.
+MIN_APP=0.9.0
 tool=${DASHLEDGE_PACKAGE:?Set DASHLEDGE_PACKAGE to the dashledge-package binary.}
 out=${OUT:-dist}
 summary=${GITHUB_STEP_SUMMARY:-/dev/null}
@@ -38,6 +40,42 @@ for manifest in plugins/*/widget.json; do
     fail "$manifest" "Its version is \"$version\". The Marketplace needs a version such as 1.2.0."
     continue
   fi
+  # The first-party spec (AGENTS.md): every rule a script can check.
+  spec=$(jq -r --arg name "$name" --arg home "https://github.com/dgruhin-hrizn/dashledge-official-plugins/tree/main/plugins/$name" '
+    [ (if (.description // "" | length) == 0 then "a description" else empty end),
+      (if (.category // "" | length) == 0 then "a category" else empty end),
+      (if (.icon // "" | test("\\.svg$")) | not then "an SVG icon" else empty end),
+      (if .license != "MIT" then "\"license\": \"MIT\"" else empty end),
+      (if .homepage != $home then "\"homepage\": \"" + $home + "\"" else empty end),
+      (if (.minAppVersion // "" | length) == 0 then "a minAppVersion" else empty end),
+      (if ((.permissions // []) | index("ui")) == null then "the \"ui\" permission (Dashledge’s kit)" else empty end),
+      (if .view.theme != true then "\"view\": {\"theme\": true}" else empty end),
+      (if .view.viewport != "native" then "\"view\": {\"viewport\": \"native\"}" else empty end),
+      (if .collector != null then "no collector" else empty end)
+    ] | join(", ")' "$manifest")
+  if [ -n "$spec" ]; then
+    fail "$manifest" "First-party plugins need $spec. See AGENTS.md."
+    continue
+  fi
+  min=$(jq -r .minAppVersion "$manifest")
+  if [ "$(printf '%s\n%s\n' "$MIN_APP" "$min" | sort -V | head -1)" != "$MIN_APP" ]; then
+    fail "$manifest" "minAppVersion $min is older than $MIN_APP, the first Dashledge with the Marketplace."
+    continue
+  fi
+  if [ ! -f "$dir/README.md" ]; then
+    fail "$manifest" "Add $dir/README.md: what it shows, its settings and why it needs each grant."
+    continue
+  fi
+  missing=$(jq -r '.connector.hosts // [] | .[]' "$manifest" | while read -r host; do grep -qF "$host" "$dir/README.md" || printf '%s ' "$host"; done)
+  if [ -n "$missing" ]; then
+    fail "$manifest" "README.md must say why it reaches ${missing% }."
+    continue
+  fi
+  if [ ! -f "tests/$name.test.mjs" ]; then
+    fail "$manifest" "Add tests/$name.test.mjs, run against recorded replies in tests/$name/."
+    continue
+  fi
+
   zip="$out/$name-$version.zip"
   if ! "$tool" pack "$dir" --out "$zip" > "$work/check.json" 2> "$work/error"; then
     fail "$manifest" "$(cat "$work/error")"
@@ -63,4 +101,17 @@ for manifest in plugins/*/widget.json; do
 done
 
 if [ "$count" -eq 0 ]; then echo "No plugins yet." >> "$summary"; fi
+
+# Every plugin's tests, against recorded replies.
+shopt -s nullglob
+tests=(tests/*.test.mjs)
+if [ ${#tests[@]} -gt 0 ]; then
+  if node --test "${tests[@]}"; then
+    echo "- ✅ Tests passed" >> "$summary"
+  else
+    echo "::error::Plugin tests failed."
+    echo "- ❌ Tests failed" >> "$summary"
+    status=1
+  fi
+fi
 exit "$status"

@@ -1,14 +1,19 @@
 # Dashledge official plugins
 
-The first-party plugins for [Dashledge](https://github.com/dgruhin-hrizn/dashledge). Each one ships through the [Dashledge Marketplace](https://github.com/dgruhin-hrizn/dashledge-plugins) like any outside author's plugin: a tagged release here, then a listing in the registry that a maintainer reviews.
+The first-party plugins for [Dashledge](https://github.com/dgruhin-hrizn/dashledge): Dashledge's own, shown in the Marketplace as **by Dashledge**. Each one ships through the [Dashledge Marketplace](https://github.com/dgruhin-hrizn/dashledge-plugins): a tagged release here, then a listing in the registry that a maintainer reviews.
+
+Every plugin here meets the **first-party spec** in [AGENTS.md](AGENTS.md). It requires a complete manifest, Dashledge's look (the `ui` kit, theme colours, native viewport), a README with every grant explained, and tests against recorded server replies. CI enforces what a script can check. Third-party plugins live in their authors' own repositories.
 
 ## Layout
 
 ```
-plugins/<name>/        one plugin per folder
+plugins/<name>/        one plugin per folder: exactly what ships
   widget.json          id plugin.dashledge.<name>, version x.y.z
   view/ connector.js icon.svg README.md …
-scripts/check.sh       packs and checks every plugin (CI runs it)
+tests/<name>.test.mjs  the plugin's tests (never shipped)
+tests/<name>/          recorded server replies for them
+tests/harness.mjs      runs a connector or view script the way Dashledge does
+scripts/check.sh       spec checks, packing and tests for every plugin (CI runs it)
 scripts/release.sh     packs one plugin and creates its GitHub release (CI runs it)
 ```
 
@@ -19,8 +24,10 @@ A plugin's folder name is its ID's last part: `plugins/download-clients/` is `pl
 Every pull request and push to `main` builds `dashledge-package` from the Dashledge source and runs `scripts/check.sh`. For each plugin it:
 
 - requires the ID `plugin.dashledge.<folder>` and a version such as `1.2.0`;
+- checks every first-party spec item a script can: manifest fields, the `ui` kit, theme and native viewport, `minAppVersion`, a README naming each connector host, and a test file;
 - packs the folder with `dashledge-package pack`, which applies the same rules as the app and Widget Studio's Submit to Marketplace and makes the same bytes every time;
-- refuses a change to a version that's already released. Packing the folder as it was at the release tag must give the same package, or the version has to go up.
+- refuses a change to a version that's already released. Packing the folder as it was at the release tag must give the same package, or the version has to go up;
+- runs `node --test tests/*.test.mjs`.
 
 The packed ZIPs are attached to each run as the `packages` artifact, so you can install a build with **Install from file** before releasing it.
 
@@ -45,3 +52,7 @@ DASHLEDGE_PACKAGE=../dashledge/src-tauri/target/release/dashledge-package bash s
 ```
 
 `DASHLEDGE_REF` in both workflows names the Dashledge branch or commit the checker is built from.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
