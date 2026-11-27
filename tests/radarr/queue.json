@@ -1,0 +1,659 @@
+{
+  "page": 1,
+  "pageSize": 50,
+  "sortKey": "timeleft",
+  "sortDirection": "ascending",
+  "totalRecords": 6,
+  "records": [
+    {
+      "movieId": 102,
+      "movie": {
+        "title": "Paper Harbor",
+        "originalTitle": "Paper Harbor",
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "alternateTitles": [],
+        "secondaryYearSourceId": 0,
+        "sortTitle": "paper harbor",
+        "sizeOnDisk": 0,
+        "status": "released",
+        "overview": "An invented film for Dashledge tests.",
+        "digitalRelease": "2026-11-10T00:00:00Z",
+        "releaseDate": "2026-11-10T00:00:00Z",
+        "images": [
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/102/poster.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/102/fanart.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          }
+        ],
+        "website": "",
+        "year": 2026,
+        "youTubeTrailerId": "",
+        "studio": "Placeholder Pictures",
+        "path": "/movies/Movie 102",
+        "qualityProfileId": 1,
+        "hasFile": false,
+        "movieFileId": 0,
+        "monitored": true,
+        "minimumAvailability": "released",
+        "isAvailable": true,
+        "folderName": "/movies/Movie 102",
+        "runtime": 112,
+        "cleanTitle": "movie102",
+        "imdbId": "tt0000102",
+        "tmdbId": 900102,
+        "titleSlug": "900102",
+        "rootFolderPath": "/movies/",
+        "certification": "PG-13",
+        "genres": [
+          "Drama"
+        ],
+        "tags": [],
+        "added": "2026-06-01T12:00:00Z",
+        "ratings": {
+          "tmdb": {
+            "votes": 120,
+            "value": 7.1,
+            "type": "user"
+          }
+        },
+        "popularity": 12.5,
+        "statistics": {
+          "movieFileCount": 0,
+          "sizeOnDisk": 0,
+          "releaseGroups": []
+        },
+        "id": 102
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 7,
+          "name": "WEBDL-2160p",
+          "source": "bluray",
+          "resolution": 1080,
+          "modifier": "none"
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 18400000000,
+      "title": "Release.1.Placeholder-GROUP",
+      "sizeleft": 15088000000,
+      "timeleft": "1.02:03:04",
+      "estimatedCompletionTime": "2026-11-28T21:03:04Z",
+      "added": "2026-11-27T17:30:00Z",
+      "status": "downloading",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "PLACEHOLDER1",
+      "protocol": "torrent",
+      "downloadClient": "qBittorrent",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Indexer",
+      "outputPath": "/downloads/Release 1",
+      "id": 1
+    },
+    {
+      "movieId": 101,
+      "movie": {
+        "title": "The Lantern Keeper",
+        "originalTitle": "The Lantern Keeper",
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "alternateTitles": [],
+        "secondaryYearSourceId": 0,
+        "sortTitle": "the lantern keeper",
+        "sizeOnDisk": 0,
+        "status": "released",
+        "overview": "An invented film for Dashledge tests.",
+        "digitalRelease": "2026-11-25T00:00:00Z",
+        "releaseDate": "2026-11-25T00:00:00Z",
+        "images": [
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/101/poster.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/101/fanart.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          }
+        ],
+        "website": "",
+        "year": 2026,
+        "youTubeTrailerId": "",
+        "studio": "Placeholder Pictures",
+        "path": "/movies/Movie 101",
+        "qualityProfileId": 1,
+        "hasFile": false,
+        "movieFileId": 0,
+        "monitored": true,
+        "minimumAvailability": "released",
+        "isAvailable": true,
+        "folderName": "/movies/Movie 101",
+        "runtime": 112,
+        "cleanTitle": "movie101",
+        "imdbId": "tt0000101",
+        "tmdbId": 900101,
+        "titleSlug": "900101",
+        "rootFolderPath": "/movies/",
+        "certification": "PG-13",
+        "genres": [
+          "Drama"
+        ],
+        "tags": [],
+        "added": "2026-06-01T12:00:00Z",
+        "ratings": {
+          "tmdb": {
+            "votes": 120,
+            "value": 7.1,
+            "type": "user"
+          }
+        },
+        "popularity": 12.5,
+        "statistics": {
+          "movieFileCount": 0,
+          "sizeOnDisk": 0,
+          "releaseGroups": []
+        },
+        "id": 101
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 7,
+          "name": "Bluray-1080p",
+          "source": "bluray",
+          "resolution": 1080,
+          "modifier": "none"
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 8000000000,
+      "title": "Release.2.Placeholder-GROUP",
+      "sizeleft": 3040000000,
+      "timeleft": "00:12:34",
+      "estimatedCompletionTime": "2026-11-27T19:12:34Z",
+      "added": "2026-11-27T17:30:00Z",
+      "status": "downloading",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "PLACEHOLDER2",
+      "protocol": "usenet",
+      "downloadClient": "SABnzbd",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Indexer",
+      "outputPath": "/downloads/Release 2",
+      "id": 2
+    },
+    {
+      "movieId": 103,
+      "movie": {
+        "title": "Static Bloom",
+        "originalTitle": "Static Bloom",
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "alternateTitles": [],
+        "secondaryYearSourceId": 0,
+        "sortTitle": "static bloom",
+        "sizeOnDisk": 0,
+        "status": "released",
+        "overview": "An invented film for Dashledge tests.",
+        "digitalRelease": "2025-12-01T00:00:00Z",
+        "releaseDate": "2025-12-01T00:00:00Z",
+        "images": [
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/103/poster.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/103/fanart.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          }
+        ],
+        "website": "",
+        "year": 2025,
+        "youTubeTrailerId": "",
+        "studio": "Placeholder Pictures",
+        "path": "/movies/Movie 103",
+        "qualityProfileId": 1,
+        "hasFile": false,
+        "movieFileId": 0,
+        "monitored": true,
+        "minimumAvailability": "released",
+        "isAvailable": true,
+        "folderName": "/movies/Movie 103",
+        "runtime": 112,
+        "cleanTitle": "movie103",
+        "imdbId": "tt0000103",
+        "tmdbId": 900103,
+        "titleSlug": "900103",
+        "rootFolderPath": "/movies/",
+        "certification": "PG-13",
+        "genres": [
+          "Drama"
+        ],
+        "tags": [],
+        "added": "2026-06-01T12:00:00Z",
+        "ratings": {
+          "tmdb": {
+            "votes": 120,
+            "value": 7.1,
+            "type": "user"
+          }
+        },
+        "popularity": 12.5,
+        "statistics": {
+          "movieFileCount": 0,
+          "sizeOnDisk": 0,
+          "releaseGroups": []
+        },
+        "id": 103
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 7,
+          "name": "Bluray-1080p",
+          "source": "bluray",
+          "resolution": 1080,
+          "modifier": "none"
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 6000000000,
+      "title": "Release.3.Placeholder-GROUP",
+      "sizeleft": 0,
+      "timeleft": "00:00:00",
+      "estimatedCompletionTime": "2026-11-27T18:40:00Z",
+      "added": "2026-11-27T17:30:00Z",
+      "status": "completed",
+      "trackedDownloadStatus": "warning",
+      "trackedDownloadState": "importPending",
+      "statusMessages": [
+        {
+          "title": "Release.3.Placeholder-GROUP",
+          "messages": [
+            "No files found are eligible for import in /downloads/Release 3"
+          ]
+        }
+      ],
+      "downloadId": "PLACEHOLDER3",
+      "protocol": "usenet",
+      "downloadClient": "SABnzbd",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Indexer",
+      "outputPath": "/downloads/Release 3",
+      "id": 3
+    },
+    {
+      "movieId": 104,
+      "movie": {
+        "title": "North of Quiet",
+        "originalTitle": "North of Quiet",
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "alternateTitles": [],
+        "secondaryYearSourceId": 0,
+        "sortTitle": "north of quiet",
+        "sizeOnDisk": 0,
+        "status": "released",
+        "overview": "An invented film for Dashledge tests.",
+        "digitalRelease": "2026-09-04T00:00:00Z",
+        "releaseDate": "2026-09-04T00:00:00Z",
+        "images": [
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/104/poster.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/104/fanart.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          }
+        ],
+        "website": "",
+        "year": 2026,
+        "youTubeTrailerId": "",
+        "studio": "Placeholder Pictures",
+        "path": "/movies/Movie 104",
+        "qualityProfileId": 1,
+        "hasFile": false,
+        "movieFileId": 0,
+        "monitored": true,
+        "minimumAvailability": "released",
+        "isAvailable": true,
+        "folderName": "/movies/Movie 104",
+        "runtime": 112,
+        "cleanTitle": "movie104",
+        "imdbId": "tt0000104",
+        "tmdbId": 900104,
+        "titleSlug": "900104",
+        "rootFolderPath": "/movies/",
+        "certification": "PG-13",
+        "genres": [
+          "Drama"
+        ],
+        "tags": [],
+        "added": "2026-06-01T12:00:00Z",
+        "ratings": {
+          "tmdb": {
+            "votes": 120,
+            "value": 7.1,
+            "type": "user"
+          }
+        },
+        "popularity": 12.5,
+        "statistics": {
+          "movieFileCount": 0,
+          "sizeOnDisk": 0,
+          "releaseGroups": []
+        },
+        "id": 104
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 7,
+          "name": "WEBDL-1080p",
+          "source": "bluray",
+          "resolution": 1080,
+          "modifier": "none"
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 4000000000,
+      "title": "Release.4.Placeholder-GROUP",
+      "sizeleft": 3000000000,
+      "added": "2026-11-27T17:30:00Z",
+      "status": "paused",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "PLACEHOLDER4",
+      "protocol": "usenet",
+      "downloadClient": "SABnzbd",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Indexer",
+      "outputPath": "/downloads/Release 4",
+      "id": 4
+    },
+    {
+      "movieId": 105,
+      "movie": {
+        "title": "Glass Orchard",
+        "originalTitle": "Glass Orchard",
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "alternateTitles": [],
+        "secondaryYearSourceId": 0,
+        "sortTitle": "glass orchard",
+        "sizeOnDisk": 0,
+        "status": "released",
+        "overview": "An invented film for Dashledge tests.",
+        "digitalRelease": "2026-10-15T00:00:00Z",
+        "releaseDate": "2026-10-15T00:00:00Z",
+        "images": [
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/105/poster.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/105/fanart.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          }
+        ],
+        "website": "",
+        "year": 2026,
+        "youTubeTrailerId": "",
+        "studio": "Placeholder Pictures",
+        "path": "/movies/Movie 105",
+        "qualityProfileId": 1,
+        "hasFile": false,
+        "movieFileId": 0,
+        "monitored": true,
+        "minimumAvailability": "released",
+        "isAvailable": true,
+        "folderName": "/movies/Movie 105",
+        "runtime": 112,
+        "cleanTitle": "movie105",
+        "imdbId": "tt0000105",
+        "tmdbId": 900105,
+        "titleSlug": "900105",
+        "rootFolderPath": "/movies/",
+        "certification": "PG-13",
+        "genres": [
+          "Drama"
+        ],
+        "tags": [],
+        "added": "2026-06-01T12:00:00Z",
+        "ratings": {
+          "tmdb": {
+            "votes": 120,
+            "value": 7.1,
+            "type": "user"
+          }
+        },
+        "popularity": 12.5,
+        "statistics": {
+          "movieFileCount": 0,
+          "sizeOnDisk": 0,
+          "releaseGroups": []
+        },
+        "id": 105
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 7,
+          "name": "WEBDL-1080p",
+          "source": "bluray",
+          "resolution": 1080,
+          "modifier": "none"
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 5000000000,
+      "title": "Release.5.Placeholder-GROUP",
+      "sizeleft": 5000000000,
+      "added": "2026-11-27T17:30:00Z",
+      "status": "failed",
+      "trackedDownloadStatus": "warning",
+      "trackedDownloadState": "failedPending",
+      "statusMessages": [],
+      "errorMessage": "Download failed: unpacking failed",
+      "downloadId": "PLACEHOLDER5",
+      "protocol": "usenet",
+      "downloadClient": "SABnzbd",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Indexer",
+      "outputPath": "/downloads/Release 5",
+      "id": 5
+    },
+    {
+      "movieId": 106,
+      "movie": {
+        "title": "Ember Season",
+        "originalTitle": "Ember Season",
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "alternateTitles": [],
+        "secondaryYearSourceId": 0,
+        "sortTitle": "ember season",
+        "sizeOnDisk": 0,
+        "status": "released",
+        "overview": "An invented film for Dashledge tests.",
+        "digitalRelease": "2026-11-01T00:00:00Z",
+        "releaseDate": "2026-11-01T00:00:00Z",
+        "images": [
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/106/poster.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/106/fanart.jpg?lastWrite=638679000000000000",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/placeholder.jpg"
+          }
+        ],
+        "website": "",
+        "year": 2026,
+        "youTubeTrailerId": "",
+        "studio": "Placeholder Pictures",
+        "path": "/movies/Movie 106",
+        "qualityProfileId": 1,
+        "hasFile": false,
+        "movieFileId": 0,
+        "monitored": true,
+        "minimumAvailability": "released",
+        "isAvailable": true,
+        "folderName": "/movies/Movie 106",
+        "runtime": 112,
+        "cleanTitle": "movie106",
+        "imdbId": "tt0000106",
+        "tmdbId": 900106,
+        "titleSlug": "900106",
+        "rootFolderPath": "/movies/",
+        "certification": "PG-13",
+        "genres": [
+          "Drama"
+        ],
+        "tags": [],
+        "added": "2026-06-01T12:00:00Z",
+        "ratings": {
+          "tmdb": {
+            "votes": 120,
+            "value": 7.1,
+            "type": "user"
+          }
+        },
+        "popularity": 12.5,
+        "statistics": {
+          "movieFileCount": 0,
+          "sizeOnDisk": 0,
+          "releaseGroups": []
+        },
+        "id": 106
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 7,
+          "name": "Bluray-1080p",
+          "source": "bluray",
+          "resolution": 1080,
+          "modifier": "none"
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 7000000000,
+      "title": "Release.6.Placeholder-GROUP",
+      "sizeleft": 7000000000,
+      "added": "2026-11-27T17:30:00Z",
+      "status": "queued",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "PLACEHOLDER6",
+      "protocol": "usenet",
+      "downloadClient": "SABnzbd",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Indexer",
+      "outputPath": "/downloads/Release 6",
+      "id": 6
+    }
+  ]
+}
