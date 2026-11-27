@@ -165,9 +165,59 @@ test('pause and resume, for a whole client and for one download', async () => {
   assert.deepEqual(calls.slice(0, 2).map(r => r.url), [QBT.address + 'api/v2/torrents/stop', QBT.address + 'api/v2/torrents/pause'], 'qBittorrent 4 has no stop');
   assert.equal(calls[1].body, 'hashes=8f3c1a2b4d5e6f708192a3b4c5d6e7f801234567');
   sent = since();
-  await c.command('resume', {client: 2});
+  await c.command('resume', {client: 2, item: '8f3c1a2b4d5e6f708192a3b4c5d6e7f801234567'});
   assert.equal(sent()[0].url, QBT.address + 'api/v2/torrents/resume', 'it remembers the older names');
   assert.equal(c.requests.filter(r => r.url.endsWith('/start')).length, 0);
+});
+
+test('qBittorrent: Pause stops only what was downloading, and Resume starts only that', async () => {
+  const DOWNLOADING = '8f3c1a2b4d5e6f708192a3b4c5d6e7f801234567', STALLED = '1a2b3c4d5e6f708192a3b4c5d6e7f80123456789';
+  const PARKED = 'aa11bb22cc33dd44ee55ff6677889900aabbccdd';   // stopped by the user in qBittorrent itself
+  let stopped = null, rid = 0;
+  const storage = {};
+  const respond = (url, init) => {
+    if (url.includes('sync/maindata')) {
+      if (rid++ === 0) return {json: s('qbittorrent-maindata-full.json')};
+      const torrents = {};
+      for (const hash of stopped || []) torrents[hash] = {state: 'stoppedDL', dlspeed: 0};
+      if (stopped && !stopped.length) Object.assign(torrents, {[DOWNLOADING]: {state: 'downloading'}, [STALLED]: {state: 'stalledDL'}});
+      return {json: {rid, torrents}};
+    }
+    if (url.endsWith('/stop')) { stopped = init.body.replace('hashes=', '').split('%7C'); return {status: 200, text: ''}; }
+    if (url.endsWith('/start')) { stopped = []; return {status: 200, text: ''}; }
+    return {status: 404};
+  };
+  const c = loadConnector('download-clients', {connections: [QBT], storage, respond});
+  await c.settle();
+  assert.equal(client(c).reading.paused, false);
+  assert.equal(client(c).reading.canPause, true);
+
+  await c.command('pause', {client: 0});
+  const stop = c.requests.find(r => r.url.endsWith('/stop'));
+  assert.equal(decodeURIComponent(stop.body), 'hashes=' + DOWNLOADING + '|' + STALLED, 'not the parked torrent, not the seeders');
+  assert.equal(client(c).reading.paused, true);
+  assert.deepEqual(JSON.parse(storage['held:qbittorrent:' + QBT.address]), [DOWNLOADING, STALLED], 'remembered across a restart');
+
+  await c.command('resume', {client: 0});
+  const start = c.requests.find(r => r.url.endsWith('/start'));
+  assert.equal(decodeURIComponent(start.body), 'hashes=' + DOWNLOADING + '|' + STALLED);
+  assert.ok(!start.body.includes(PARKED) && !c.requests.some(r => /hashes=all/.test(r.body || '')), 'never every torrent');
+  assert.equal(client(c).reading.paused, false);
+  assert.deepEqual(JSON.parse(storage['held:qbittorrent:' + QBT.address]), []);
+});
+
+test('qBittorrent: with only seeders and a parked torrent, there is nothing to pause', async () => {
+  const full = s('qbittorrent-maindata-full.json');
+  for (const t of Object.values(full.torrents)) if (t.progress < 1 && t.state !== 'stoppedDL') t.state = 'stoppedDL';
+  const c = loadConnector('download-clients', {connections: [QBT], respond: url => (url.includes('maindata') ? {json: full} : {status: 404})});
+  await c.settle();
+  const r = client(c).reading;
+  assert.equal(r.paused, false, 'torrents the user stopped don’t make the client read as paused');
+  assert.equal(r.canPause, false, 'so the chip offers no Pause');
+  await assert.rejects(c.command('pause', {client: 0}), /Nothing is downloading/);
+  assert.ok(!c.requests.some(r => /stop|pause/.test(r.url)), 'nothing was sent');
+  const M = model();
+  assert.equal(M.summarize(c.last(), {}, c.last().at).clients[0].canPause, false);
 });
 
 test('commands refuse a client or download that isn’t there', async () => {

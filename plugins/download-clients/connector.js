@@ -29,7 +29,7 @@ const clients = (dashledge.connections || []).map((connection, i) => ({
   reading: null,          // the last good normalised reading
   historyAt: 0, history: [],
   savedAt: 0,
-  qbt: {rid: 0, torrents: {}, server: {}, stop: null},
+  qbt: {rid: 0, torrents: {}, server: {}, stop: null, held: [], runnable: []},
 }));
 
 function hostOf(address) {
@@ -178,6 +178,13 @@ const QBT_STATE = {
 const QBT_DETAIL = {metaDL: 'Fetching metadata', forcedMetaDL: 'Fetching metadata', forcedDL: 'Forced', stalledDL: 'Stalled',
   checkingDL: 'Checking', checkingResumeData: 'Checking', allocating: 'Allocating', moving: 'Moving', error: 'Error', missingFiles: 'Missing files'};
 const QBT_SEEDING = ['uploading', 'stalledUP', 'forcedUP', 'queuedUP', 'checkingUP', 'pausedUP', 'stoppedUP'];
+const QBT_STOPPED = ['pausedDL', 'stoppedDL', 'pausedUP', 'stoppedUP'];
+const RUNNABLE = ['downloading', 'stalled', 'queued', 'checking'];
+
+const heldKey = client => 'held:' + client.type + ':' + client.base;
+function saveHeld(client) {
+  try { dashledge.storage.set(heldKey(client), client.qbt.held); } catch { /* storage full: keep it in memory */ }
+}
 
 async function readQbittorrent(client) {
   const q = client.qbt;
@@ -215,12 +222,19 @@ async function readQbittorrent(client) {
       progress: 1, size: number(t.size), left: 0, speed: number(t.upspeed), eta: null, canPause: true}));
   const left = items.reduce((sum, item) => sum + item.left, 0);
   const speed = number(q.server.dl_info_speed);
-  const active = items.filter(item => item.state !== 'failed');
-  const paused = active.length > 0 && active.every(item => item.state === 'paused');
+  // qBittorrent has no client-wide pause. This widget's Pause stops the torrents that were
+  // downloading and remembers them; the client reads as paused while any of those is still
+  // stopped, and Resume starts exactly those. Torrents the user stopped themselves, and
+  // seeders, are never touched.
+  q.runnable = items.filter(item => RUNNABLE.includes(item.state)).map(item => item.id);
+  const stillHeld = q.held.filter(hash => q.torrents[hash] && QBT_STOPPED.includes(q.torrents[hash].state));
+  if (q.held.length && !stillHeld.length) { q.held = []; saveHeld(client); }
+  const paused = stillHeld.length > 0;
   return {
-    version: '', paused, speed, left,
+    version: '', paused, speed, left, canPause: paused || q.runnable.length > 0,
     eta: speed > 0 && left > 0 ? Math.round(left / speed) : null,
-    total: items.length, items: items.slice(0, MAX_ITEMS), finished, seeding: seeding.length, seedingItems,
+    total: items.length, items: items.slice(0, MAX_ITEMS), finished,
+    seeding: seeding.filter(([, t]) => !QBT_STOPPED.includes(t.state)).length, seedingItems,
     upload: number(q.server.up_info_speed),
     offline: q.server.connection_status === 'disconnected',
   };
@@ -258,6 +272,10 @@ function save(client) {
 }
 
 function restore(client) {
+  if (client.type === 'qbittorrent') {
+    const held = dashledge.storage.get(heldKey(client));
+    if (Array.isArray(held)) client.qbt.held = held.filter(hash => typeof hash === 'string').slice(0, 5000);
+  }
   const saved = dashledge.storage.get('c:' + client.type + ':' + client.base);
   if (saved && saved.reading && typeof saved.at === 'number') {
     client.reading = saved.reading; client.at = saved.at; client.restored = true;
@@ -312,8 +330,24 @@ async function act(verb, args) {
       ? await rpc(client, 'editqueue', [verb === 'pause' ? 'GroupPause' : 'GroupResume', '', [Number(item)]])
       : await rpc(client, verb === 'pause' ? 'pausedownload' : 'resumedownload');
     if (done === false) throw new Error('NZBGet didn’t ' + verb + ' it');
+  } else if (item) {
+    await qbtAll(client, verb, item);
+    if (verb === 'resume' && client.qbt.held.includes(item)) {
+      client.qbt.held = client.qbt.held.filter(hash => hash !== item);
+      saveHeld(client);
+    }
+  } else if (verb === 'pause') {
+    const hashes = client.qbt.runnable.slice();
+    if (!hashes.length) throw new Error('Nothing is downloading in qBittorrent');
+    await qbtAll(client, 'pause', hashes.join('|'));
+    client.qbt.held = [...new Set(client.qbt.held.concat(hashes))];
+    saveHeld(client);
   } else {
-    await qbtAll(client, verb, item || 'all');
+    const hashes = client.qbt.held.filter(hash => client.qbt.torrents[hash]);
+    if (!hashes.length) throw new Error('Nothing here was paused from Dashledge');
+    await qbtAll(client, 'resume', hashes.join('|'));
+    client.qbt.held = [];
+    saveHeld(client);
   }
   await poll(client);
   return {ok: true};

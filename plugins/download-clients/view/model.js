@@ -88,7 +88,9 @@
     const views = clients.map(c => {
       const state = clientState(c, now);
       return {i: c.i, type: c.type, label: c.label, name: c.name || c.host || c.label,
-        state, note: clientNote(c, state, now), paused: !!c.reading?.paused, canPause: !!c.reading && state !== 'failed'};
+        state, note: clientNote(c, state, now), paused: !!c.reading?.paused,
+        // qBittorrent offers Pause only while something downloads, and Resume only for what it paused.
+        canPause: !!c.reading && state !== 'failed' && c.reading.canPause !== false};
     });
     const usable = clients.filter(c => c.reading);
     if (!clients.length) return {status: 'loading', clients: views, items: [], finished: []};

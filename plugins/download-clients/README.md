@@ -40,6 +40,7 @@ The full Edge sets the reading and clients, the queue, and the finished list sid
 | Up to 4 connections per placement | Several clients in one placement. |
 | Connector, no other hosts | It reads only your clients' addresses: SABnzbd `api?mode=queue` and `mode=history`; NZBGet `status`, `listgroups` and `history`; qBittorrent `api/v2/sync/maindata`. |
 | Commands `pause` and `resume` | The view's pause and resume buttons, for a whole client or one download: SABnzbd `mode=pause`, `mode=resume` and `mode=queue&name=pause`/`resume`; NZBGet `pausedownload`, `resumedownload` and `editqueue` `GroupPause`/`GroupResume`; qBittorrent `torrents/stop` and `start`, or `pause` and `resume` before qBittorrent 5. It never deletes a download or changes a setting. |
+| qBittorrent's client **Pause** | qBittorrent has no pause for the whole client. Pause stops the torrents that are downloading at that moment and remembers which, and **Resume** starts exactly those again. Seeders and torrents you stopped yourself are never touched. The button offers Pause only while something downloads. |
 | Command `refresh` | **Retry**: read one client, or all of them, again now. |
 | `settings` | Each placement keeps its own two switches. |
 | `ui` | Dashledge's look: its tokens, reading, panel, list, button and state styles. |
@@ -48,7 +49,12 @@ It never reads a route that returns a client's own settings (SABnzbd `get_config
 
 ## How it reads
 
-The connector reads every client every 3 seconds, and SABnzbd and NZBGet history every 30. qBittorrent is read with `sync/maindata`, which sends only what changed since the last read, so a large seeding library stays cheap. Each client's last good reading is stored once a minute, so a restart shows it at once, marked stale until the client answers.
+The connector reads every client every 3 seconds, and SABnzbd and NZBGet history every 30. qBittorrent is read with `sync/maindata`: the first reply carries every torrent, and later ones only what changed. Dashledge caps a reply at 8 MiB, so a qBittorrent with many thousands of torrents may fail its first read; it shows that error and keeps trying. Each client's last good reading is stored once a minute, so a restart shows it at once, marked stale until the client answers.
+
+## Limits
+
+- A placement shows the connection you choose plus your other saved Downloads connections, up to four. It can't yet show only some of them.
+- Each client is named by its connection's name, else its address. With several clients in one placement there is no single server name to show.
 
 ## Changes
 
