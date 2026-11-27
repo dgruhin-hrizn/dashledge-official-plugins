@@ -199,7 +199,9 @@
     const stale = [q, c].find(s => s.stale || s.kind === 'failed');
     if (stale) {
       const at = Math.max(data?.queue?.at || 0, data?.calendar?.at || 0);
-      return {kind: 'stale', label: at ? 'Updated ' + ageLabel(at, now) : 'Unavailable', note: stale.note || stale.error || '', auth: Boolean(stale.auth)};
+      const age = at ? ageLabel(at, now) : '';
+      return {kind: 'stale', label: at ? 'Updated ' + age : 'Unavailable', short: age ? age[0].toUpperCase() + age.slice(1) : 'Offline',
+        note: stale.note || stale.error || '', auth: Boolean(stale.auth)};
     }
     const busy = (data?.queue?.items || []).some(i => i.status === 'downloading');
     return {kind: busy ? 'live' : 'idle', label: busy ? 'Live' : 'Up to date', note: ''};

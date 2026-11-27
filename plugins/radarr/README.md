@@ -46,7 +46,7 @@ In Widget Studio, add a connection with your **Radarr URL**, such as `http://rad
 | Connector, no other hosts | It reads three routes, all read-only. `api/v3/system/status` gives the server's name, every 10 minutes. `api/v3/queue` gives the queue: every 5 seconds while something downloads, else every 30. `api/v3/calendar` gives releases from 14 days back to 61 ahead, every 15 minutes. It reaches nothing but your Radarr, and never the routes that return settings or keys. |
 | Command `refresh` | **Retry**: reads all three routes again now. |
 | Command `search` | **Search** on a missing movie. It sends Radarr's `MoviesSearch` command (`POST api/v3/command`) for that movie only. The connector refuses any movie that isn't monitored, released and missing, and repeats a search at most every 2 minutes. |
-| `images` for `api/v3/mediacover/*/*` | Posters and fanart, from Radarr's own resized copies (`poster-500.jpg`, `poster-250.jpg`, `fanart-360.jpg`), else the originals. Only artwork Radarr says it has is asked for. |
+| `images` for `api/v3/mediacover/*/*` | Posters and fanart, from Radarr's own resized copies (`poster-500.jpg`, `fanart-360.jpg`), else the originals. Only artwork Radarr says it has is asked for. |
 | `settings` | Each placement keeps its own days ahead, release dates and first pane. |
 | `ui` | Dashledge's look: its tokens, panels, rows, buttons and state styles. |
 

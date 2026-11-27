@@ -287,11 +287,11 @@ test('the header’s status chip: connecting, live, idle and stale', async () =>
   await idle.settle();
   assert.deepEqual(M.freshness(idle.last(), START), {kind: 'idle', label: 'Up to date', note: ''});
   assert.deepEqual(M.freshness(c.last(), START + 5 * 60 * 1000),
-    {kind: 'stale', label: 'Updated 5 min ago', note: 'Last updated 5 min ago', auth: false}, 'an old queue is stale');
+    {kind: 'stale', label: 'Updated 5 min ago', short: '5 min ago', note: 'Last updated 5 min ago', auth: false}, 'an old queue is stale');
   const refused = start({respond: radarr({queue: {status: 401}})});
   await refused.settle();
   assert.deepEqual(M.freshness(refused.last(), START),
-    {kind: 'stale', label: 'Updated just now', note: 'Radarr refused the API key (HTTP 401).', auth: true});
+    {kind: 'stale', label: 'Updated just now', short: 'Just now', note: 'Radarr refused the API key (HTTP 401).', auth: true});
 });
 
 test('Coming up: missing first, then each movie at its next chosen release within the days asked', async () => {

@@ -10,8 +10,8 @@
   let data = null, stopped = '', prefs = M.settings(D.settings.values), shown = '', chosen = false;
 
   // ---- Artwork: one request per movie and kind, cached. Radarr keeps resized copies
-  // (poster-500, poster-250, fanart-360) beside the originals; fall back to those.
-  const ART = {poster: ['poster-500.jpg', 'poster.jpg'], thumb: ['poster-250.jpg', 'poster.jpg'], fanart: ['fanart-360.jpg', 'fanart.jpg']};
+  // (poster-500, fanart-360) beside the originals; fall back to those.
+  const ART = {poster: ['poster-500.jpg', 'poster.jpg'], fanart: ['fanart-360.jpg', 'fanart.jpg']};
   const cache = new Map();
   function art(movieId, kind) {
     const key = kind + ':' + movieId;
@@ -68,7 +68,7 @@
   function fillCard(card, row) {
     card.dataset.tone = row.tone;
     paint(card.querySelector('.backdrop'), row.movieId, 'fanart', row.fanart, '');
-    paint(card.querySelector('.sleeve'), row.movieId, 'thumb', row.poster, row.title);
+    paint(card.querySelector('.sleeve'), row.movieId, 'poster', row.poster, row.title);
     set(card.querySelector('.eyebrow'), row.phase);
     set(card.querySelector('.title'), row.title);
     set(card.querySelector('.meta'), row.meta);
@@ -178,7 +178,7 @@
       const next = M.nextRelease(upcoming, today);
       const idle = $('queueIdle');
       paint(idle.querySelector('.backdrop'), next?.movieId, 'fanart', next?.fanart, '');
-      paint(idle.querySelector('.sleeve'), next?.movieId, 'thumb', next?.poster, next?.title || 'R');
+      paint(idle.querySelector('.sleeve'), next?.movieId, 'poster', next?.poster, next?.title || 'R');
       idle.querySelector('.sleeve').hidden = !next;
       set($('idleTitle'), next ? next.title : 'All caught up');
       set($('idleMeta'), next ? 'Next up · ' + next.typeLabel + ' · ' + next.chip : 'Radarr’s queue is empty.');
@@ -203,6 +203,7 @@
     const status = $('status');
     status.dataset.kind = data?.connected === false ? 'loading' : f.kind;
     set($('statusText'), data?.connected === false ? 'Not set up' : f.label);
+    set($('statusShort'), f.short || '');
     status.title = f.note;
     $('statusRetry').hidden = f.kind !== 'stale';
     const stats = data?.queue?.at ? M.queueStats(data.queue.items, data.queue.total) : [];
@@ -287,6 +288,10 @@
     cards.dataset.more = String(cards.scrollWidth - cards.scrollLeft > cards.clientWidth + 2);
   }, {passive: true});
   window.addEventListener('resize', draw);
+  // Where the chip has no room for its own Retry, the stale chip itself retries.
+  $('status').addEventListener('click', event => {
+    if ($('status').dataset.kind === 'stale' && !event.target.closest('button')) retry();
+  });
   for (const tab of [$('tabQueue'), $('tabUpcoming')]) tab.addEventListener('click', () => { chosen = true; select(tab.dataset.pane); });
   document.addEventListener('click', event => {
     const target = event.target.closest('button');

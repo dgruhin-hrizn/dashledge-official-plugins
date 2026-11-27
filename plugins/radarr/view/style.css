@@ -6,7 +6,12 @@
   --s:var(--dl-scale);
   --brand:#ffc230;
   --glass:color-mix(in srgb,var(--dl-bg) 72%,transparent);
-  --line:#ffffff1f;
+  --line:color-mix(in srgb,var(--dl-text) 12%,transparent);
+  --well:color-mix(in srgb,var(--dl-text) 14%,transparent);
+  --scrim:color-mix(in srgb,var(--dl-bg) 86%,transparent);
+  --scrim-soft:color-mix(in srgb,var(--dl-bg) 55%,transparent);
+  --scrim-deep:color-mix(in srgb,var(--dl-bg) 96%,transparent);
+  --on-fill:var(--dl-bg);
   --warn:#f5c86a;
   --wash:color-mix(in srgb,var(--dl-accent) 16%,transparent);
   --radius-lg:calc(16px*var(--s));
@@ -36,19 +41,20 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .stats span+span::before{content:"";width:calc(4px*var(--s));height:calc(4px*var(--s));border-radius:50%;background:var(--dl-sub);opacity:.6}
 .stats span:first-child{color:var(--dl-text);font-weight:600}
 .stats [data-tone=warning]{color:var(--warn)}
-.status{display:flex;align-items:center;gap:calc(9px*var(--s));flex:none;height:calc(44px*var(--s));padding:0 calc(16px*var(--s));box-sizing:border-box;border:1px solid var(--line);border-radius:999px;color:var(--dl-sub);font-size:calc(18px*var(--s));font-weight:620;white-space:nowrap}
+.status{display:flex;align-items:center;gap:calc(9px*var(--s));flex:none;min-height:var(--dl-tap);padding:0 calc(16px*var(--s));box-sizing:border-box;border:1px solid var(--line);border-radius:999px;color:var(--dl-sub);font-size:calc(18px*var(--s));font-weight:620;white-space:nowrap}
 .status:has(.retry:not([hidden])){padding-right:calc(5px*var(--s))}
+.status-short{display:none}
 .status .dot{width:calc(10px*var(--s));height:calc(10px*var(--s));border-radius:50%;background:currentColor;flex:none}
 .status[data-kind=live]{color:var(--dl-accent);background:var(--wash);border-color:transparent}
 .status[data-kind=live] .dot{box-shadow:0 0 0 calc(4px*var(--s)) var(--wash)}
 .status[data-kind=idle]{color:var(--dl-text)}
 .status[data-kind=idle] .dot{background:none;box-shadow:inset 0 0 0 calc(2px*var(--s)) var(--dl-accent)}
 .status[data-kind=stale]{color:var(--warn)}
-.status .retry{min-height:calc(34px*var(--s));min-width:0;padding:0 calc(12px*var(--s));border-radius:999px;font-size:calc(16px*var(--s))}
+.status .retry{min-height:var(--dl-tap);min-width:0;padding:0 calc(12px*var(--s));border-radius:999px;font-size:calc(16px*var(--s))}
 /* The tabs show only where one pane fits at a time. */
 .tabs{display:none;gap:calc(3px*var(--s));padding:calc(3px*var(--s));border:1px solid var(--line);border-radius:calc(12px*var(--s));background:var(--glass)}
 .tab{display:inline-flex;align-items:center;gap:.45em;min-height:var(--dl-tap);padding:0 calc(16px*var(--s));border:0;border-radius:calc(9px*var(--s));background:none;color:var(--dl-sub);font-size:calc(18px*var(--s));font-weight:650;white-space:nowrap;cursor:pointer}
-.tab[aria-pressed=true]{color:var(--dl-text);background:color-mix(in srgb,var(--dl-accent) 22%,#202528)}
+.tab[aria-pressed=true]{color:var(--dl-text);background:color-mix(in srgb,var(--dl-accent) 22%,var(--dl-panel))}
 .tab:focus-visible{outline:2px solid var(--dl-accent);outline-offset:-2px}
 .tab .count{color:var(--dl-accent);font-variant-numeric:tabular-nums}
 .tab .count:empty{display:none}
@@ -70,18 +76,18 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .cards[data-more=true]{mask-image:linear-gradient(90deg,#000 calc(100% - calc(60px*var(--s))),transparent)}
 /* Cards share the width up to three at a time, but never shrink below a readable card. */
 .cards{--min-card:calc(380px*var(--s));display:grid;grid-auto-flow:column;grid-auto-columns:max(min(100%,var(--min-card)),calc((100% - (var(--cols,1) - 1)*var(--dl-gap))/var(--cols,1)));gap:var(--dl-gap);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;touch-action:pan-x;min-height:0}
-.card{position:relative;isolation:isolate;display:grid;grid-template-rows:minmax(0,1fr) auto;min-width:0;min-height:0;margin:0;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-lg);background:linear-gradient(140deg,#1f2524,#121615);box-shadow:0 calc(8px*var(--s)) calc(24px*var(--s)) #0006,inset 0 1px 0 #ffffff12;scroll-snap-align:start}
+.card{position:relative;isolation:isolate;display:grid;grid-template-rows:minmax(0,1fr) auto;min-width:0;min-height:0;margin:0;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-lg);background:linear-gradient(140deg,var(--dl-panel),var(--dl-bg));box-shadow:0 calc(8px*var(--s)) calc(24px*var(--s)) #0006,inset 0 1px 0 var(--line);scroll-snap-align:start}
 .backdrop{position:absolute;inset:0;z-index:-2;overflow:hidden}
 .backdrop img{width:100%;height:100%;object-fit:cover;object-position:center 30%;opacity:0;transform:scale(1.04);transition:opacity .6s ease,transform 1.2s ease}
 .backdrop.loaded img{opacity:.6;transform:none}
-.card::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(100deg,#0b0f0fd9 0%,#0b0f0f8c 48%,#0b0f0fd1 100%),linear-gradient(0deg,#0a0d0df5 0%,#0a0d0d00 52%)}
+.card::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(100deg,var(--scrim) 0%,var(--scrim-soft) 48%,var(--scrim) 100%),linear-gradient(0deg,var(--scrim-deep) 0%,transparent 52%)}
 .film{display:grid;grid-template-columns:minmax(0,43fr) minmax(0,57fr);gap:calc(18px*var(--s));min-height:0;padding:calc(16px*var(--s)) calc(18px*var(--s)) calc(6px*var(--s))}
 .sleeve{container-type:size;min-width:0;min-height:0;display:grid;align-items:center;justify-items:start}
 .sleeve>*{grid-area:1/1}
 .sleeve img,.sleeve .ph{width:min(100cqw,calc(100cqh*2/3));aspect-ratio:2/3;height:auto;border-radius:var(--radius-md)}
 .sleeve img{object-fit:cover;opacity:0;box-shadow:0 calc(8px*var(--s)) calc(22px*var(--s)) #000a;transition:opacity .4s ease}
 .sleeve.loaded img{opacity:1}
-.ph{display:grid;place-items:center;background:linear-gradient(150deg,#333a38,#1a1f1e);color:#ffffff66;font-size:calc(34px*var(--s));font-weight:700;border:1px solid var(--line);box-sizing:border-box}
+.ph{display:grid;place-items:center;background:linear-gradient(150deg,var(--dl-border),var(--dl-panel));color:var(--dl-sub);font-size:calc(34px*var(--s));font-weight:700;border:1px solid var(--line);box-sizing:border-box}
 .copy{display:grid;align-content:center;gap:calc(8px*var(--s));min-width:0}
 .copy p,.copy h3{margin:0}
 .eyebrow{font-size:var(--dl-small);font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--dl-sub)}
@@ -95,7 +101,7 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .note:empty,.meta:empty{display:none}
 /* The rail: progress, then what's done and what's left; the percent is the reading. */
 .rail{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:calc(16px*var(--s));row-gap:calc(6px*var(--s));align-items:end;padding:calc(4px*var(--s)) calc(18px*var(--s)) calc(14px*var(--s))}
-.track{grid-area:1/1;align-self:center;display:block;height:calc(8px*var(--s));border-radius:999px;background:#ffffff24;overflow:hidden;box-shadow:inset 0 1px calc(2px*var(--s)) #0008}
+.track{grid-area:1/1;align-self:center;display:block;height:calc(8px*var(--s));border-radius:999px;background:var(--well);overflow:hidden;box-shadow:inset 0 1px calc(2px*var(--s)) #0008}
 .track i{display:block;height:100%;width:0;border-radius:inherit;background:var(--dl-accent);box-shadow:0 0 calc(12px*var(--s)) color-mix(in srgb,var(--dl-accent) 70%,transparent);transition:width .8s ease-out}
 .card[data-tone=warning] .track i{background:var(--warn);box-shadow:none}
 .card[data-tone=failed] .track i{background:var(--dl-danger);box-shadow:none}
@@ -120,22 +126,22 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .art>.ph{position:absolute;inset:0;border:0;border-radius:inherit;font-size:calc(54px*var(--s))}
 .art>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s ease}
 .art.loaded>img{opacity:1}
-.art::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#0009 0%,#0000 26%,#0000 58%,#000c 100%)}
+.art::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,var(--scrim-soft) 0%,transparent 26%,transparent 58%,var(--scrim) 100%)}
 .chip,.badge,.type,.mini,.art .search{position:absolute;z-index:1}
-.chip{top:calc(10px*var(--s));left:calc(10px*var(--s));max-width:calc(100% - calc(20px*var(--s)));box-sizing:border-box;padding:calc(4px*var(--s)) calc(11px*var(--s));border-radius:999px;background:#0b0f0fb8;border:1px solid #ffffff2e;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:calc(17px*var(--s));font-weight:700;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
-.tile[data-soon=true] .chip{background:var(--dl-accent);border-color:transparent;color:#121212}
-.tile[data-state=missing] .chip{background:var(--dl-danger);border-color:transparent;color:#1c0d0a}
+.chip{top:calc(10px*var(--s));left:calc(10px*var(--s));max-width:calc(100% - calc(20px*var(--s)));box-sizing:border-box;padding:calc(4px*var(--s)) calc(11px*var(--s));border-radius:999px;background:var(--glass);border:1px solid var(--line);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:calc(17px*var(--s));font-weight:700;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.tile[data-soon=true] .chip{background:var(--dl-accent);border-color:transparent;color:var(--on-fill)}
+.tile[data-state=missing] .chip{background:var(--dl-danger);border-color:transparent;color:var(--on-fill)}
 .tile[data-state=queued] .chip{background:var(--wash);border-color:var(--dl-accent);color:var(--dl-accent)}
 .tile[data-state=searching] .chip{background:var(--wash);border-color:var(--dl-accent);color:var(--dl-accent)}
-.badge{top:calc(10px*var(--s));right:calc(10px*var(--s));display:grid;place-items:center;min-width:calc(32px*var(--s));height:calc(32px*var(--s));padding:0 calc(8px*var(--s));box-sizing:border-box;border-radius:999px;background:#0b0f0fc4;border:1px solid #ffffff2e;font-size:calc(16px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
-.tile[data-state=downloaded] .badge{background:color-mix(in srgb,var(--dl-accent) 85%,#000);color:#121212;border-color:transparent}
+.badge{top:calc(10px*var(--s));right:calc(10px*var(--s));display:grid;place-items:center;min-width:calc(32px*var(--s));height:calc(32px*var(--s));padding:0 calc(8px*var(--s));box-sizing:border-box;border-radius:999px;background:var(--glass);border:1px solid var(--line);font-size:calc(16px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
+.tile[data-state=downloaded] .badge{background:var(--dl-accent);color:var(--on-fill);border-color:transparent}
 .tile[data-state=downloaded] .art>img{filter:saturate(.75) brightness(.8)}
-.type{left:calc(10px*var(--s));bottom:calc(10px*var(--s));display:inline-flex;align-items:center;gap:calc(6px*var(--s));color:#fff;font-size:var(--dl-small);font-weight:650;text-shadow:0 1px calc(4px*var(--s)) #000}
+.type{left:calc(10px*var(--s));bottom:calc(10px*var(--s));display:inline-flex;align-items:center;gap:calc(6px*var(--s));color:var(--dl-text);font-size:var(--dl-small);font-weight:650;text-shadow:0 1px calc(4px*var(--s)) #000}
 .type svg{width:calc(20px*var(--s));height:calc(20px*var(--s));fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px calc(3px*var(--s)) #000)}
-.mini{left:0;right:0;bottom:0;height:calc(6px*var(--s));background:#ffffff30}
+.mini{left:0;right:0;bottom:0;height:calc(6px*var(--s));background:var(--well)}
 .mini i{display:block;height:100%;width:0;background:var(--dl-accent);box-shadow:0 0 calc(10px*var(--s)) var(--dl-accent);transition:width .8s ease-out}
 .tile:has(.mini:not([hidden])) .type{bottom:calc(16px*var(--s))}
-.art .search{right:calc(8px*var(--s));bottom:calc(8px*var(--s));min-height:var(--dl-tap);padding:0 calc(16px*var(--s));border:0;border-radius:999px;background:var(--dl-accent);color:#121212;font-weight:700;font-size:calc(18px*var(--s));box-shadow:0 calc(4px*var(--s)) calc(12px*var(--s)) #0008}
+.art .search{right:calc(8px*var(--s));bottom:calc(8px*var(--s));min-height:var(--dl-tap);padding:0 calc(16px*var(--s));border:0;border-radius:999px;background:var(--dl-accent);color:var(--on-fill);font-weight:700;font-size:calc(18px*var(--s));box-shadow:0 calc(4px*var(--s)) calc(12px*var(--s)) #0008}
 .art .search:disabled{opacity:.6}
 .tile:has(.search) .type span{display:none}
 .name{display:flex;align-items:baseline;gap:.35em;font-size:calc(20px*var(--s));white-space:nowrap;overflow:hidden}
@@ -164,7 +170,16 @@ button{font:inherit;color:inherit;touch-action:manipulation}
   .pane-head{display:none}
   .pane>*{grid-row:1!important}
   .status .status-text{display:none}
+  /* Stale data keeps its age on screen, even here, in short. */
+  .status[data-kind=stale] .status-short{display:inline}
   .status{padding:0 calc(14px*var(--s))}
+  .tabs{flex:0 1 auto;min-width:0}
+  .tab{min-width:0;overflow:hidden}
+}
+/* No room for the Retry pill beside the tabs: the stale chip itself retries. */
+@media (max-width:760px){
+  .status .retry{display:none}
+  .status:has(.retry:not([hidden])){padding:0 calc(12px*var(--s));cursor:pointer}
 }
 /* Taller than wide-ish: cards stack and posters wrap, scrolling down. */
 @media (max-width:999px) and (max-aspect-ratio:4/3){
@@ -192,11 +207,9 @@ button{font:inherit;color:inherit;touch-action:manipulation}
   .meta,.name .year{display:none}
   .top{gap:calc(8px*var(--s))}
   .tabs{flex:1 1 auto;min-width:0}
-  .tabs .tab{flex:1;justify-content:center;padding:0 calc(6px*var(--s));font-size:calc(16px*var(--s))}
-  .status{padding:0 calc(10px*var(--s))}
-  /* Stale: the chip becomes its Retry button. */
-  .status:has(.retry:not([hidden])){padding:0;border:0}
-  .status:has(.retry:not([hidden])) .dot{display:none}
+  .tabs .tab{flex:1 1 auto;justify-content:center;padding:0 calc(6px*var(--s));font-size:calc(16px*var(--s))}
+  .status,.status:has(.retry:not([hidden])){gap:calc(6px*var(--s));padding:0 calc(8px*var(--s));font-size:calc(15px*var(--s))}
+  .tab .count{display:none}
   .mark{display:none}
 }
 /* Short: a slimmer header, one caption line under posters, and tighter cards. */
