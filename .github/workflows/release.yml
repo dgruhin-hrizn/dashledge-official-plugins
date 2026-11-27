@@ -11,7 +11,7 @@ permissions:
 
 env:
   # The Dashledge source dashledge-package is built from.
-  DASHLEDGE_REF: feat/package-pack
+  DASHLEDGE_REF: main
 
 jobs:
   release:
