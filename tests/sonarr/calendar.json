@@ -1,0 +1,807 @@
+[
+  {
+    "seriesId": 103,
+    "tvdbId": 7005009,
+    "episodeFileId": 0,
+    "seasonNumber": 2,
+    "episodeNumber": 9,
+    "title": "Ebb",
+    "airDate": "2026-11-26",
+    "airDateUtc": "2026-11-26T22:00:00Z",
+    "runtime": 45,
+    "overview": "An invented episode.",
+    "hasFile": false,
+    "monitored": true,
+    "unverifiedSceneNumbering": false,
+    "id": 5009,
+    "series": {
+      "title": "Saltmarsh",
+      "sortTitle": "saltmarsh",
+      "status": "continuing",
+      "ended": false,
+      "overview": "An invented series used in Dashledge’s tests.",
+      "network": "Northcoast TV",
+      "airTime": "12:30",
+      "images": [
+        {
+          "coverType": "banner",
+          "url": "/MediaCover/103/banner.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/banners/900103.jpg"
+        },
+        {
+          "coverType": "poster",
+          "url": "/MediaCover/103/poster.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/posters/900103.jpg"
+        },
+        {
+          "coverType": "fanart",
+          "url": "/MediaCover/103/fanart.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/fanart/900103.jpg"
+        }
+      ],
+      "originalLanguage": {
+        "id": 1,
+        "name": "English"
+      },
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 2,
+          "monitored": true
+        }
+      ],
+      "year": 2024,
+      "path": "/tv/Saltmarsh",
+      "qualityProfileId": 4,
+      "seasonFolder": true,
+      "monitored": true,
+      "monitorNewItems": "all",
+      "useSceneNumbering": false,
+      "runtime": 45,
+      "tvdbId": 900103,
+      "tvRageId": 0,
+      "tvMazeId": 100103,
+      "tmdbId": 200103,
+      "firstAired": "2024-01-15T00:00:00Z",
+      "seriesType": "standard",
+      "cleanTitle": "saltmarsh",
+      "imdbId": "tt9900103",
+      "titleSlug": "saltmarsh",
+      "rootFolderPath": "/tv/",
+      "certification": "TV-14",
+      "genres": [
+        "Crime",
+        "Drama"
+      ],
+      "tags": [],
+      "added": "2026-01-20T18:04:11Z",
+      "ratings": {
+        "votes": 1200,
+        "value": 7.9
+      },
+      "languageProfileId": 1,
+      "id": 103
+    },
+    "images": []
+  },
+  {
+    "seriesId": 101,
+    "tvdbId": 7005001,
+    "episodeFileId": 45001,
+    "seasonNumber": 3,
+    "episodeNumber": 7,
+    "title": "The Quiet Beam",
+    "airDate": "2026-11-27",
+    "airDateUtc": "2026-11-27T02:00:00Z",
+    "lastSearchTime": "2026-11-27T02:41:00Z",
+    "runtime": 52,
+    "overview": "An invented episode.",
+    "hasFile": true,
+    "monitored": true,
+    "unverifiedSceneNumbering": false,
+    "id": 5001,
+    "series": {
+      "title": "The Lantern Keepers",
+      "sortTitle": "lantern keepers",
+      "status": "continuing",
+      "ended": false,
+      "overview": "An invented series used in Dashledge’s tests.",
+      "network": "Harbor One",
+      "airTime": "21:00",
+      "images": [
+        {
+          "coverType": "banner",
+          "url": "/MediaCover/101/banner.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/banners/900101.jpg"
+        },
+        {
+          "coverType": "poster",
+          "url": "/MediaCover/101/poster.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/posters/900101.jpg"
+        },
+        {
+          "coverType": "fanart",
+          "url": "/MediaCover/101/fanart.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/fanart/900101.jpg"
+        }
+      ],
+      "originalLanguage": {
+        "id": 1,
+        "name": "English"
+      },
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 2,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 3,
+          "monitored": true
+        }
+      ],
+      "year": 2023,
+      "path": "/tv/The Lantern Keepers",
+      "qualityProfileId": 4,
+      "seasonFolder": true,
+      "monitored": true,
+      "monitorNewItems": "all",
+      "useSceneNumbering": false,
+      "runtime": 52,
+      "tvdbId": 900101,
+      "tvRageId": 0,
+      "tvMazeId": 100101,
+      "tmdbId": 200101,
+      "firstAired": "2023-01-15T00:00:00Z",
+      "seriesType": "standard",
+      "cleanTitle": "thelanternkeepers",
+      "imdbId": "tt9900101",
+      "titleSlug": "the-lantern-keepers",
+      "rootFolderPath": "/tv/",
+      "certification": "TV-14",
+      "genres": [
+        "Drama",
+        "Mystery"
+      ],
+      "tags": [],
+      "added": "2026-01-20T18:04:11Z",
+      "ratings": {
+        "votes": 1200,
+        "value": 7.9
+      },
+      "languageProfileId": 1,
+      "id": 101
+    },
+    "images": []
+  },
+  {
+    "seriesId": 102,
+    "tvdbId": 7005002,
+    "episodeFileId": 0,
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Docking Fees",
+    "airDate": "2026-11-27",
+    "airDateUtc": "2026-11-27T14:00:00Z",
+    "runtime": 28,
+    "overview": "An invented episode.",
+    "hasFile": false,
+    "monitored": true,
+    "unverifiedSceneNumbering": false,
+    "id": 5002,
+    "series": {
+      "title": "Orbit Street",
+      "sortTitle": "orbit street",
+      "status": "continuing",
+      "ended": false,
+      "overview": "An invented series used in Dashledge’s tests.",
+      "network": "Streamline",
+      "airTime": "09:00",
+      "images": [
+        {
+          "coverType": "banner",
+          "url": "/MediaCover/102/banner.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/banners/900102.jpg"
+        },
+        {
+          "coverType": "poster",
+          "url": "/MediaCover/102/poster.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/posters/900102.jpg"
+        },
+        {
+          "coverType": "fanart",
+          "url": "/MediaCover/102/fanart.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/fanart/900102.jpg"
+        }
+      ],
+      "originalLanguage": {
+        "id": 1,
+        "name": "English"
+      },
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "monitored": true
+        }
+      ],
+      "year": 2026,
+      "path": "/tv/Orbit Street",
+      "qualityProfileId": 4,
+      "seasonFolder": true,
+      "monitored": true,
+      "monitorNewItems": "all",
+      "useSceneNumbering": false,
+      "runtime": 28,
+      "tvdbId": 900102,
+      "tvRageId": 0,
+      "tvMazeId": 100102,
+      "tmdbId": 200102,
+      "firstAired": "2026-01-15T00:00:00Z",
+      "seriesType": "standard",
+      "cleanTitle": "orbitstreet",
+      "imdbId": "tt9900102",
+      "titleSlug": "orbit-street",
+      "rootFolderPath": "/tv/",
+      "certification": "TV-14",
+      "genres": [
+        "Comedy",
+        "Science Fiction"
+      ],
+      "tags": [],
+      "added": "2026-01-20T18:04:11Z",
+      "ratings": {
+        "votes": 1200,
+        "value": 7.9
+      },
+      "languageProfileId": 1,
+      "id": 102
+    },
+    "images": []
+  },
+  {
+    "seriesId": 103,
+    "tvdbId": 7005003,
+    "episodeFileId": 0,
+    "seasonNumber": 2,
+    "episodeNumber": 10,
+    "title": "High Water",
+    "airDate": "2026-11-27",
+    "airDateUtc": "2026-11-27T17:30:00Z",
+    "runtime": 45,
+    "overview": "An invented episode.",
+    "hasFile": false,
+    "monitored": true,
+    "unverifiedSceneNumbering": false,
+    "id": 5003,
+    "series": {
+      "title": "Saltmarsh",
+      "sortTitle": "saltmarsh",
+      "status": "continuing",
+      "ended": false,
+      "overview": "An invented series used in Dashledge’s tests.",
+      "network": "Northcoast TV",
+      "airTime": "12:30",
+      "images": [
+        {
+          "coverType": "banner",
+          "url": "/MediaCover/103/banner.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/banners/900103.jpg"
+        },
+        {
+          "coverType": "poster",
+          "url": "/MediaCover/103/poster.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/posters/900103.jpg"
+        },
+        {
+          "coverType": "fanart",
+          "url": "/MediaCover/103/fanart.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/fanart/900103.jpg"
+        }
+      ],
+      "originalLanguage": {
+        "id": 1,
+        "name": "English"
+      },
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 2,
+          "monitored": true
+        }
+      ],
+      "year": 2024,
+      "path": "/tv/Saltmarsh",
+      "qualityProfileId": 4,
+      "seasonFolder": true,
+      "monitored": true,
+      "monitorNewItems": "all",
+      "useSceneNumbering": false,
+      "runtime": 45,
+      "tvdbId": 900103,
+      "tvRageId": 0,
+      "tvMazeId": 100103,
+      "tmdbId": 200103,
+      "firstAired": "2024-01-15T00:00:00Z",
+      "seriesType": "standard",
+      "cleanTitle": "saltmarsh",
+      "imdbId": "tt9900103",
+      "titleSlug": "saltmarsh",
+      "rootFolderPath": "/tv/",
+      "certification": "TV-14",
+      "genres": [
+        "Crime",
+        "Drama"
+      ],
+      "tags": [],
+      "added": "2026-01-20T18:04:11Z",
+      "ratings": {
+        "votes": 1200,
+        "value": 7.9
+      },
+      "languageProfileId": 1,
+      "id": 103
+    },
+    "images": []
+  },
+  {
+    "seriesId": 104,
+    "tvdbId": 7005004,
+    "episodeFileId": 0,
+    "seasonNumber": 5,
+    "episodeNumber": 1,
+    "title": "Opening Balance",
+    "airDate": "2026-11-28",
+    "airDateUtc": "2026-11-28T01:00:00Z",
+    "runtime": 60,
+    "overview": "An invented episode.",
+    "hasFile": false,
+    "monitored": true,
+    "unverifiedSceneNumbering": false,
+    "id": 5004,
+    "series": {
+      "title": "Northern Ledger",
+      "sortTitle": "northern ledger",
+      "status": "continuing",
+      "ended": false,
+      "overview": "An invented series used in Dashledge’s tests.",
+      "network": "Meridian",
+      "airTime": "20:00",
+      "images": [
+        {
+          "coverType": "banner",
+          "url": "/MediaCover/104/banner.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/banners/900104.jpg"
+        },
+        {
+          "coverType": "poster",
+          "url": "/MediaCover/104/poster.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/posters/900104.jpg"
+        },
+        {
+          "coverType": "fanart",
+          "url": "/MediaCover/104/fanart.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/fanart/900104.jpg"
+        }
+      ],
+      "originalLanguage": {
+        "id": 1,
+        "name": "English"
+      },
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 2,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 3,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 4,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 5,
+          "monitored": true
+        }
+      ],
+      "year": 2020,
+      "path": "/tv/Northern Ledger",
+      "qualityProfileId": 4,
+      "seasonFolder": true,
+      "monitored": true,
+      "monitorNewItems": "all",
+      "useSceneNumbering": false,
+      "runtime": 60,
+      "tvdbId": 900104,
+      "tvRageId": 0,
+      "tvMazeId": 100104,
+      "tmdbId": 200104,
+      "firstAired": "2020-01-15T00:00:00Z",
+      "seriesType": "standard",
+      "cleanTitle": "northernledger",
+      "imdbId": "tt9900104",
+      "titleSlug": "northern-ledger",
+      "rootFolderPath": "/tv/",
+      "certification": "TV-14",
+      "genres": [
+        "Drama"
+      ],
+      "tags": [],
+      "added": "2026-01-20T18:04:11Z",
+      "ratings": {
+        "votes": 1200,
+        "value": 7.9
+      },
+      "languageProfileId": 1,
+      "id": 104
+    },
+    "images": []
+  },
+  {
+    "seriesId": 105,
+    "tvdbId": 7005005,
+    "episodeFileId": 0,
+    "seasonNumber": 1,
+    "episodeNumber": 8,
+    "title": "Harvest",
+    "airDate": "2026-11-30",
+    "airDateUtc": "2026-11-30T02:00:00Z",
+    "runtime": 42,
+    "finaleType": "season",
+    "overview": "An invented episode.",
+    "hasFile": false,
+    "monitored": true,
+    "unverifiedSceneNumbering": false,
+    "id": 5005,
+    "series": {
+      "title": "Copper & Vine",
+      "sortTitle": "copper & vine",
+      "status": "continuing",
+      "ended": false,
+      "overview": "An invented series used in Dashledge’s tests.",
+      "network": "Fieldhouse",
+      "airTime": "21:00",
+      "images": [
+        {
+          "coverType": "banner",
+          "url": "/MediaCover/105/banner.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/banners/900105.jpg"
+        },
+        {
+          "coverType": "poster",
+          "url": "/MediaCover/105/poster.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/posters/900105.jpg"
+        },
+        {
+          "coverType": "fanart",
+          "url": "/MediaCover/105/fanart.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/fanart/900105.jpg"
+        }
+      ],
+      "originalLanguage": {
+        "id": 1,
+        "name": "English"
+      },
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "monitored": true
+        }
+      ],
+      "year": 2026,
+      "path": "/tv/Copper & Vine",
+      "qualityProfileId": 4,
+      "seasonFolder": true,
+      "monitored": true,
+      "monitorNewItems": "all",
+      "useSceneNumbering": false,
+      "runtime": 42,
+      "tvdbId": 900105,
+      "tvRageId": 0,
+      "tvMazeId": 100105,
+      "tmdbId": 200105,
+      "firstAired": "2026-01-15T00:00:00Z",
+      "seriesType": "standard",
+      "cleanTitle": "copperandvine",
+      "imdbId": "tt9900105",
+      "titleSlug": "copper-and-vine",
+      "rootFolderPath": "/tv/",
+      "certification": "TV-14",
+      "genres": [
+        "Documentary",
+        "Food"
+      ],
+      "tags": [],
+      "added": "2026-01-20T18:04:11Z",
+      "ratings": {
+        "votes": 1200,
+        "value": 7.9
+      },
+      "languageProfileId": 1,
+      "id": 105
+    },
+    "images": []
+  },
+  {
+    "seriesId": 101,
+    "tvdbId": 7005006,
+    "episodeFileId": 0,
+    "seasonNumber": 3,
+    "episodeNumber": 8,
+    "title": "Fog Signal",
+    "airDate": "2026-12-04",
+    "airDateUtc": "2026-12-04T02:00:00Z",
+    "runtime": 52,
+    "overview": "An invented episode.",
+    "hasFile": false,
+    "monitored": true,
+    "unverifiedSceneNumbering": false,
+    "id": 5006,
+    "series": {
+      "title": "The Lantern Keepers",
+      "sortTitle": "lantern keepers",
+      "status": "continuing",
+      "ended": false,
+      "overview": "An invented series used in Dashledge’s tests.",
+      "network": "Harbor One",
+      "airTime": "21:00",
+      "images": [
+        {
+          "coverType": "banner",
+          "url": "/MediaCover/101/banner.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/banners/900101.jpg"
+        },
+        {
+          "coverType": "poster",
+          "url": "/MediaCover/101/poster.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/posters/900101.jpg"
+        },
+        {
+          "coverType": "fanart",
+          "url": "/MediaCover/101/fanart.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/fanart/900101.jpg"
+        }
+      ],
+      "originalLanguage": {
+        "id": 1,
+        "name": "English"
+      },
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 2,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 3,
+          "monitored": true
+        }
+      ],
+      "year": 2023,
+      "path": "/tv/The Lantern Keepers",
+      "qualityProfileId": 4,
+      "seasonFolder": true,
+      "monitored": true,
+      "monitorNewItems": "all",
+      "useSceneNumbering": false,
+      "runtime": 52,
+      "tvdbId": 900101,
+      "tvRageId": 0,
+      "tvMazeId": 100101,
+      "tmdbId": 200101,
+      "firstAired": "2023-01-15T00:00:00Z",
+      "seriesType": "standard",
+      "cleanTitle": "thelanternkeepers",
+      "imdbId": "tt9900101",
+      "titleSlug": "the-lantern-keepers",
+      "rootFolderPath": "/tv/",
+      "certification": "TV-14",
+      "genres": [
+        "Drama",
+        "Mystery"
+      ],
+      "tags": [],
+      "added": "2026-01-20T18:04:11Z",
+      "ratings": {
+        "votes": 1200,
+        "value": 7.9
+      },
+      "languageProfileId": 1,
+      "id": 101
+    },
+    "images": []
+  },
+  {
+    "seriesId": 102,
+    "tvdbId": 7005007,
+    "episodeFileId": 0,
+    "seasonNumber": 1,
+    "episodeNumber": 5,
+    "title": "Zero-G Lease",
+    "airDate": "2026-12-04",
+    "airDateUtc": "2026-12-04T14:00:00Z",
+    "runtime": 28,
+    "overview": "An invented episode.",
+    "hasFile": false,
+    "monitored": true,
+    "unverifiedSceneNumbering": false,
+    "id": 5007,
+    "series": {
+      "title": "Orbit Street",
+      "sortTitle": "orbit street",
+      "status": "continuing",
+      "ended": false,
+      "overview": "An invented series used in Dashledge’s tests.",
+      "network": "Streamline",
+      "airTime": "09:00",
+      "images": [
+        {
+          "coverType": "banner",
+          "url": "/MediaCover/102/banner.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/banners/900102.jpg"
+        },
+        {
+          "coverType": "poster",
+          "url": "/MediaCover/102/poster.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/posters/900102.jpg"
+        },
+        {
+          "coverType": "fanart",
+          "url": "/MediaCover/102/fanart.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/fanart/900102.jpg"
+        }
+      ],
+      "originalLanguage": {
+        "id": 1,
+        "name": "English"
+      },
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "monitored": true
+        }
+      ],
+      "year": 2026,
+      "path": "/tv/Orbit Street",
+      "qualityProfileId": 4,
+      "seasonFolder": true,
+      "monitored": true,
+      "monitorNewItems": "all",
+      "useSceneNumbering": false,
+      "runtime": 28,
+      "tvdbId": 900102,
+      "tvRageId": 0,
+      "tvMazeId": 100102,
+      "tmdbId": 200102,
+      "firstAired": "2026-01-15T00:00:00Z",
+      "seriesType": "standard",
+      "cleanTitle": "orbitstreet",
+      "imdbId": "tt9900102",
+      "titleSlug": "orbit-street",
+      "rootFolderPath": "/tv/",
+      "certification": "TV-14",
+      "genres": [
+        "Comedy",
+        "Science Fiction"
+      ],
+      "tags": [],
+      "added": "2026-01-20T18:04:11Z",
+      "ratings": {
+        "votes": 1200,
+        "value": 7.9
+      },
+      "languageProfileId": 1,
+      "id": 102
+    },
+    "images": []
+  },
+  {
+    "seriesId": 101,
+    "tvdbId": 7005008,
+    "episodeFileId": 0,
+    "seasonNumber": 3,
+    "episodeNumber": 9,
+    "title": "Lamplight",
+    "airDate": "2026-12-11",
+    "airDateUtc": "2026-12-11T02:00:00Z",
+    "runtime": 52,
+    "overview": "An invented episode.",
+    "hasFile": false,
+    "monitored": true,
+    "unverifiedSceneNumbering": false,
+    "id": 5008,
+    "series": {
+      "title": "The Lantern Keepers",
+      "sortTitle": "lantern keepers",
+      "status": "continuing",
+      "ended": false,
+      "overview": "An invented series used in Dashledge’s tests.",
+      "network": "Harbor One",
+      "airTime": "21:00",
+      "images": [
+        {
+          "coverType": "banner",
+          "url": "/MediaCover/101/banner.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/banners/900101.jpg"
+        },
+        {
+          "coverType": "poster",
+          "url": "/MediaCover/101/poster.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/posters/900101.jpg"
+        },
+        {
+          "coverType": "fanart",
+          "url": "/MediaCover/101/fanart.jpg?lastWrite=639000000000000000",
+          "remoteUrl": "https://artworks.example/fanart/900101.jpg"
+        }
+      ],
+      "originalLanguage": {
+        "id": 1,
+        "name": "English"
+      },
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 2,
+          "monitored": true
+        },
+        {
+          "seasonNumber": 3,
+          "monitored": true
+        }
+      ],
+      "year": 2023,
+      "path": "/tv/The Lantern Keepers",
+      "qualityProfileId": 4,
+      "seasonFolder": true,
+      "monitored": true,
+      "monitorNewItems": "all",
+      "useSceneNumbering": false,
+      "runtime": 52,
+      "tvdbId": 900101,
+      "tvRageId": 0,
+      "tvMazeId": 100101,
+      "tmdbId": 200101,
+      "firstAired": "2023-01-15T00:00:00Z",
+      "seriesType": "standard",
+      "cleanTitle": "thelanternkeepers",
+      "imdbId": "tt9900101",
+      "titleSlug": "the-lantern-keepers",
+      "rootFolderPath": "/tv/",
+      "certification": "TV-14",
+      "genres": [
+        "Drama",
+        "Mystery"
+      ],
+      "tags": [],
+      "added": "2026-01-20T18:04:11Z",
+      "ratings": {
+        "votes": 1200,
+        "value": 7.9
+      },
+      "languageProfileId": 1,
+      "id": 101
+    },
+    "images": []
+  }
+]

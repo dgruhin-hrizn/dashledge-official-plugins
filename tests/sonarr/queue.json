@@ -1,0 +1,796 @@
+{
+  "page": 1,
+  "pageSize": 50,
+  "sortKey": "timeleft",
+  "sortDirection": "ascending",
+  "totalRecords": 6,
+  "records": [
+    {
+      "seriesId": 103,
+      "episodeId": 5003,
+      "seasonNumber": 2,
+      "series": {
+        "title": "Saltmarsh",
+        "sortTitle": "saltmarsh",
+        "status": "continuing",
+        "ended": false,
+        "overview": "An invented series used in Dashledge’s tests.",
+        "network": "Northcoast TV",
+        "airTime": "12:30",
+        "images": [
+          {
+            "coverType": "banner",
+            "url": "/MediaCover/103/banner.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/banners/900103.jpg"
+          },
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/103/poster.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/posters/900103.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/103/fanart.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/fanart/900103.jpg"
+          }
+        ],
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "seasons": [
+          {
+            "seasonNumber": 1,
+            "monitored": true
+          },
+          {
+            "seasonNumber": 2,
+            "monitored": true
+          }
+        ],
+        "year": 2024,
+        "path": "/tv/Saltmarsh",
+        "qualityProfileId": 4,
+        "seasonFolder": true,
+        "monitored": true,
+        "monitorNewItems": "all",
+        "useSceneNumbering": false,
+        "runtime": 45,
+        "tvdbId": 900103,
+        "tvRageId": 0,
+        "tvMazeId": 100103,
+        "tmdbId": 200103,
+        "firstAired": "2024-01-15T00:00:00Z",
+        "seriesType": "standard",
+        "cleanTitle": "saltmarsh",
+        "imdbId": "tt9900103",
+        "titleSlug": "saltmarsh",
+        "rootFolderPath": "/tv/",
+        "certification": "TV-14",
+        "genres": [
+          "Crime",
+          "Drama"
+        ],
+        "tags": [],
+        "added": "2026-01-20T18:04:11Z",
+        "ratings": {
+          "votes": 1200,
+          "value": 7.9
+        },
+        "languageProfileId": 1,
+        "id": 103
+      },
+      "episode": {
+        "seriesId": 103,
+        "tvdbId": 7005003,
+        "episodeFileId": 0,
+        "seasonNumber": 2,
+        "episodeNumber": 10,
+        "title": "High Water",
+        "airDate": "2026-11-27",
+        "airDateUtc": "2026-11-27T17:30:00Z",
+        "runtime": 45,
+        "overview": "An invented episode.",
+        "hasFile": false,
+        "monitored": true,
+        "unverifiedSceneNumbering": false,
+        "id": 5003,
+        "images": []
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 4,
+          "name": "HDTV-720p",
+          "source": "television",
+          "resolution": 720
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 2147483648,
+      "title": "Saltmarsh.S02E10.720p.HDTV.x264-EXAMPLE",
+      "sizeleft": 536870912,
+      "timeleft": "00:04:10",
+      "estimatedCompletionTime": "2026-11-27T19:04:10Z",
+      "added": "2026-11-27T18:40:00Z",
+      "status": "downloading",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "SABnzbd_nzo_aaaa1111",
+      "protocol": "usenet",
+      "downloadClient": "Usenet client",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Example indexer",
+      "episodeHasFile": false,
+      "id": 9001
+    },
+    {
+      "seriesId": 105,
+      "episodeId": 6001,
+      "seasonNumber": 1,
+      "series": {
+        "title": "Copper & Vine",
+        "sortTitle": "copper & vine",
+        "status": "continuing",
+        "ended": false,
+        "overview": "An invented series used in Dashledge’s tests.",
+        "network": "Fieldhouse",
+        "airTime": "21:00",
+        "images": [
+          {
+            "coverType": "banner",
+            "url": "/MediaCover/105/banner.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/banners/900105.jpg"
+          },
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/105/poster.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/posters/900105.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/105/fanart.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/fanart/900105.jpg"
+          }
+        ],
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "seasons": [
+          {
+            "seasonNumber": 1,
+            "monitored": true
+          }
+        ],
+        "year": 2026,
+        "path": "/tv/Copper & Vine",
+        "qualityProfileId": 4,
+        "seasonFolder": true,
+        "monitored": true,
+        "monitorNewItems": "all",
+        "useSceneNumbering": false,
+        "runtime": 42,
+        "tvdbId": 900105,
+        "tvRageId": 0,
+        "tvMazeId": 100105,
+        "tmdbId": 200105,
+        "firstAired": "2026-01-15T00:00:00Z",
+        "seriesType": "standard",
+        "cleanTitle": "copperandvine",
+        "imdbId": "tt9900105",
+        "titleSlug": "copper-and-vine",
+        "rootFolderPath": "/tv/",
+        "certification": "TV-14",
+        "genres": [
+          "Documentary",
+          "Food"
+        ],
+        "tags": [],
+        "added": "2026-01-20T18:04:11Z",
+        "ratings": {
+          "votes": 1200,
+          "value": 7.9
+        },
+        "languageProfileId": 1,
+        "id": 105
+      },
+      "episode": {
+        "seriesId": 105,
+        "tvdbId": 7006001,
+        "episodeFileId": 0,
+        "seasonNumber": 1,
+        "episodeNumber": 1,
+        "title": "First Pressing",
+        "airDate": "2026-03-08",
+        "airDateUtc": "2026-03-08T02:00:00Z",
+        "runtime": 42,
+        "overview": "An invented episode.",
+        "hasFile": false,
+        "monitored": true,
+        "unverifiedSceneNumbering": false,
+        "id": 6001,
+        "images": []
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 4,
+          "name": "HDTV-720p",
+          "source": "television",
+          "resolution": 720
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 6442450944,
+      "title": "Copper.and.Vine.S01.720p.WEB-EXAMPLE",
+      "sizeleft": 4831838208,
+      "timeleft": "1.02:03:04",
+      "estimatedCompletionTime": "2026-11-27T19:04:10Z",
+      "added": "2026-11-27T18:40:00Z",
+      "status": "downloading",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "ABCDEF0123456789ABCDEF0123456789ABCDEF01",
+      "protocol": "torrent",
+      "downloadClient": "Torrent client",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Example indexer",
+      "episodeHasFile": false,
+      "id": 9002
+    },
+    {
+      "seriesId": 105,
+      "episodeId": 6002,
+      "seasonNumber": 1,
+      "series": {
+        "title": "Copper & Vine",
+        "sortTitle": "copper & vine",
+        "status": "continuing",
+        "ended": false,
+        "overview": "An invented series used in Dashledge’s tests.",
+        "network": "Fieldhouse",
+        "airTime": "21:00",
+        "images": [
+          {
+            "coverType": "banner",
+            "url": "/MediaCover/105/banner.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/banners/900105.jpg"
+          },
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/105/poster.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/posters/900105.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/105/fanart.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/fanart/900105.jpg"
+          }
+        ],
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "seasons": [
+          {
+            "seasonNumber": 1,
+            "monitored": true
+          }
+        ],
+        "year": 2026,
+        "path": "/tv/Copper & Vine",
+        "qualityProfileId": 4,
+        "seasonFolder": true,
+        "monitored": true,
+        "monitorNewItems": "all",
+        "useSceneNumbering": false,
+        "runtime": 42,
+        "tvdbId": 900105,
+        "tvRageId": 0,
+        "tvMazeId": 100105,
+        "tmdbId": 200105,
+        "firstAired": "2026-01-15T00:00:00Z",
+        "seriesType": "standard",
+        "cleanTitle": "copperandvine",
+        "imdbId": "tt9900105",
+        "titleSlug": "copper-and-vine",
+        "rootFolderPath": "/tv/",
+        "certification": "TV-14",
+        "genres": [
+          "Documentary",
+          "Food"
+        ],
+        "tags": [],
+        "added": "2026-01-20T18:04:11Z",
+        "ratings": {
+          "votes": 1200,
+          "value": 7.9
+        },
+        "languageProfileId": 1,
+        "id": 105
+      },
+      "episode": {
+        "seriesId": 105,
+        "tvdbId": 7006002,
+        "episodeFileId": 0,
+        "seasonNumber": 1,
+        "episodeNumber": 2,
+        "title": "Rootstock",
+        "airDate": "2026-03-09",
+        "airDateUtc": "2026-03-09T02:00:00Z",
+        "runtime": 42,
+        "overview": "An invented episode.",
+        "hasFile": false,
+        "monitored": true,
+        "unverifiedSceneNumbering": false,
+        "id": 6002,
+        "images": []
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 4,
+          "name": "HDTV-720p",
+          "source": "television",
+          "resolution": 720
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 6442450944,
+      "title": "Copper.and.Vine.S01.720p.WEB-EXAMPLE",
+      "sizeleft": 4831838208,
+      "timeleft": "1.02:03:04",
+      "estimatedCompletionTime": "2026-11-27T19:04:10Z",
+      "added": "2026-11-27T18:40:00Z",
+      "status": "downloading",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "ABCDEF0123456789ABCDEF0123456789ABCDEF01",
+      "protocol": "torrent",
+      "downloadClient": "Torrent client",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Example indexer",
+      "episodeHasFile": false,
+      "id": 9003
+    },
+    {
+      "seriesId": 105,
+      "episodeId": 6003,
+      "seasonNumber": 1,
+      "series": {
+        "title": "Copper & Vine",
+        "sortTitle": "copper & vine",
+        "status": "continuing",
+        "ended": false,
+        "overview": "An invented series used in Dashledge’s tests.",
+        "network": "Fieldhouse",
+        "airTime": "21:00",
+        "images": [
+          {
+            "coverType": "banner",
+            "url": "/MediaCover/105/banner.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/banners/900105.jpg"
+          },
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/105/poster.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/posters/900105.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/105/fanart.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/fanart/900105.jpg"
+          }
+        ],
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "seasons": [
+          {
+            "seasonNumber": 1,
+            "monitored": true
+          }
+        ],
+        "year": 2026,
+        "path": "/tv/Copper & Vine",
+        "qualityProfileId": 4,
+        "seasonFolder": true,
+        "monitored": true,
+        "monitorNewItems": "all",
+        "useSceneNumbering": false,
+        "runtime": 42,
+        "tvdbId": 900105,
+        "tvRageId": 0,
+        "tvMazeId": 100105,
+        "tmdbId": 200105,
+        "firstAired": "2026-01-15T00:00:00Z",
+        "seriesType": "standard",
+        "cleanTitle": "copperandvine",
+        "imdbId": "tt9900105",
+        "titleSlug": "copper-and-vine",
+        "rootFolderPath": "/tv/",
+        "certification": "TV-14",
+        "genres": [
+          "Documentary",
+          "Food"
+        ],
+        "tags": [],
+        "added": "2026-01-20T18:04:11Z",
+        "ratings": {
+          "votes": 1200,
+          "value": 7.9
+        },
+        "languageProfileId": 1,
+        "id": 105
+      },
+      "episode": {
+        "seriesId": 105,
+        "tvdbId": 7006003,
+        "episodeFileId": 0,
+        "seasonNumber": 1,
+        "episodeNumber": 3,
+        "title": "Cellar Door",
+        "airDate": "2026-03-01",
+        "airDateUtc": "2026-03-01T02:00:00Z",
+        "runtime": 42,
+        "overview": "An invented episode.",
+        "hasFile": false,
+        "monitored": true,
+        "unverifiedSceneNumbering": false,
+        "id": 6003,
+        "images": []
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 4,
+          "name": "HDTV-720p",
+          "source": "television",
+          "resolution": 720
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 6442450944,
+      "title": "Copper.and.Vine.S01.720p.WEB-EXAMPLE",
+      "sizeleft": 4831838208,
+      "timeleft": "1.02:03:04",
+      "estimatedCompletionTime": "2026-11-27T19:04:10Z",
+      "added": "2026-11-27T18:40:00Z",
+      "status": "downloading",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "ABCDEF0123456789ABCDEF0123456789ABCDEF01",
+      "protocol": "torrent",
+      "downloadClient": "Torrent client",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Example indexer",
+      "episodeHasFile": false,
+      "id": 9004
+    },
+    {
+      "seriesId": 104,
+      "episodeId": 6012,
+      "seasonNumber": 4,
+      "series": {
+        "title": "Northern Ledger",
+        "sortTitle": "northern ledger",
+        "status": "continuing",
+        "ended": false,
+        "overview": "An invented series used in Dashledge’s tests.",
+        "network": "Meridian",
+        "airTime": "20:00",
+        "images": [
+          {
+            "coverType": "banner",
+            "url": "/MediaCover/104/banner.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/banners/900104.jpg"
+          },
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/104/poster.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/posters/900104.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/104/fanart.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/fanart/900104.jpg"
+          }
+        ],
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "seasons": [
+          {
+            "seasonNumber": 1,
+            "monitored": true
+          },
+          {
+            "seasonNumber": 2,
+            "monitored": true
+          },
+          {
+            "seasonNumber": 3,
+            "monitored": true
+          },
+          {
+            "seasonNumber": 4,
+            "monitored": true
+          },
+          {
+            "seasonNumber": 5,
+            "monitored": true
+          }
+        ],
+        "year": 2020,
+        "path": "/tv/Northern Ledger",
+        "qualityProfileId": 4,
+        "seasonFolder": true,
+        "monitored": true,
+        "monitorNewItems": "all",
+        "useSceneNumbering": false,
+        "runtime": 60,
+        "tvdbId": 900104,
+        "tvRageId": 0,
+        "tvMazeId": 100104,
+        "tmdbId": 200104,
+        "firstAired": "2020-01-15T00:00:00Z",
+        "seriesType": "standard",
+        "cleanTitle": "northernledger",
+        "imdbId": "tt9900104",
+        "titleSlug": "northern-ledger",
+        "rootFolderPath": "/tv/",
+        "certification": "TV-14",
+        "genres": [
+          "Drama"
+        ],
+        "tags": [],
+        "added": "2026-01-20T18:04:11Z",
+        "ratings": {
+          "votes": 1200,
+          "value": 7.9
+        },
+        "languageProfileId": 1,
+        "id": 104
+      },
+      "episode": {
+        "seriesId": 104,
+        "tvdbId": 7006012,
+        "episodeFileId": 0,
+        "seasonNumber": 4,
+        "episodeNumber": 12,
+        "title": "Year End",
+        "airDate": "2026-03-01",
+        "airDateUtc": "2026-03-01T02:00:00Z",
+        "runtime": 60,
+        "overview": "An invented episode.",
+        "hasFile": false,
+        "monitored": true,
+        "unverifiedSceneNumbering": false,
+        "id": 6012,
+        "images": []
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 4,
+          "name": "HDTV-720p",
+          "source": "television",
+          "resolution": 720
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 3221225472,
+      "title": "Northern.Ledger.S04E12.1080p.WEB-EXAMPLE",
+      "sizeleft": 0,
+      "timeleft": "00:00:00",
+      "estimatedCompletionTime": "2026-11-27T19:04:10Z",
+      "added": "2026-11-27T18:40:00Z",
+      "status": "completed",
+      "trackedDownloadStatus": "warning",
+      "trackedDownloadState": "importPending",
+      "statusMessages": [
+        {
+          "title": "Northern.Ledger.S04E12.1080p.WEB-EXAMPLE",
+          "messages": [
+            "No files found are eligible for import"
+          ]
+        }
+      ],
+      "downloadId": "SABnzbd_nzo_bbbb2222",
+      "protocol": "usenet",
+      "downloadClient": "Usenet client",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Example indexer",
+      "outputPath": "/downloads/complete/Northern.Ledger.S04E12.1080p.WEB-EXAMPLE",
+      "episodeHasFile": false,
+      "id": 9005
+    },
+    {
+      "seriesId": 102,
+      "episodeId": 6103,
+      "seasonNumber": 1,
+      "series": {
+        "title": "Orbit Street",
+        "sortTitle": "orbit street",
+        "status": "continuing",
+        "ended": false,
+        "overview": "An invented series used in Dashledge’s tests.",
+        "network": "Streamline",
+        "airTime": "09:00",
+        "images": [
+          {
+            "coverType": "banner",
+            "url": "/MediaCover/102/banner.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/banners/900102.jpg"
+          },
+          {
+            "coverType": "poster",
+            "url": "/MediaCover/102/poster.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/posters/900102.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "url": "/MediaCover/102/fanart.jpg?lastWrite=639000000000000000",
+            "remoteUrl": "https://artworks.example/fanart/900102.jpg"
+          }
+        ],
+        "originalLanguage": {
+          "id": 1,
+          "name": "English"
+        },
+        "seasons": [
+          {
+            "seasonNumber": 1,
+            "monitored": true
+          }
+        ],
+        "year": 2026,
+        "path": "/tv/Orbit Street",
+        "qualityProfileId": 4,
+        "seasonFolder": true,
+        "monitored": true,
+        "monitorNewItems": "all",
+        "useSceneNumbering": false,
+        "runtime": 28,
+        "tvdbId": 900102,
+        "tvRageId": 0,
+        "tvMazeId": 100102,
+        "tmdbId": 200102,
+        "firstAired": "2026-01-15T00:00:00Z",
+        "seriesType": "standard",
+        "cleanTitle": "orbitstreet",
+        "imdbId": "tt9900102",
+        "titleSlug": "orbit-street",
+        "rootFolderPath": "/tv/",
+        "certification": "TV-14",
+        "genres": [
+          "Comedy",
+          "Science Fiction"
+        ],
+        "tags": [],
+        "added": "2026-01-20T18:04:11Z",
+        "ratings": {
+          "votes": 1200,
+          "value": 7.9
+        },
+        "languageProfileId": 1,
+        "id": 102
+      },
+      "episode": {
+        "seriesId": 102,
+        "tvdbId": 7006103,
+        "episodeFileId": 0,
+        "seasonNumber": 1,
+        "episodeNumber": 3,
+        "title": "Gravity Assist",
+        "airDate": "2026-03-02",
+        "airDateUtc": "2026-03-02T02:00:00Z",
+        "runtime": 28,
+        "overview": "An invented episode.",
+        "hasFile": false,
+        "monitored": true,
+        "unverifiedSceneNumbering": false,
+        "id": 6103,
+        "images": []
+      },
+      "languages": [
+        {
+          "id": 1,
+          "name": "English"
+        }
+      ],
+      "quality": {
+        "quality": {
+          "id": 4,
+          "name": "HDTV-720p",
+          "source": "television",
+          "resolution": 720
+        },
+        "revision": {
+          "version": 1,
+          "real": 0,
+          "isRepack": false
+        }
+      },
+      "customFormats": [],
+      "customFormatScore": 0,
+      "size": 1073741824,
+      "title": "Orbit.Street.S01E03.720p.WEB-EXAMPLE",
+      "sizeleft": 644245094,
+      "added": "2026-11-27T18:40:00Z",
+      "status": "paused",
+      "trackedDownloadStatus": "ok",
+      "trackedDownloadState": "downloading",
+      "statusMessages": [],
+      "downloadId": "SABnzbd_nzo_cccc3333",
+      "protocol": "usenet",
+      "downloadClient": "Usenet client",
+      "downloadClientHasPostImportCategory": false,
+      "indexer": "Example indexer",
+      "episodeHasFile": false,
+      "id": 9006
+    }
+  ]
+}

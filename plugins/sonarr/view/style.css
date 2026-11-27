@@ -1,0 +1,87 @@
+/* Sonarr. Colours, type, panels, buttons and states come from Dashledge's ui kit
+   (--dl-* tokens and dl-* classes); this file only lays them out. The queue row and
+   poster sizes match the Radarr plugin's. */
+html,body{height:100%}
+body{overflow:hidden}
+.sonarr{box-sizing:border-box;height:100%;padding:var(--dl-gap);display:grid;min-height:0}
+.sonarr>.state{align-self:center}
+.dl-empty p,.dl-error p{margin:0;max-width:32em}
+.actions{display:flex;gap:var(--dl-gap);justify-content:center}
+
+.content{display:grid;grid-template-rows:auto minmax(0,1fr);gap:var(--dl-gap);min-height:0}
+.top{display:flex;align-items:center;gap:var(--dl-gap);min-height:var(--dl-tap);min-width:0}
+.server{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tabs{display:flex;gap:calc(var(--dl-gap)*.5);flex:none}
+.tab{gap:.45em;grid-auto-flow:column}
+.count{color:var(--dl-sub);font-variant-numeric:tabular-nums}
+.count:empty{display:none}
+.tab[aria-pressed=true] .count{color:inherit}
+.stale{display:flex;align-items:center;gap:calc(var(--dl-gap)*.6);margin:0 0 0 auto;min-width:0;color:var(--dl-sub);font-size:var(--dl-small)}
+.stale-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* One list at a time in a small placement; both side by side on the wide Edge. */
+.panes{display:grid;gap:var(--dl-gap);min-height:0;grid-template-columns:minmax(0,1fr)}
+.sonarr[data-pane=upcoming] .pane.queue,.sonarr[data-pane=queue] .pane.upcoming{display:none}
+.pane{display:grid;grid-template-rows:auto minmax(0,1fr);gap:calc(var(--dl-gap)*.5);min-height:0;min-width:0;padding-bottom:0}
+.pane-title{display:flex;gap:.6em;align-items:baseline}
+.pane-title>:first-child{display:none}
+.pane-note{font-variant-numeric:tabular-nums}
+.pane-note:empty{display:none}
+.pane-state{align-self:center}
+.rows{min-height:0;overflow:auto;overscroll-behavior:contain;padding-bottom:calc(var(--dl-gap)*.5)}
+@media (min-aspect-ratio:17/10) and (min-width:1100px){
+  .tabs{display:none}
+  .panes{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  .sonarr[data-pane] .pane.queue,.sonarr[data-pane] .pane.upcoming{display:grid}
+  .pane-title>:first-child{display:inline}
+  .pane-title{color:var(--dl-sub)}
+  .pane-note::before{content:"· "}
+}
+
+/* A row: poster, title over detail, and what it's doing on the right. */
+.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--dl-gap);
+  min-height:calc(88px*var(--dl-scale));padding:calc(8px*var(--dl-scale)) 0;box-sizing:border-box}
+.poster{width:calc(48px*var(--dl-scale));height:calc(72px*var(--dl-scale));border-radius:calc(6px*var(--dl-scale));
+  object-fit:cover;background:var(--dl-border);display:block}
+.poster:not([src]){visibility:visible}
+.main{display:grid;gap:calc(4px*var(--dl-scale));min-width:0}
+.title,.detail{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.title{font-weight:560}
+.detail{color:var(--dl-sub);font-size:var(--dl-small)}
+.side{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:calc(4px*var(--dl-scale)) calc(var(--dl-gap)*.6);
+  min-width:6ch;max-width:24ch;text-align:right;font-variant-numeric:tabular-nums}
+.side>*{white-space:nowrap}
+.when{flex-basis:100%;color:var(--dl-text)}
+.note{font-size:var(--dl-small);color:var(--dl-sub)}
+.percent{flex-basis:100%;color:var(--dl-text);min-width:4ch}
+.more{justify-content:center;color:var(--dl-sub);font-size:var(--dl-small)}
+
+/* Upcoming: what each episode is doing. */
+.item.missing .note,.note.problem{color:var(--dl-danger)}
+.note.problem{white-space:normal;max-width:18ch}
+.item.downloading .note,.item.searching .note{color:var(--dl-accent)}
+.item.trouble .note{color:#f5c86a}
+.item.downloaded .when{color:var(--dl-sub)}
+.search{min-height:var(--dl-tap);font-size:var(--dl-small)}
+
+/* Queue: a progress bar, coloured by how the download is going. */
+.bar{--progress:0%;--fill:var(--dl-accent);display:block;height:calc(6px*var(--dl-scale));margin-top:calc(4px*var(--dl-scale));
+  border-radius:999px;background:linear-gradient(to right,var(--fill) var(--progress),#ffffff1a var(--progress))}
+.tone-warning .bar{--fill:#f5c86a}
+.tone-warning .note{color:#f5c86a}
+.tone-error .bar{--fill:var(--dl-danger)}
+.tone-error .note{color:var(--dl-danger)}
+.tone-paused .bar{--fill:var(--dl-sub)}
+
+/* A short placement drops the artwork before anything gets smaller. */
+@media (max-height:300px){
+  .poster{display:none}
+  .item{grid-template-columns:minmax(0,1fr) auto;min-height:var(--dl-tap)}
+  .item .detail{display:none}
+}
+/* A narrow one drops the detail line's company: just the time or percent on the right. */
+@media (max-width:520px){
+  .stale-text{display:none}
+  .side{max-width:14ch}
+  .item.upcoming .note:empty{display:none}
+}
