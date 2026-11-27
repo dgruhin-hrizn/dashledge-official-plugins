@@ -66,6 +66,11 @@ for manifest in plugins/*/widget.json; do
     fail "$manifest" "Add $dir/README.md: what it shows, its settings and why it needs each grant."
     continue
   fi
+  # The release notes take this version's line from the README's Changes list.
+  if ! grep -qE "^- \*\*${version//./\\.}:\*\* " "$dir/README.md"; then
+    fail "$manifest" "README.md's Changes list needs a line for $version: \"- **$version:** what changed\"."
+    continue
+  fi
   missing=$(jq -r '.connector.hosts // [] | .[]' "$manifest" | while read -r host; do grep -qF "$host" "$dir/README.md" || printf '%s ' "$host"; done)
   if [ -n "$missing" ]; then
     fail "$manifest" "README.md must say why it reaches ${missing% }."

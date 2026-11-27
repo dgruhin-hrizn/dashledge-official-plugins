@@ -43,13 +43,46 @@ sha=$(jq -r .sha256 dist/check.json)
 title=$(jq -r .title dist/check.json)
 description=$(jq -r '.description // ""' "$dir/widget.json")
 
+# What changed: this version's line in the README's Changes list (check.sh requires it).
+changes=$(grep -E "^- \*\*${version//./\\.}:\*\* " "$dir/README.md" | head -1 | sed -E 's/^- \*\*[^*]+:\*\* //')
+[ -n "$changes" ] || die "$dir/README.md has no Changes line for $version."
+
+# New grants: what this version declares that the last release didn't. Existing users
+# approve those before the update installs; without any, it installs on its own.
+# The previous release is the newest earlier tag in this one's history, so a tag left on an
+# unmerged branch (which release.sh refused) never counts.
+previous=""
+for v in $(git tag --list "$name-v*" | sed "s/^$name-v//" | sort -rV); do
+  [ "$(printf '%s\n%s\n' "$v" "$version" | sort -V | head -1)" = "$v" ] && [ "$v" != "$version" ] || continue
+  if git merge-base --is-ancestor "$name-v$v" "$tag" 2> /dev/null; then previous=$v; break; fi
+done
+grants=""
+if [ -n "$previous" ]; then
+  work=$(mktemp -d)
+  git archive "$name-v$previous" "$dir" | tar -x -C "$work"
+  "$tool" pack "$work/$dir" --out "$work/previous.zip" > "$work/previous.json"
+  grants=$(jq -r --slurpfile old "$work/previous.json" --arg prev "$previous" '
+    def words: if .kind == "permission" then "the `\(.value)` permission"
+      elif .kind == "host" then "the host `\(.value)`"
+      elif .kind == "command" then "the connector command `\(.value)`"
+      elif .kind == "connector" then "a connector"
+      elif .kind == "connectionType" then "the connection type `\(.value)`"
+      elif .kind == "connections" then "up to \(.value) connections"
+      else "\(.kind) `\(.value)`" end;
+    [.grants[] | select(. as $g | ($old[0].grants | index([$g])) == null) | words]
+    | if length == 0 then "**No new grants.** Existing installs of \($prev) update on their own."
+      else "**New grants.** Existing installs of \($prev) ask to approve these before updating: " + join(", ") + "." end' \
+    dist/check.json)
+  rm -rf "$work"
+fi
+
 listing=$(jq -n --arg id "plugin.dashledge.$name" --arg version "$version" --arg publisher "$publisher" \
-  --arg repo "$repo" --arg tag "$tag" --arg asset "$asset" --arg sha "$sha" --arg summary "$description" \
+  --arg repo "$repo" --arg tag "$tag" --arg asset "$asset" --arg sha "$sha" --arg summary "$description" --arg notes "$changes" \
   '{id: $id, version: $version, publisher: $publisher, source: {repo: $repo, tag: $tag, asset: $asset}, sha256: $sha}
-   + (if $summary == "" then {} else {summary: $summary} end)')
+   + (if $summary == "" then {} else {summary: $summary} end) + {notes: $notes}')
 echo "$listing" > "dist/$name-$version.listing.json"
 
-notes=$(printf '%s %s\n\nsha256 `%s`\n\nTo list it in the Marketplace, add this file to dgruhin-hrizn/dashledge-plugins as `listings/plugin.dashledge.%s/%s.json`:\n\n```json\n%s\n```\n' \
-  "$title" "$version" "$sha" "$name" "$version" "$listing")
+notes=$(printf '%s %s\n\n%s\n\n%s%ssha256 `%s`\n\nTo list it in the Marketplace, add this file to dgruhin-hrizn/dashledge-plugins as `listings/plugin.dashledge.%s/%s.json`:\n\n```json\n%s\n```\n' \
+  "$title" "$version" "$changes" "$grants" "${grants:+$'\n\n'}" "$sha" "$name" "$version" "$listing")
 gh release create "$tag" "dist/$asset" --repo "$repo" --verify-tag --title "$title $version" --notes "$notes"
 echo "$notes" >> "$summary"
