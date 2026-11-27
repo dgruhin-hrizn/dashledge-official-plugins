@@ -1,0 +1,35 @@
+{
+  "apiVersion": 2,
+  "id": "plugin.dashledge.download-clients",
+  "title": "Downloads",
+  "description": "SABnzbd, NZBGet and qBittorrent queues in one place: speed, what's left, and pause or resume.",
+  "version": "1.0.0",
+  "minAppVersion": "0.9.0",
+  "homepage": "https://github.com/dgruhin-hrizn/dashledge-official-plugins/tree/main/plugins/download-clients",
+  "license": "MIT",
+  "category": "Music & media",
+  "icon": "icon.svg",
+  "view": {"entry": "view/index.html", "viewport": "native", "theme": true},
+  "sources": {
+    "min": 1,
+    "max": 4,
+    "auth": "none",
+    "types": [
+      {"id": "sabnzbd", "label": "SABnzbd", "auth": {"query": "apikey"}, "test": ["api?mode=queue&output=json&limit=1"],
+       "addressLabel": "SABnzbd URL", "addressPlaceholder": "http://sabnzbd.local:8080/", "credentialLabel": "API key"},
+      {"id": "nzbget", "label": "NZBGet", "auth": "basic", "test": ["jsonrpc/version"],
+       "addressLabel": "NZBGet URL", "addressPlaceholder": "http://nzbget.local:6789/", "usernameLabel": "Username", "credentialLabel": "Password"},
+      {"id": "qbittorrent", "label": "qBittorrent", "test": ["api/v2/transfer/info"],
+       "auth": {"login": {"path": "api/v2/auth/login", "fields": {"username": "{user}", "password": "{key}"}, "session": "cookie"}},
+       "addressLabel": "qBittorrent Web UI URL", "addressPlaceholder": "http://qbittorrent.local:8080/", "usernameLabel": "Username", "credentialLabel": "Password"}
+    ]
+  },
+  "connector": {"entry": "connector.js", "commands": ["pause", "resume", "refresh"], "storage": 131072},
+  "permissions": ["settings", "ui"],
+  "settings": [
+    {"id": "finished", "label": "Show recent finishes", "type": "toggle", "default": true,
+     "help": "Completed and failed downloads from the last day, under the queue."},
+    {"id": "seeding", "label": "Show torrents that are uploading", "type": "toggle", "default": false,
+     "help": "qBittorrent only. Finished torrents still sending to peers."}
+  ]
+}

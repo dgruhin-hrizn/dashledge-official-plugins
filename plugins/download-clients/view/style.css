@@ -1,0 +1,119 @@
+/* Downloads, on Dashledge's ui kit. Sizes come from --dl-* tokens and --dl-scale so a
+   placement keeps its physical size at the native viewport. The only colours of its own
+   are each product's mark, so a row says which client it came from. */
+:root{
+  --sab:#f5c518;
+  --nzbget:#5fbf55;
+  --qbt:#4e8fe0;
+  --bar:#ffffff1a;
+  --pad:calc(var(--dl-gap)*1.4);
+}
+html,body{height:100%}
+body{overflow:hidden}
+/* Three areas. The wide Edge sets them side by side; other shapes rearrange them below. */
+.downloads{box-sizing:border-box;height:100vh;padding:var(--pad);display:grid;gap:calc(var(--pad)*1.4);
+  grid-template-areas:"summary queue" "summary finished";
+  grid-template-columns:minmax(0,clamp(calc(300px*var(--dl-scale)),30%,calc(620px*var(--dl-scale)))) minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr) auto}
+.summary{grid-area:summary}
+.queue{grid-area:queue}
+.finished{grid-area:finished}
+@media (min-aspect-ratio:13/5){
+  .downloads{grid-template-areas:"summary queue finished";grid-template-rows:minmax(0,1fr);
+    grid-template-columns:minmax(0,clamp(calc(300px*var(--dl-scale)),24%,calc(560px*var(--dl-scale)))) minmax(0,1fr) minmax(0,clamp(calc(300px*var(--dl-scale)),26%,calc(600px*var(--dl-scale))))}
+  .finished{max-height:none}
+}
+#loading,#failed{height:100vh;box-sizing:border-box;align-content:center}
+
+/* The summary: total speed first, then what's left, then each client. */
+.summary{display:flex;flex-direction:column;gap:calc(var(--dl-gap)*.6);min-height:0;min-width:0;container-type:inline-size}
+/* The reading fits its column as well as the height: "123 MB/s" is about 3.3em wide. */
+.summary .dl-reading{font-size:clamp(calc(40px*var(--dl-scale)),min(26vh,26cqi),calc(150px*var(--dl-scale)))}
+@container (max-width:460px){.client .product{display:none}}
+.line{margin:0;color:var(--dl-sub);font-variant-numeric:tabular-nums}
+.clients{list-style:none;margin:auto 0 0;padding:0;display:grid;gap:calc(var(--dl-gap)*.5);overflow:auto}
+.client{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"mark who act" "mark note act";align-items:center;column-gap:var(--dl-gap);padding:calc(var(--dl-gap)*.5) calc(var(--dl-gap)*.7);background:var(--dl-panel);border:1px solid var(--dl-border);border-radius:var(--dl-radius)}
+.client .mark{grid-area:mark;align-self:stretch}
+.client .who{grid-area:who;display:flex;gap:.5em;align-items:baseline;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client .who strong{font-weight:560;overflow:hidden;text-overflow:ellipsis}
+.client .product{color:var(--dl-sub);font-size:var(--dl-small)}
+.client .note{grid-area:note;color:var(--dl-sub);font-size:var(--dl-small);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client .act{grid-area:act;min-width:calc(var(--dl-tap)*2)}
+.client[data-state=failed] .note,.client[data-state=stale] .note{color:var(--dl-danger)}
+.client[data-state=paused] .note{color:var(--dl-accent)}
+
+/* Each product's mark. */
+.mark{width:calc(6px*var(--dl-scale));min-height:calc(24px*var(--dl-scale));border-radius:99px;background:var(--dl-sub)}
+[data-type=sabnzbd] .mark{background:var(--sab)}
+[data-type=nzbget] .mark{background:var(--nzbget)}
+[data-type=qbittorrent] .mark{background:var(--qbt)}
+/* With one client the mark says nothing, so its column goes too. */
+.single .item .mark,.single .done .mark{display:none}
+.single .item{grid-template-columns:minmax(0,1fr) auto auto}
+.single .done{grid-template-columns:minmax(0,1fr) auto}
+
+/* The queue. */
+.queue{display:flex;flex-direction:column;gap:var(--dl-gap);min-height:0;min-width:0}
+.items{flex:1 1 auto;min-height:0;align-content:start}
+.item,.done{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:var(--dl-gap);padding:calc(var(--dl-gap)*.7) 0}
+.done{grid-template-columns:auto minmax(0,1fr) auto}
+.body{display:grid;gap:calc(5px*var(--dl-scale));min-width:0}
+.item .bar{margin-top:calc(3px*var(--dl-scale))}
+.name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{color:var(--dl-sub);font-size:var(--dl-small);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:calc(6px*var(--dl-scale));border-radius:99px;background:var(--bar);overflow:hidden}
+.fill{display:block;height:100%;background:var(--dl-accent);border-radius:inherit;transition:width .8s ease}
+.item .right,.done .right{min-width:calc(110px*var(--dl-scale));text-align:right;white-space:nowrap;color:var(--dl-sub);font-variant-numeric:tabular-nums}
+.item[data-state=downloading] .right{color:var(--dl-text)}
+.item[data-state=paused] .fill,.item[data-state=queued] .fill{background:var(--dl-sub)}
+.item[data-state=failed] .right,.done[data-ok=false] .right{color:var(--dl-danger)}
+.item[data-state=processing] .fill{background:color-mix(in srgb,var(--dl-accent) 55%,var(--dl-text))}
+.item[data-state=seeding] .fill{background:var(--qbt)}
+.toggle{width:var(--dl-tap);color:var(--dl-sub)}
+.toggle svg{width:calc(18px*var(--dl-scale));height:calc(18px*var(--dl-scale));fill:currentColor}
+.toggle[aria-pressed=true]{color:var(--dl-accent)}
+.toggle[hidden]{display:inline-grid!important;visibility:hidden}
+.nothing{margin:0;padding:var(--dl-gap) 0;color:var(--dl-sub)}
+.finished{max-height:36vh;min-height:0;min-width:0;display:flex;flex-direction:column;gap:calc(var(--dl-gap)*.4)}
+.finished .dl-list{min-height:0}
+.notice{position:fixed;left:50%;bottom:var(--pad);transform:translateX(-50%);max-width:80vw;margin:0;padding:calc(var(--dl-gap)*.6) var(--dl-gap);background:var(--dl-panel);border:1px solid var(--dl-danger);border-radius:var(--dl-radius);color:var(--dl-danger)}
+
+/* A tile taller than it is wide: the summary on top, the queue under it. */
+@media (max-aspect-ratio:3/2){
+  .downloads{grid-template-areas:"summary" "queue" "finished";grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;gap:var(--pad)}
+  .finished{max-height:28vh}
+  .summary .dl-reading{font-size:clamp(calc(36px*var(--dl-scale)),min(12vh,22cqi),calc(96px*var(--dl-scale)))}
+  .clients{margin:0;grid-template-columns:repeat(auto-fill,minmax(calc(260px*var(--dl-scale)),1fr))}
+}
+/* A tall tile without much height keeps the queue and drops the finished list. */
+@media (max-aspect-ratio:3/2) and (max-height:960px){.finished{display:none!important}}
+/* A short tile: the reading, the line and the clients; the queue's first rows if they fit. */
+@media (max-height:320px){
+  .downloads{grid-template-areas:"summary queue";grid-template-rows:minmax(0,1fr);
+    grid-template-columns:minmax(0,clamp(calc(260px*var(--dl-scale)),34%,calc(560px*var(--dl-scale)))) minmax(0,1fr)}
+  .finished{display:none!important}
+  .summary{gap:calc(var(--dl-gap)*.35)}
+  .summary .dl-caption{display:none}
+  .summary .dl-reading{font-size:clamp(calc(28px*var(--dl-scale)),min(24vh,24cqi),calc(76px*var(--dl-scale)))}
+  .line{font-size:var(--dl-small)}
+  /* Clients become one-line chips; one that isn't answering is outlined. */
+  .clients{margin:0;display:flex;flex-wrap:wrap;gap:calc(var(--dl-gap)*.4)}
+  .client{grid-template-areas:"mark who act";padding:calc(var(--dl-gap)*.25) calc(var(--dl-gap)*.4);min-width:0;flex:1 1 auto}
+  .client .note,.client .product{display:none}
+  .client[data-state=failed],.client[data-state=stale]{border-color:var(--dl-danger)}
+  .client .act{min-width:var(--dl-tap)}
+}
+@media (max-width:640px){
+  .downloads{grid-template-areas:"summary" "queue" "finished";grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
+  .clients{margin:0}
+  .item .right{min-width:0}
+  .item .meta{display:none}
+}
+/* The smallest tiles: the reading and each client's state and button; the queue waits for room. */
+@media (max-width:640px) and (max-height:320px){
+  .downloads{grid-template-areas:"summary";grid-template-rows:minmax(0,1fr)}
+  .queue{display:none}
+  .clients{overflow:auto}
+  .client[data-state=failed],.client[data-state=stale]{order:-1}
+}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}

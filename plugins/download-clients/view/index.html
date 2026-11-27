@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Downloads</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="model.js"></script>
+<script defer src="view.js"></script>
+</head>
+<body class="dl-surface">
+<main class="downloads" id="content" hidden>
+  <section class="summary" aria-live="polite">
+    <p class="dl-caption">Downloads</p>
+    <p class="dl-reading"><strong id="speed">0</strong><span class="dl-unit" id="speedUnit">B/s</span></p>
+    <p class="line" id="line"></p>
+    <ul class="clients" id="clients" aria-label="Download clients"></ul>
+  </section>
+  <section class="queue" aria-label="Queue">
+    <ol class="dl-list items" id="items"></ol>
+    <p class="nothing" id="nothing" hidden>Nothing in the queue.</p>
+  </section>
+  <section class="finished" id="finishedBox" aria-label="Finished" hidden>
+    <p class="dl-caption">Finished</p>
+    <ol class="dl-list" id="finished"></ol>
+  </section>
+</main>
+<p class="dl-loading" id="loading" role="status">Connecting to your download clients…</p>
+<div class="dl-error" id="failed" role="alert" hidden>
+  <p id="failedText"></p>
+  <button class="dl-button" id="retry" type="button">Retry</button>
+</div>
+<p class="notice" id="notice" role="alert" hidden></p>
+</body>
+</html>

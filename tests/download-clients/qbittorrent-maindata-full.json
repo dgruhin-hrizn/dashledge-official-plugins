@@ -1,0 +1,14 @@
+{
+  "rid": 1,
+  "full_update": true,
+  "torrents": {
+    "8f3c1a2b4d5e6f708192a3b4c5d6e7f801234567": {"name": "Open Distro 24.04 Desktop amd64", "progress": 0.42, "size": 6114770944, "total_size": 6114770944, "amount_left": 3546567148, "dlspeed": 5242880, "upspeed": 65536, "eta": 676, "state": "downloading", "category": "linux", "added_on": 1795805000, "completion_on": -1, "priority": 1, "num_seeds": 120, "num_leechs": 8, "save_path": "/downloads/linux"},
+    "1a2b3c4d5e6f708192a3b4c5d6e7f80123456789": {"name": "Public Domain Film Collection", "progress": 0.1, "size": 21474836480, "total_size": 21474836480, "amount_left": 19327352832, "dlspeed": 0, "upspeed": 0, "eta": 8640000, "state": "stalledDL", "category": "", "added_on": 1795800000, "completion_on": -1, "priority": 2, "num_seeds": 0, "num_leechs": 0, "save_path": "/downloads"},
+    "aa11bb22cc33dd44ee55ff6677889900aabbccdd": {"name": "Creative Commons Album FLAC", "progress": 0.0, "size": 734003200, "total_size": 734003200, "amount_left": 734003200, "dlspeed": 0, "upspeed": 0, "eta": 8640000, "state": "stoppedDL", "category": "music", "added_on": 1795801000, "completion_on": -1, "priority": 3, "num_seeds": 4, "num_leechs": 0, "save_path": "/downloads/music"},
+    "0f0e0d0c0b0a09080706050403020100ffeeddcc": {"name": "Open Distro 23.10 Server amd64", "progress": 1, "size": 2684354560, "total_size": 2684354560, "amount_left": 0, "dlspeed": 0, "upspeed": 1048576, "eta": 8640000, "state": "uploading", "category": "linux", "added_on": 1795790000, "completion_on": 1795803000, "priority": 0, "num_seeds": 50, "num_leechs": 12, "save_path": "/downloads/linux"},
+    "ffeeddccbbaa99887766554433221100fedcba98": {"name": "Old Seed Archive", "progress": 1, "size": 1073741824, "total_size": 1073741824, "amount_left": 0, "dlspeed": 0, "upspeed": 0, "eta": 8640000, "state": "stalledUP", "category": "", "added_on": 1790000000, "completion_on": 1790000600, "priority": 0, "num_seeds": 3, "num_leechs": 0, "save_path": "/downloads"}
+  },
+  "categories": {"linux": {"name": "linux", "savePath": ""}, "music": {"name": "music", "savePath": ""}},
+  "tags": [],
+  "server_state": {"dl_info_speed": 5242880, "dl_info_data": 123456789, "up_info_speed": 1114112, "up_info_data": 987654321, "dl_rate_limit": 0, "up_rate_limit": 0, "connection_status": "connected", "dht_nodes": 340, "use_alt_speed_limits": false, "queueing": true, "free_space_on_disk": 429496729600}
+}
