@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Check out the Dashledge package rules
         uses: actions/checkout@v4
         with:
@@ -33,6 +35,14 @@ jobs:
           key: dashledge-package-${{ runner.os }}-${{ hashFiles('.dashledge/src-tauri/Cargo.lock', '.dashledge/src-tauri/package-core/**') }}
       - name: Build dashledge-package
         run: cargo build --release --locked --manifest-path .dashledge/src-tauri/package-core/Cargo.toml --bin dashledge-package
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The same spec checks, packing and tests as every pull request, on the tagged commit.
+      - name: Check every plugin
+        env:
+          DASHLEDGE_PACKAGE: .dashledge/src-tauri/target/release/dashledge-package
+        run: bash scripts/check.sh
       - name: Pack and release
         env:
           TAG: ${{ github.ref_name }}

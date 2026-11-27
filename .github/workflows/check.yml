@@ -35,6 +35,9 @@ jobs:
           key: dashledge-package-${{ runner.os }}-${{ hashFiles('.dashledge/src-tauri/Cargo.lock', '.dashledge/src-tauri/package-core/**') }}
       - name: Build dashledge-package
         run: cargo build --release --locked --manifest-path .dashledge/src-tauri/package-core/Cargo.toml --bin dashledge-package
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Pack and check every plugin
         env:
           DASHLEDGE_PACKAGE: .dashledge/src-tauri/target/release/dashledge-package

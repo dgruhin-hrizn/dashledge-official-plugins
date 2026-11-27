@@ -23,6 +23,14 @@ dir="plugins/$name"
 [[ "$(jq -r .id "$dir/widget.json")" == "plugin.dashledge.$name" ]] || die "$dir/widget.json must have the id plugin.dashledge.$name."
 [[ "$(jq -r .version "$dir/widget.json")" == "$version" ]] || die "$tag says $version, but $dir/widget.json says $(jq -r .version "$dir/widget.json")."
 
+# Releases come from main, after CI and review: never from a branch nobody merged.
+git fetch -q origin main 2> /dev/null || true
+base=$(git rev-parse -q --verify origin/main || git rev-parse -q --verify main || true)
+commit=$(git rev-list -n 1 "$tag" 2> /dev/null || true)
+if [ -z "$base" ] || [ -z "$commit" ] || ! git merge-base --is-ancestor "$commit" "$base"; then
+  die "$tag isn't on main. Merge the change first, then tag the merged commit."
+fi
+
 # A published ZIP is never replaced: its listing pins the sha256.
 if gh release view "$tag" --repo "$repo" > /dev/null 2>&1; then
   die "$tag already has a release. Published packages are never replaced; release a new version."

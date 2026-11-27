@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weather (example)</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="model.js"></script>
+<script defer src="view.js"></script>
+</head>
+<body class="dl-surface">
+<main class="weather">
+  <div class="content" id="content" hidden>
+    <section class="now" aria-live="polite">
+      <p class="dl-caption place" id="place"></p>
+      <p class="dl-reading"><strong id="temp">—</strong><span class="dl-unit" id="unit"></span></p>
+      <p class="label" id="label"></p>
+      <p class="detail" id="detail"></p>
+      <p class="stale" id="stale" hidden><span id="staleText"></span><button class="dl-button" id="staleRetry" type="button">Retry</button></p>
+    </section>
+    <figure class="dl-panel next">
+      <figcaption class="dl-caption">Next 24 hours</figcaption>
+      <svg id="chart" viewBox="0 0 240 80" preserveAspectRatio="none" role="img" aria-label="Temperatures for the next 24 hours"></svg>
+      <ol class="hours" id="hours"></ol>
+    </figure>
+  </div>
+  <p class="dl-loading" id="loading" role="status">Loading the forecast…</p>
+  <div class="dl-empty" id="empty" hidden>
+    <p id="emptyText"></p>
+    <button class="dl-button" id="emptyAction" type="button">Choose a place</button>
+  </div>
+  <div class="dl-error" id="failed" role="alert" hidden>
+    <p id="failedText"></p>
+    <button class="dl-button" id="retry" type="button">Retry</button>
+  </div>
+</main>
+</body>
+</html>

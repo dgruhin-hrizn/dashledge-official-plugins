@@ -1,0 +1,44 @@
+/* Weather (example). Colours, type, panels, buttons and states come from Dashledge's
+   ui kit (--dl-* tokens and dl-* classes); this file only lays them out. */
+html,body{height:100%}
+body{overflow:hidden}
+.weather{box-sizing:border-box;height:100%;padding:var(--dl-gap);display:grid}
+.weather>[hidden]{display:none}
+.weather>.dl-loading,.weather>.dl-empty,.weather>.dl-error{align-self:center}
+.dl-empty p,.dl-error p{margin:0;max-width:32em}
+
+/* Side by side on the wide Edge, stacked in a taller placement. */
+.content{display:grid;gap:var(--dl-gap);grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);align-items:stretch;min-height:0}
+.now{display:flex;flex-direction:column;justify-content:safe center;gap:calc(var(--dl-gap)*.4);min-width:0}
+.place{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* The reading is what gets noticed first: as large as the placement's height allows. */
+.now .dl-reading{font-size:clamp(calc(40px*var(--dl-scale)),30vh,calc(170px*var(--dl-scale)))}
+/* Room for "-40" so a changing reading can't move the unit. */
+.dl-reading strong{min-width:2.2ch;text-align:right}
+.label{margin:0;font-size:calc(var(--dl-body)*1.4);font-weight:560}
+.detail{margin:0;color:var(--dl-sub);font-size:var(--dl-body);font-variant-numeric:tabular-nums}
+.stale{margin:0;color:var(--dl-sub);font-size:var(--dl-small)}
+.stale{display:flex;align-items:center;gap:var(--dl-gap)}
+
+.next{margin:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:calc(var(--dl-gap)*.6);min-height:0}
+#chart{width:100%;height:100%;min-height:calc(48px*var(--dl-scale))}
+#chart path{fill:none;stroke:var(--dl-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.hours{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));margin:0;padding:0;list-style:none;text-align:center;font-variant-numeric:tabular-nums}
+.hours li{display:grid;gap:.2em}
+.hours span{color:var(--dl-sub);font-size:var(--dl-small);white-space:nowrap}
+.hours strong{font-weight:520;font-size:var(--dl-body)}
+
+@media (max-aspect-ratio:3/2){
+  .content{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+}
+/* A short or narrow placement keeps the reading and drops the next 24 hours. */
+@media (max-height:280px),(max-width:360px){
+  .content{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+  .next{display:none}
+  .label{font-size:var(--dl-body)}
+  .detail{font-size:var(--dl-small)}
+}
+@media (max-width:640px){
+  .hours li:nth-child(even){display:none}
+  .hours{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
