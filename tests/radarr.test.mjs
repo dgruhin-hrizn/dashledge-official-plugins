@@ -77,6 +77,7 @@ test('the queue, the calendar and the server’s name arrive in one object', asy
   assert.equal(lantern.timeLeft, 12 * 60 + 34);
   assert.equal(Math.round(lantern.progress * 100), 62);
   assert.deepEqual([lantern.quality, lantern.client, lantern.status, lantern.state, lantern.poster], ['Bluray-1080p', 'SABnzbd', 'downloading', 'downloading', true]);
+  assert.equal(lantern.fanart, true, 'fanart for the card’s backdrop');
   assert.equal(data.queue.items.find(i => i.movieId === 102).timeLeft, 86400 + 2 * 3600 + 3 * 60 + 4, 'days.hours:minutes:seconds');
   assert.equal(data.queue.items.find(i => i.movieId === 103).message, 'No files found are eligible for import in /downloads/Release 3');
   assert.equal(data.queue.items.find(i => i.movieId === 105).message, 'Download failed: unpacking failed', 'the error message when there are no status messages');
@@ -87,7 +88,7 @@ test('the queue, the calendar and the server’s name arrive in one object', asy
   assert.deepEqual([data.calendar.start, data.calendar.end], ['2026-11-13', '2027-01-27']);
   const ferry = data.calendar.items.find(m => m.id === 201);
   assert.deepEqual(ferry.releases, [{type: 'cinema', date: '2026-10-02'}, {type: 'digital', date: '2026-11-27'}, {type: 'physical', date: '2026-12-15'}]);
-  assert.deepEqual([ferry.hasFile, ferry.monitored, ferry.available, ferry.poster], [false, true, true, true]);
+  assert.deepEqual([ferry.hasFile, ferry.monitored, ferry.available, ferry.poster, ferry.fanart], [false, true, true, true, true]);
   assert.deepEqual(data.searches, {});
 });
 
@@ -248,29 +249,49 @@ test('the model reads settings and dates without the host’s clock or time zone
   assert.deepEqual([0, 950, 3.04e9, 18.4e9, 1.2e12].map(M.bytes), ['', '950 B', '3.0 GB', '18.4 GB', '1.2 TB']);
 });
 
-test('queue rows: downloading first, then importing, problems, paused and queued', async () => {
+test('queue cards: downloading first, then importing, problems, paused and queued', async () => {
   const c = start({respond: radarr()});
   await c.settle();
   const M = model();
   const rows = M.queueRows(c.last().queue.items);
-  assert.deepEqual(rows.map(r => [r.title, r.when, r.tone, r.percent]), [
-    ['The Lantern Keeper', '12 min', 'active', '62%'],
-    ['Paper Harbor', '1 d 2 h', 'active', '18%'],
-    ['Static Bloom', 'Can’t import', 'warning', '100%'],
-    ['Glass Orchard', 'Failed', 'failed', '0%'],
-    ['North of Quiet', 'Paused', 'paused', '25%'],
-    ['Ember Season', 'Queued', 'waiting', '0%'],
+  assert.deepEqual(rows.map(r => [r.title, r.phase, r.when, r.tone, r.percent]), [
+    ['The Lantern Keeper', 'Downloading', '12 min', 'active', '62%'],
+    ['Paper Harbor', 'Downloading', '1 d 2 h', 'active', '18%'],
+    ['Static Bloom', 'Can’t import', 'Can’t import', 'warning', '100%'],
+    ['Glass Orchard', 'Failed', 'Failed', 'failed', '0%'],
+    ['North of Quiet', 'Paused', 'Paused', 'paused', '25%'],
+    ['Ember Season', 'Queued', 'Queued', 'waiting', '0%'],
   ]);
-  assert.equal(rows[0].detail, 'Bluray-1080p · SABnzbd');
-  assert.equal(rows[2].detail, 'No files found are eligible for import in /downloads/Release 3', 'a problem shows Radarr’s reason');
+  assert.deepEqual([rows[0].meta, rows[0].amount, rows[0].note, rows[0].poster, rows[0].fanart], ['2026 · Bluray-1080p · SABnzbd', '5.0 GB of 8.0 GB', '', true, true]);
   assert.equal(rows[0].key, 'q2');
+  assert.equal(rows[2].note, 'No files found are eligible for import in /downloads/Release 3', 'a problem shows Radarr’s reason');
+  assert.equal(rows[2].amount, '6.0 GB', 'a finished download shows its size');
   assert.equal(M.queueSummary(c.last().queue.items, 6), '2 downloading · 18.1 GB left · 2 need attention');
+  assert.deepEqual(M.queueStats(c.last().queue.items, 9).map(s => s.tone), ['', '', 'warning', '']);
   assert.equal(M.queueSummary(c.last().queue.items, 9), '2 downloading · 18.1 GB left · 2 need attention · 3 more in Radarr');
-  assert.deepEqual(M.queueStatus({status: 'completed', state: 'importing'}), {label: 'Importing', tone: 'done'});
-  assert.deepEqual(M.queueStatus({status: 'downloadClientUnavailable'.toLowerCase()}), {label: 'Client unavailable', tone: 'warning'});
+  assert.equal(M.queueSummary([], 0), 'Nothing downloading');
+  assert.deepEqual(M.queueStatus({status: 'completed', state: 'importing'}), {phase: 'Importing', label: 'Importing', tone: 'done'});
+  assert.deepEqual(M.queueStatus({status: 'downloadclientunavailable'}), {phase: 'Client unavailable', label: 'Client unavailable', tone: 'warning'});
   assert.equal(M.firstPane('auto', c.last().queue.items), 'queue');
   assert.equal(M.firstPane('auto', []), 'upcoming');
   assert.equal(M.firstPane('queue', []), 'queue');
+});
+
+test('the header’s status chip: connecting, live, idle and stale', async () => {
+  const M = model();
+  assert.equal(M.freshness(null, START).kind, 'loading');
+  const c = start({respond: radarr()});
+  await c.settle();
+  assert.deepEqual(M.freshness(c.last(), START), {kind: 'live', label: 'Live', note: ''});
+  const idle = start({respond: radarr({queue: {json: queueEmpty}})});
+  await idle.settle();
+  assert.deepEqual(M.freshness(idle.last(), START), {kind: 'idle', label: 'Up to date', note: ''});
+  assert.deepEqual(M.freshness(c.last(), START + 5 * 60 * 1000),
+    {kind: 'stale', label: 'Updated 5 min ago', note: 'Last updated 5 min ago', auth: false}, 'an old queue is stale');
+  const refused = start({respond: radarr({queue: {status: 401}})});
+  await refused.settle();
+  assert.deepEqual(M.freshness(refused.last(), START),
+    {kind: 'stale', label: 'Updated just now', note: 'Radarr refused the API key (HTTP 401).', auth: true});
 });
 
 test('Coming up: missing first, then each movie at its next chosen release within the days asked', async () => {
@@ -280,14 +301,19 @@ test('Coming up: missing first, then each movie at its next chosen release withi
   const M = model();
   const today = '2026-11-27', now = START;
   const all = M.upcomingRows(cal.items, {today, days: 30, types: M.TYPES, queue: q.items, searches: {}, now});
-  assert.deepEqual(all.map(r => [r.title, r.detail, r.big, r.when, r.state]), [
-    ['Tidewater', 'Digital · Wed, Nov 18', '', 'Missing', 'missing'],
-    ['The Lantern Keeper', 'Digital · Wed, Nov 25', '62%', 'Downloading', 'queued'],
-    ['Midnight Ferry', 'Digital · Fri, Nov 27', '', 'Today', 'upcoming'],
-    ['Harbor Lights', 'Physical · Sat, Nov 28', '', 'Tomorrow', 'upcoming'],
-    ['The Long Field', 'In cinemas · Fri, Dec 4', '', 'In 7 days', 'upcoming'],
-    ['Lowlight', 'Physical · Tue, Dec 8', '', 'Downloaded', 'downloaded'],
+  assert.deepEqual(all.map(r => [r.title, r.detail, r.chip, r.big, r.when, r.state]), [
+    ['Tidewater', 'Digital · Wed, Nov 18', 'Missing', '', 'Missing', 'missing'],
+    ['The Lantern Keeper', 'Digital · Wed, Nov 25', '62%', '62%', 'Downloading', 'queued'],
+    ['Midnight Ferry', 'Digital · Fri, Nov 27', 'Today', '', 'Today', 'upcoming'],
+    ['Harbor Lights', 'Physical · Sat, Nov 28', 'Tomorrow', '', 'Tomorrow', 'upcoming'],
+    ['The Long Field', 'In cinemas · Fri, Dec 4', 'Dec 4', '', 'In 7 days', 'upcoming'],
+    ['Lowlight', 'Physical · Tue, Dec 8', 'Dec 8', '', 'Downloaded', 'downloaded'],
   ]);
+  assert.deepEqual([all[2].type, all[2].typeLabel, all[2].dateText, all[2].poster, all[2].fanart], ['digital', 'Digital', 'Fri, Nov 27', true, true]);
+  assert.equal(Math.round(all[1].progress * 100), 62, "a queued movie carries its progress");
+  assert.equal(M.nextRelease(all, today).title, 'Midnight Ferry', 'an idle queue features the next release still to come');
+  assert.equal(M.nextRelease([], today), null);
+  assert.deepEqual(['2026-11-27', '2026-11-30', '2026-12-03', '2026-12-04'].map(d => M.chipLabel(d, today)), ['Today', 'In 3 days', 'In 6 days', 'Dec 4']);
   assert.equal(all[0].searchable, true);
   assert.equal(all[1].searchable, false, 'already downloading');
   assert.equal(all[2].others, 'Physical Dec 15');

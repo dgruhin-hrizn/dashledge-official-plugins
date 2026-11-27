@@ -64,7 +64,8 @@ function seconds(span) {
   return Number(m[1] || 0) * 86400 + Number(m[2]) * 3600 + Number(m[3]) * 60 + Number(m[4]);
 }
 
-const hasPoster = movie => Array.isArray(movie?.images) && movie.images.some(i => i?.coverType === 'poster');
+// Whether Radarr has this artwork for a movie, so the view only asks for what exists.
+const hasArt = (movie, type) => Array.isArray(movie?.images) && movie.images.some(i => i?.coverType === type);
 
 // The first message Radarr gives about a download, such as why it's waiting to import.
 function firstMessage(record) {
@@ -84,7 +85,8 @@ function queueItem(record) {
     movieId: int(record.movieId) ?? int(movie.id) ?? 0,
     title: str(movie.title) || 'Unknown movie',
     year: int(movie.year) ?? 0,
-    poster: hasPoster(movie),
+    poster: hasArt(movie, 'poster'),
+    fanart: hasArt(movie, 'fanart'),
     quality: str(record.quality?.quality?.name, 40),
     client: str(record.downloadClient, 60),
     protocol: str(record.protocol, 12),
@@ -116,7 +118,8 @@ function calendarItem(movie) {
     id: int(movie.id) ?? 0,
     title: str(movie.title) || 'Unknown movie',
     year: int(movie.year) ?? 0,
-    poster: hasPoster(movie),
+    poster: hasArt(movie, 'poster'),
+    fanart: hasArt(movie, 'fanart'),
     hasFile: movie.hasFile === true,
     monitored: movie.monitored !== false,
     available: movie.isAvailable === true,

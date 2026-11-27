@@ -74,56 +74,69 @@
     return Math.round(hours / 24) + ' days ago';
   }
 
-  // What a queue record is doing, in words, and how its bar is drawn: active, paused,
-  // waiting, warning, failed or done.
+  // What a queue record is doing: `phase` in words for the card's eyebrow, `label` for
+  // the reading beside its bar (the time left while downloading), and `tone` for colour:
+  // active, done, warning, failed, paused or waiting.
   function queueStatus(item) {
     const {status, state, tracked} = item;
-    if (state === 'failed' || state === 'failedpending' || status === 'failed') return {label: 'Failed', tone: 'failed'};
-    if (state === 'importing') return {label: 'Importing', tone: 'done'};
-    if (state === 'importpending') return {label: tracked === 'warning' ? 'Can’t import' : 'Waiting to import', tone: tracked === 'warning' ? 'warning' : 'done'};
-    if (state === 'imported') return {label: 'Imported', tone: 'done'};
-    if (status === 'completed') return {label: 'Completed', tone: 'done'};
-    if (status === 'paused') return {label: 'Paused', tone: 'paused'};
-    if (status === 'queued') return {label: 'Queued', tone: 'waiting'};
-    if (status === 'delay') return {label: 'Delayed', tone: 'waiting'};
-    if (status === 'downloadclientunavailable') return {label: 'Client unavailable', tone: 'warning'};
-    if (status === 'warning' || tracked === 'warning' || tracked === 'error') {
-      return {label: duration(item.timeLeft) || 'Warning', tone: 'warning'};
-    }
-    if (status === 'downloading') return {label: duration(item.timeLeft) || 'Downloading', tone: 'active'};
-    return {label: status ? status[0].toUpperCase() + status.slice(1) : 'Unknown', tone: 'waiting'};
+    const is = (phase, label, tone) => ({phase, label: label ?? phase, tone});
+    if (state === 'failed' || state === 'failedpending' || status === 'failed') return is('Failed', null, 'failed');
+    if (state === 'importing') return is('Importing', null, 'done');
+    if (state === 'importpending') return tracked === 'warning' ? is('Can’t import', null, 'warning') : is('Waiting to import', null, 'done');
+    if (state === 'imported') return is('Imported', null, 'done');
+    if (status === 'completed') return is('Completed', null, 'done');
+    if (status === 'paused') return is('Paused', null, 'paused');
+    if (status === 'queued') return is('Queued', null, 'waiting');
+    if (status === 'delay') return is('Delayed', null, 'waiting');
+    if (status === 'downloadclientunavailable') return is('Client unavailable', null, 'warning');
+    if (status === 'warning' || tracked === 'warning' || tracked === 'error') return is('Downloading', duration(item.timeLeft) || 'Warning', 'warning');
+    if (status === 'downloading') return is('Downloading', duration(item.timeLeft) || 'Downloading', 'active');
+    const word = status ? status[0].toUpperCase() + status.slice(1) : 'Unknown';
+    return is(word, null, 'waiting');
   }
 
   const needsAttention = tone => tone === 'warning' || tone === 'failed';
   const ORDER = {active: 0, done: 1, warning: 2, failed: 3, paused: 4, waiting: 5};
 
-  // One row per queue record: downloading first (soonest done first), then importing,
+  // One card per queue record: downloading first (soonest done first), then importing,
   // then problems, then paused and queued.
   function queueRows(items) {
     return (items || []).map(item => {
       const s = queueStatus(item);
       const progress = typeof item.progress === 'number' ? item.progress : null;
-      const detail = needsAttention(s.tone) && item.message ? item.message : [item.quality, item.client].filter(Boolean).join(' · ');
+      const done = item.size > 0 ? bytes(item.size - (item.left || 0)) || '0 B' : '';
       return {
-        key: 'q' + item.id, movieId: item.movieId, title: item.title, year: item.year || '', poster: item.poster,
-        percent: progress === null ? '' : Math.floor(progress * 100) + '%', progress, when: s.label, tone: s.tone, detail,
+        key: 'q' + item.id, movieId: item.movieId, title: item.title, year: item.year || '', poster: item.poster, fanart: item.fanart,
+        percent: progress === null ? '' : Math.floor(progress * 100) + '%', progress, when: s.label, phase: s.phase, tone: s.tone,
+        meta: [item.year, item.quality, item.client].filter(Boolean).join(' · '),
+        amount: done && progress !== null && progress < 1 ? done + ' of ' + bytes(item.size) : bytes(item.size),
+        note: needsAttention(s.tone) ? item.message || '' : '',
         sort: [ORDER[s.tone] ?? 9, typeof item.timeLeft === 'number' ? item.timeLeft : Infinity],
       };
     }).sort((a, b) => a.sort[0] - b.sort[0] || a.sort[1] - b.sort[1]);
   }
 
-  // "3 downloading · 4.1 GB left · 1 needs attention", or "Nothing downloading".
-  function queueSummary(items, total) {
+  // The header's figures: [{text, tone}], such as "2 downloading", "18.1 GB left" and
+  // "2 need attention" (tone warning), or "Nothing downloading".
+  function queueStats(items, total) {
     const rows = queueRows(items);
-    if (!rows.length) return 'Nothing downloading';
+    if (!rows.length) return [{text: 'Nothing downloading', tone: ''}];
     const downloading = (items || []).filter(i => i.status === 'downloading');
     const problems = rows.filter(r => needsAttention(r.tone)).length;
     const left = bytes(downloading.reduce((sum, i) => sum + (i.left || 0), 0));
-    const parts = [downloading.length ? downloading.length + ' downloading' : rows.length + ' in queue'];
-    if (left) parts.push(left + ' left');
-    if (problems) parts.push(problems + (problems === 1 ? ' needs attention' : ' need attention'));
-    if (total > rows.length) parts.push(total - rows.length + ' more in Radarr');
-    return parts.join(' · ');
+    const stats = [{text: downloading.length ? downloading.length + ' downloading' : rows.length + ' in queue', tone: ''}];
+    if (left) stats.push({text: left + ' left', tone: ''});
+    if (problems) stats.push({text: problems + (problems === 1 ? ' needs attention' : ' need attention'), tone: 'warning'});
+    if (total > rows.length) stats.push({text: total - rows.length + ' more in Radarr', tone: ''});
+    return stats;
+  }
+  const queueSummary = (items, total) => queueStats(items, total).map(s => s.text).join(' · ');
+
+  // A date chip: Today, Tomorrow or In 3 days within the week, else "Dec 4".
+  function chipLabel(date, today) {
+    const n = daysBetween(today, date);
+    if (n >= 0 && n < 7) return relativeDay(date, today);
+    return dateLabel(date, today).replace(/^\w+, /, '');
   }
 
   // Coming up: each movie once, at its next release of the chosen types within `days`.
@@ -143,24 +156,30 @@
       if (!release) continue;
       const queued = downloading.get(movie.id);
       const searched = searches[movie.id];
-      let state = 'upcoming', when = relativeDay(release.date, today), big = '';
+      let state = 'upcoming', when = relativeDay(release.date, today), big = '', progress = null;
       if (movie.hasFile) { state = 'downloaded'; when = 'Downloaded'; }
       else if (queued) {
         state = 'queued';
         when = queued.status === 'downloading' ? 'Downloading' : 'In queue';
-        big = typeof queued.progress === 'number' ? Math.floor(queued.progress * 100) + '%' : '';
+        progress = typeof queued.progress === 'number' ? queued.progress : null;
+        big = progress === null ? '' : Math.floor(progress * 100) + '%';
       }
       else if (missing) { state = searched && now - searched < SEARCH_HOLD ? 'searching' : 'missing'; when = state === 'searching' ? 'Searching…' : 'Missing'; }
       const others = releases.filter(r => r !== release && r.date >= today).map(r => RELEASE[r.type] + ' ' + dateLabel(r.date, today).replace(/^\w+, /, ''));
       rows.push({
-        key: 'u' + movie.id, movieId: movie.id, title: movie.title, year: movie.year || '', poster: movie.poster,
-        date: release.date, detail: RELEASE[release.type] + ' · ' + dateLabel(release.date, today), others: others.join(' · '),
-        when, big, state, searchable: state === 'missing',
+        key: 'u' + movie.id, movieId: movie.id, title: movie.title, year: movie.year || '', poster: movie.poster, fanart: movie.fanart,
+        date: release.date, type: release.type, typeLabel: RELEASE[release.type], dateText: dateLabel(release.date, today),
+        chip: state === 'missing' || state === 'searching' ? when : state === 'queued' ? big || when : chipLabel(release.date, today),
+        detail: RELEASE[release.type] + ' · ' + dateLabel(release.date, today), others: others.join(' · '),
+        when, big, progress, state, searchable: state === 'missing',
       });
     }
     const rank = r => (r.state === 'missing' || r.state === 'searching' ? 0 : 1);
     return rows.sort((a, b) => rank(a) - rank(b) || (a.date < b.date ? -1 : a.date > b.date ? 1 : a.title.localeCompare(b.title)));
   }
+
+  // The release an idle queue features: the next one still to come that isn't on disk.
+  const nextRelease = (rows, today) => (rows || []).find(r => r.date >= today && r.state === 'upcoming') || null;
 
   // A pane's state: loading (nothing yet), failed (nothing to show and the read failed),
   // or ready, which is stale when the latest read failed or the data is old.
@@ -172,12 +191,26 @@
     return {kind: 'ready', stale, note, auth: error?.kind === 'auth'};
   }
 
+  // The header's status chip: live (something is downloading), idle, stale (with when
+  // and why, and Retry) or connecting. Stale wins when either section is.
+  function freshness(data, now) {
+    const q = paneState(data?.queue, now, MAX_AGE.queue), c = paneState(data?.calendar, now, MAX_AGE.calendar);
+    if (q.kind === 'loading' && c.kind === 'loading') return {kind: 'loading', label: 'Connecting', note: ''};
+    const stale = [q, c].find(s => s.stale || s.kind === 'failed');
+    if (stale) {
+      const at = Math.max(data?.queue?.at || 0, data?.calendar?.at || 0);
+      return {kind: 'stale', label: at ? 'Updated ' + ageLabel(at, now) : 'Unavailable', note: stale.note || stale.error || '', auth: Boolean(stale.auth)};
+    }
+    const busy = (data?.queue?.items || []).some(i => i.status === 'downloading');
+    return {kind: busy ? 'live' : 'idle', label: busy ? 'Live' : 'Up to date', note: ''};
+  }
+
   // Which pane a small placement opens on.
   function firstPane(choice, queueItems) {
     if (choice === 'queue' || choice === 'upcoming') return choice;
     return queueRows(queueItems).some(r => r.tone === 'active' || r.tone === 'warning') ? 'queue' : 'upcoming';
   }
 
-  root.RadarrModel = {TYPES, MAX_AGE, settings, localDay, daysBetween, addDays, dateLabel, relativeDay, duration, bytes, ageLabel,
-    queueStatus, queueRows, queueSummary, upcomingRows, paneState, firstPane};
+  root.RadarrModel = {TYPES, MAX_AGE, settings, localDay, daysBetween, addDays, dateLabel, relativeDay, chipLabel, duration, bytes, ageLabel,
+    queueStatus, queueRows, queueStats, queueSummary, upcomingRows, nextRelease, paneState, freshness, firstPane};
 })(globalThis);
