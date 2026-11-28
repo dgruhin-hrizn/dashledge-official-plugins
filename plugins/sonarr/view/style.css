@@ -1,97 +1,242 @@
-/* Sonarr. Colours, type, panels, buttons and states come from Dashledge's ui kit
-   (--dl-* tokens and dl-* classes); this file only lays them out. The queue row and
-   poster sizes match the Radarr plugin's. */
+/* Sonarr, in the same design as the Radarr plugin. Type, panels, buttons and states come
+   from Dashledge's ui kit (--dl-* tokens and dl-* classes). Sonarr's own blue appears only
+   where it identifies Sonarr: the mark and the glow behind the header. Sizes are reference pixels times --dl-scale, so a placement
+   keeps its physical size at the native viewport (2560 × 720 on the Edge). */
+:root{
+  --s:var(--dl-scale);
+  --brand:#35c5f4;
+  --glass:color-mix(in srgb,var(--dl-bg) 72%,transparent);
+  --line:color-mix(in srgb,var(--dl-text) 12%,transparent);
+  --well:color-mix(in srgb,var(--dl-text) 14%,transparent);
+  --scrim:color-mix(in srgb,var(--dl-bg) 86%,transparent);
+  --scrim-soft:color-mix(in srgb,var(--dl-bg) 55%,transparent);
+  --scrim-deep:color-mix(in srgb,var(--dl-bg) 96%,transparent);
+  --on-fill:var(--dl-bg);
+  --warn:#f5c86a;
+  --wash:color-mix(in srgb,var(--dl-accent) 16%,transparent);
+  --radius-lg:calc(16px*var(--s));
+  --radius-md:calc(10px*var(--s));
+  /* What isn't poster in a shelf column: header, padding, the pane head and the caption. */
+  --chrome:calc(196px*var(--s));
+}
 html,body{height:100%}
-body{overflow:hidden}
-.sonarr{box-sizing:border-box;height:100%;padding:var(--dl-gap);display:grid;min-height:0}
-.sonarr>.state{align-self:center}
+body{overflow:hidden;background:radial-gradient(ellipse 70% 120% at 0% -55%,color-mix(in srgb,var(--brand) 17%,transparent),transparent 62%),radial-gradient(ellipse 60% 90% at 100% 130%,color-mix(in srgb,var(--dl-accent) 9%,transparent),transparent 60%),var(--dl-bg)}
+.sonarr{box-sizing:border-box;height:100%;padding:calc(8px*var(--s)) var(--dl-gap) var(--dl-gap);display:grid;grid-template-rows:auto minmax(0,1fr);gap:calc(10px*var(--s))}
+.sonarr>.whole{grid-row:2;align-self:center}
 .dl-empty p,.dl-error p{margin:0;max-width:32em}
-.actions{display:flex;gap:var(--dl-gap);justify-content:center}
+.actions{display:flex;gap:var(--dl-gap);justify-content:center;flex-wrap:wrap}
+button{font:inherit;color:inherit;touch-action:manipulation}
 
-.content{display:grid;grid-template-rows:auto minmax(0,1fr);gap:var(--dl-gap);min-height:0}
-/* The stale note moves to its own line when the header runs out of room. */
-.top{display:flex;flex-wrap:wrap;align-items:center;gap:calc(var(--dl-gap)*.5) var(--dl-gap);min-height:var(--dl-tap);min-width:0}
-.server{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tabs{display:flex;gap:calc(var(--dl-gap)*.5);flex:none}
-.tab{gap:.45em;grid-auto-flow:column}
-.count{color:var(--dl-sub);font-variant-numeric:tabular-nums}
-.count:empty{display:none}
-.tab[aria-pressed=true] .count{color:inherit}
-.stale{display:flex;flex:1 1 auto;justify-content:flex-end;align-items:center;gap:calc(var(--dl-gap)*.6);margin:0;min-width:min(100%,24em);color:var(--dl-sub);font-size:var(--dl-small)}
-.stale-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ---- Header: Sonarr's mark, the server, the queue's figures and a live status chip. */
+.top{display:flex;align-items:center;gap:calc(14px*var(--s));min-width:0;min-height:calc(52px*var(--s))}
+.brand{display:flex;align-items:center;gap:calc(10px*var(--s));flex:none}
+.mark{display:grid;place-items:center;width:calc(36px*var(--s));height:calc(36px*var(--s));border-radius:calc(10px*var(--s));background:linear-gradient(145deg,#8fe0fb,var(--brand) 55%,#1590c6);box-shadow:0 calc(4px*var(--s)) calc(14px*var(--s)) color-mix(in srgb,var(--brand) 35%,transparent),inset 0 1px 0 #ffffff80}
+.mark svg{width:72%;height:72%;fill:none;stroke:#05222e;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.mark .play{fill:#05222e;stroke:none}
+.brand b{font-size:calc(26px*var(--s));font-weight:740;letter-spacing:-.05em}
+.server{margin:0;min-width:0;flex:0 1 auto;padding-left:calc(14px*var(--s));border-left:1px solid var(--line);color:var(--dl-sub);font-size:calc(19px*var(--s));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.server:empty{display:none}
+.stats{display:flex;justify-content:flex-end;gap:calc(18px*var(--s));flex:1 1 auto;min-width:0;margin:0;color:var(--dl-sub);font-size:calc(19px*var(--s));font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
+.stats span{display:inline-flex;align-items:center;gap:calc(18px*var(--s))}
+.stats span+span::before{content:"";width:calc(4px*var(--s));height:calc(4px*var(--s));border-radius:50%;background:var(--dl-sub);opacity:.6}
+.stats span:first-child{color:var(--dl-text);font-weight:600}
+.stats [data-tone=warning]{color:var(--warn)}
+.status{display:flex;align-items:center;gap:calc(9px*var(--s));flex:none;min-height:var(--dl-tap);padding:0 calc(16px*var(--s));box-sizing:border-box;border:1px solid var(--line);border-radius:999px;color:var(--dl-sub);font-size:calc(18px*var(--s));font-weight:620;white-space:nowrap}
+.status:has(.retry:not([hidden])){padding-right:calc(5px*var(--s))}
+.status-short{display:none}
+.status .dot{width:calc(10px*var(--s));height:calc(10px*var(--s));border-radius:50%;background:currentColor;flex:none}
+.status[data-kind=live]{color:var(--dl-accent);background:var(--wash);border-color:transparent}
+.status[data-kind=live] .dot{box-shadow:0 0 0 calc(4px*var(--s)) var(--wash)}
+.status[data-kind=idle]{color:var(--dl-text)}
+.status[data-kind=idle] .dot{background:none;box-shadow:inset 0 0 0 calc(2px*var(--s)) var(--dl-accent)}
+.status[data-kind=stale]{color:var(--warn)}
+.status .retry{min-height:var(--dl-tap);min-width:0;padding:0 calc(12px*var(--s));border-radius:999px;font-size:calc(16px*var(--s))}
+/* The tabs show only where one pane fits at a time. */
+.tabs{display:none;gap:calc(3px*var(--s));padding:calc(3px*var(--s));border:1px solid var(--line);border-radius:calc(12px*var(--s));background:var(--glass)}
+.tab{display:inline-flex;align-items:center;gap:.45em;min-height:var(--dl-tap);padding:0 calc(16px*var(--s));border:0;border-radius:calc(9px*var(--s));background:none;color:var(--dl-sub);font-size:calc(18px*var(--s));font-weight:650;white-space:nowrap;cursor:pointer}
+.tab[aria-pressed=true]{color:var(--dl-text);background:color-mix(in srgb,var(--dl-accent) 22%,var(--dl-panel))}
+.tab:focus-visible{outline:2px solid var(--dl-accent);outline-offset:-2px}
+.tab .count{color:var(--dl-accent);font-variant-numeric:tabular-nums}
+.tab .count:empty{display:none}
 
-/* One list at a time in a small placement; both side by side on the wide Edge. */
-.panes{display:grid;gap:var(--dl-gap);min-height:0;grid-template-columns:minmax(0,1fr)}
-.sonarr[data-pane=upcoming] .pane.queue,.sonarr[data-pane=queue] .pane.upcoming{display:none}
-.pane{display:grid;grid-template-rows:auto minmax(0,1fr);gap:calc(var(--dl-gap)*.5);min-height:0;min-width:0;padding-bottom:0}
-.pane-title{display:flex;gap:.6em;align-items:baseline}
-.pane-title>:first-child{display:none}
-.pane.queue .pane-title{display:none}
-.pane-note{font-variant-numeric:tabular-nums}
-.pane-note:empty{display:none}
-.pane-state{align-self:center}
-/* The list stays in the scrolling row even when a compact pane hides its title. */
-.pane>.rows,.pane>.pane-state{grid-row:2}
-/* Rows keep their height when there are few; the list scrolls by touch, without a bar
-   over the right-hand column. */
-.rows{min-height:0;overflow:auto;overscroll-behavior:contain;align-content:start;scrollbar-width:none;padding-bottom:calc(var(--dl-gap)*.5)}
-@media (min-width:1000px){
-  .tabs{display:none}
-  .panes{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
-  .sonarr[data-pane] .pane.queue,.sonarr[data-pane] .pane.upcoming{display:grid}
-  .pane-title>:first-child{display:inline}
-  .pane.queue .pane-title{display:flex}
-  .pane-title{color:var(--dl-sub)}
-  .pane-note::before{content:"· "}
+/* ---- The stage: the queue and Coming up side by side; an idle queue gives up room. */
+.stage{display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);gap:calc(18px*var(--s));min-height:0}
+.sonarr[data-queue=empty] .stage{grid-template-columns:minmax(0,.82fr) minmax(0,1.5fr)}
+.pane{display:grid;grid-template-rows:auto minmax(0,1fr);gap:calc(8px*var(--s));min-height:0;min-width:0}
+.pane-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dl-gap);min-height:calc(30px*var(--s))}
+.pane-head .count{color:var(--dl-sub);font-size:var(--dl-small);font-variant-numeric:tabular-nums}
+.pane>.dl-loading,.pane>.dl-empty,.pane>.dl-error{grid-row:2;align-self:center}
+.pane>.cards,.pane>.card,.pane>.shelf{grid-row:2}
+.cards,.shelf{scrollbar-width:none;overscroll-behavior:contain}
+.cards::-webkit-scrollbar,.shelf::-webkit-scrollbar{display:none}
+.cards:focus-visible,.shelf:focus-visible{outline:2px solid var(--dl-accent);outline-offset:2px;border-radius:var(--radius-lg)}
+
+/* ---- Queue cards: the series' fanart behind its poster, episode, title and progress. */
+/* When more cards wait off to the side, the last visible one fades out toward them. */
+.cards[data-more=true]{mask-image:linear-gradient(90deg,#000 calc(100% - calc(60px*var(--s))),transparent)}
+/* Cards share the width up to three at a time, but never shrink below a readable card. */
+.cards{--min-card:calc(380px*var(--s));display:grid;grid-auto-flow:column;grid-auto-columns:max(min(100%,var(--min-card)),calc((100% - (var(--cols,1) - 1)*var(--dl-gap))/var(--cols,1)));gap:var(--dl-gap);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;touch-action:pan-x;min-height:0}
+.card{position:relative;isolation:isolate;display:grid;grid-template-rows:minmax(0,1fr) auto;min-width:0;min-height:0;margin:0;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-lg);background:linear-gradient(140deg,var(--dl-panel),var(--dl-bg));box-shadow:0 calc(8px*var(--s)) calc(24px*var(--s)) #0006,inset 0 1px 0 var(--line);scroll-snap-align:start}
+.backdrop{position:absolute;inset:0;z-index:-2;overflow:hidden}
+.backdrop img{width:100%;height:100%;object-fit:cover;object-position:center 30%;opacity:0;transform:scale(1.04);transition:opacity .6s ease,transform 1.2s ease}
+.backdrop.loaded img{opacity:.6;transform:none}
+.card::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(100deg,var(--scrim) 0%,var(--scrim-soft) 48%,var(--scrim) 100%),linear-gradient(0deg,var(--scrim-deep) 0%,transparent 52%)}
+.film{display:grid;grid-template-columns:minmax(0,43fr) minmax(0,57fr);gap:calc(18px*var(--s));min-height:0;padding:calc(16px*var(--s)) calc(18px*var(--s)) calc(6px*var(--s))}
+.sleeve{container-type:size;min-width:0;min-height:0;display:grid;align-items:center;justify-items:start}
+.sleeve>*{grid-area:1/1}
+.sleeve img,.sleeve .ph{width:min(100cqw,calc(100cqh*2/3));aspect-ratio:2/3;height:auto;border-radius:var(--radius-md)}
+.sleeve img{object-fit:cover;opacity:0;box-shadow:0 calc(8px*var(--s)) calc(22px*var(--s)) #000a;transition:opacity .4s ease}
+.sleeve.loaded img{opacity:1}
+.ph{display:grid;place-items:center;background:linear-gradient(150deg,var(--dl-border),var(--dl-panel));color:var(--dl-sub);font-size:calc(34px*var(--s));font-weight:700;border:1px solid var(--line);box-sizing:border-box}
+.copy{display:grid;align-content:center;gap:calc(8px*var(--s));min-width:0}
+.copy p,.copy h3{margin:0}
+.eyebrow{font-size:var(--dl-small);font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--dl-sub);overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.card[data-tone=active] .eyebrow{color:var(--dl-accent)}
+.card[data-tone=done] .eyebrow{color:var(--dl-text)}
+.card[data-tone=warning] .eyebrow,.card[data-tone=warning] .note{color:var(--warn)}
+.card[data-tone=failed] .eyebrow,.card[data-tone=failed] .note{color:var(--dl-danger)}
+.title{font-size:clamp(calc(22px*var(--s)),min(2.1vw,8vh),calc(42px*var(--s)));font-weight:700;letter-spacing:-.04em;line-height:1.05;text-wrap:balance;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3}
+.meta{color:var(--dl-sub);font-size:calc(18px*var(--s));line-height:1.3;font-variant-numeric:tabular-nums;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.note{font-size:var(--dl-small);line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.note:empty,.meta:empty{display:none}
+/* The rail: progress, then what's done and what's left; the percent is the reading. */
+.rail{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:calc(16px*var(--s));row-gap:calc(6px*var(--s));align-items:end;padding:calc(4px*var(--s)) calc(18px*var(--s)) calc(14px*var(--s))}
+.track{grid-area:1/1;align-self:center;display:block;height:calc(8px*var(--s));border-radius:999px;background:var(--well);overflow:hidden;box-shadow:inset 0 1px calc(2px*var(--s)) #0008}
+.track i{display:block;height:100%;width:0;border-radius:inherit;background:var(--dl-accent);box-shadow:0 0 calc(12px*var(--s)) color-mix(in srgb,var(--dl-accent) 70%,transparent);transition:width .8s ease-out}
+.card[data-tone=warning] .track i{background:var(--warn);box-shadow:none}
+.card[data-tone=failed] .track i{background:var(--dl-danger);box-shadow:none}
+.card:is([data-tone=paused],[data-tone=waiting]) .track i{background:var(--dl-sub);box-shadow:none}
+.card[data-tone=done] .track i{background:var(--dl-text);box-shadow:none}
+.pct{grid-area:1/2/3/3;align-self:end;min-width:3.6ch;text-align:right;font-size:calc(40px*var(--s));font-weight:300;letter-spacing:-.04em;line-height:.95;font-variant-numeric:tabular-nums}
+.pct:empty{display:none}
+.sub{grid-area:2/1;display:flex;justify-content:space-between;gap:var(--dl-gap);color:var(--dl-sub);font-size:var(--dl-small);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
+.sub .left{color:var(--dl-text);font-weight:600}
+/* An idle queue: the next episode to air, featured over its series' artwork. */
+.card.idle{grid-template-rows:minmax(0,1fr)}
+.card.idle .film{padding-bottom:calc(16px*var(--s))}
+.card.idle .sleeve[hidden]+.copy{grid-column:1/-1}
+.card.idle .eyebrow{color:var(--dl-accent)}
+
+/* ---- Coming up: a shelf of series posters, one per episode, each with its day and time. */
+.shelf{--art-h:max(calc(120px*var(--s)),calc(100vh - var(--chrome)));display:flex;gap:calc(16px*var(--s));margin:0;padding:0;list-style:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;touch-action:pan-x;min-height:0;mask-image:linear-gradient(90deg,#000 calc(100% - calc(40px*var(--s))),transparent)}
+.tile{flex:none;width:calc(var(--art-h)*2/3);display:grid;grid-template-rows:auto auto auto;align-content:start;gap:calc(6px*var(--s));min-width:0;scroll-snap-align:start}
+.tile:last-child{margin-right:calc(40px*var(--s))}
+.tile p{margin:0;min-width:0}
+.art{position:relative;isolation:isolate;height:var(--art-h);border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);box-shadow:0 calc(10px*var(--s)) calc(26px*var(--s)) #000a}
+.art>.ph{position:absolute;inset:0;border:0;border-radius:inherit;font-size:calc(54px*var(--s))}
+.art>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s ease}
+.art.loaded>img{opacity:1}
+.art::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,var(--scrim-soft) 0%,transparent 26%,transparent 58%,var(--scrim) 100%)}
+.chip,.badge,.type,.mini,.art .search{position:absolute;z-index:1}
+.chip{top:calc(10px*var(--s));left:calc(10px*var(--s));max-width:calc(100% - calc(20px*var(--s)));box-sizing:border-box;padding:calc(4px*var(--s)) calc(11px*var(--s));border-radius:999px;background:var(--glass);border:1px solid var(--line);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:calc(17px*var(--s));font-weight:700;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.tile[data-soon=true] .chip{background:var(--dl-accent);border-color:transparent;color:var(--on-fill)}
+.tile[data-state=missing] .chip{background:var(--dl-danger);border-color:transparent;color:var(--on-fill)}
+.tile[data-state=downloading] .chip{background:var(--wash);border-color:var(--dl-accent);color:var(--dl-accent)}
+.tile[data-state=trouble] .chip{background:var(--glass);border-color:var(--warn);color:var(--warn)}
+.tile[data-state=searching] .chip{background:var(--wash);border-color:var(--dl-accent);color:var(--dl-accent)}
+.badge{top:calc(10px*var(--s));right:calc(10px*var(--s));display:grid;place-items:center;min-width:calc(32px*var(--s));height:calc(32px*var(--s));padding:0 calc(8px*var(--s));box-sizing:border-box;border-radius:999px;background:var(--glass);border:1px solid var(--line);font-size:calc(16px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
+.tile[data-state=downloaded] .badge{background:var(--dl-accent);color:var(--on-fill);border-color:transparent}
+.tile[data-state=downloaded] .art>img{filter:saturate(.75) brightness(.8)}
+.type{left:calc(10px*var(--s));bottom:calc(10px*var(--s));display:inline-flex;align-items:center;gap:calc(6px*var(--s));color:var(--dl-text);font-size:var(--dl-small);font-weight:650;text-shadow:0 1px calc(4px*var(--s)) #000}
+.type svg{width:calc(20px*var(--s));height:calc(20px*var(--s));fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px calc(3px*var(--s)) #000)}
+.mini{left:0;right:0;bottom:0;height:calc(6px*var(--s));background:var(--well)}
+.mini i{display:block;height:100%;width:0;background:var(--dl-accent);box-shadow:0 0 calc(10px*var(--s)) var(--dl-accent);transition:width .8s ease-out}
+.tile:has(.mini:not([hidden])) .type{bottom:calc(16px*var(--s))}
+.art .search{right:calc(8px*var(--s));bottom:calc(8px*var(--s));min-height:var(--dl-tap);padding:0 calc(16px*var(--s));border:0;border-radius:999px;background:var(--dl-accent);color:var(--on-fill);font-weight:700;font-size:calc(18px*var(--s));box-shadow:0 calc(4px*var(--s)) calc(12px*var(--s)) #0008}
+.art .search:disabled{opacity:.6}
+.tile:has(.search) .type span{display:none}
+.name{display:flex;align-items:baseline;gap:.35em;font-size:calc(20px*var(--s));white-space:nowrap;overflow:hidden}
+.name b{flex:0 1 auto;min-width:min(100%,4em);font-weight:680;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis}
+/* In a narrow tile the episode code gives way before the series' name does. */
+.name .code{flex:0 1000 auto;min-width:0;overflow:hidden;color:var(--dl-sub);font-variant-numeric:tabular-nums}
+.when{color:var(--dl-sub);font-size:var(--dl-small);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.tile[data-state=missing] .when{color:var(--dl-danger)}
+.tile:is([data-state=downloading],[data-state=searching]) .when{color:var(--dl-accent)}
+.tile[data-state=trouble] .when{color:var(--warn)}
+.when.problem{color:var(--dl-danger)}
+
+@media (prefers-reduced-motion:no-preference){
+  .status[data-kind=live] .dot{animation:breathe 2.8s ease-in-out infinite}
+  .tile[data-state=searching] .chip{animation:breathe 1.6s ease-in-out infinite}
+  @keyframes breathe{50%{opacity:.45}}
 }
 
-/* A row: poster, title over detail, and what it's doing on the right. */
-.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--dl-gap);
-  min-height:calc(88px*var(--dl-scale));padding:calc(8px*var(--dl-scale)) 0;box-sizing:border-box}
-.poster{position:relative;display:grid;place-items:center;overflow:hidden;width:calc(48px*var(--dl-scale));height:calc(72px*var(--dl-scale));
-  border-radius:calc(6px*var(--dl-scale));background:var(--dl-border);color:var(--dl-sub);font-weight:560}
-.poster::before{content:attr(data-initial)}
-.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.poster img:not([src]){display:none}
-.main{display:grid;gap:calc(4px*var(--dl-scale));min-width:0}
-.title,.detail{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.title{font-weight:560}
-.detail{color:var(--dl-sub);font-size:var(--dl-small)}
-.side{display:grid;justify-items:end;align-items:center;gap:calc(4px*var(--dl-scale));min-width:6ch;text-align:right;font-variant-numeric:tabular-nums}
-.side>*,.status>*{white-space:nowrap}
-.status{display:flex;align-items:center;justify-content:flex-end;gap:calc(var(--dl-gap)*.6)}
-.when{color:var(--dl-text)}
-.note{font-size:var(--dl-small);color:var(--dl-sub)}
-.note:empty{display:none}
-.percent{color:var(--dl-text);min-width:4ch}
-.more{justify-content:center;color:var(--dl-sub);font-size:var(--dl-small)}
-
-/* Upcoming: what each episode is doing. */
-.item.missing .note,.note.problem{color:var(--dl-danger)}
-.note.problem{white-space:normal;max-width:18ch}
-.item.downloading .note,.item.searching .note{color:var(--dl-accent)}
-.item.trouble .note{color:#f5c86a}
-.item.downloaded .when{color:var(--dl-sub)}
-.search{min-height:var(--dl-tap);font-size:var(--dl-small)}
-
-/* Queue: a progress bar, coloured by how the download is going. */
-.bar{--progress:0%;--fill:var(--dl-accent);display:block;height:calc(6px*var(--dl-scale));margin-top:calc(4px*var(--dl-scale));
-  border-radius:999px;background:linear-gradient(to right,var(--fill) var(--progress),#ffffff1a var(--progress))}
-.tone-warning .bar{--fill:#f5c86a}
-.tone-warning .note{color:#f5c86a}
-.tone-error .bar{--fill:var(--dl-danger)}
-.tone-error .note{color:var(--dl-danger)}
-.tone-paused .bar{--fill:var(--dl-sub)}
-
-/* A short placement drops the artwork before anything gets smaller. */
-@media (max-height:300px){
-  .poster{display:none}
-  .item{grid-template-columns:minmax(0,1fr) auto;min-height:var(--dl-tap)}
-  .item .detail{display:none}
-  .side{grid-auto-flow:column;gap:var(--dl-gap)}
+/* ---- One pane at a time where both don't fit, with tabs in the header. */
+@media (max-width:999px){
+  :root{--chrome:calc(150px*var(--s))}
+  .tabs{display:flex}
+  .server,.stats{display:none}
+  .top{justify-content:space-between}
+  .brand b{display:none}
+  .stage,.sonarr[data-queue=empty] .stage{grid-template-columns:minmax(0,1fr)}
+  .sonarr[data-show=queue] #upcomingPane,.sonarr[data-show=upcoming] #queuePane{display:none}
+  .pane{grid-template-rows:minmax(0,1fr)}
+  .pane-head{display:none}
+  .pane>*{grid-row:1!important}
+  .status .status-text{display:none}
+  /* Stale data keeps its age on screen, even here, in short. */
+  .status[data-kind=stale] .status-short{display:inline}
+  .status{padding:0 calc(14px*var(--s))}
+  .tabs{flex:0 1 auto;min-width:0}
+  .tab{min-width:0;overflow:hidden}
 }
-/* A narrow one keeps the stale note's Retry and drops its text, and the server name. */
-@media (max-width:520px){
-  .stale-text,.server{display:none}
-  .when{font-size:var(--dl-small)}
+/* No room for the Retry pill beside the tabs: the stale chip itself retries. */
+@media (max-width:760px){
+  .status .retry{display:none}
+  .status:has(.retry:not([hidden])){padding:0 calc(12px*var(--s));cursor:pointer}
+}
+/* Taller than wide-ish: cards stack and posters wrap, scrolling down. */
+@media (max-width:999px) and (max-aspect-ratio:4/3){
+  .cards{grid-auto-flow:row;grid-auto-columns:auto;grid-auto-rows:calc(196px*var(--s));overflow-x:hidden;overflow-y:auto;scroll-snap-type:y proximity;touch-action:pan-y}
+  .film{grid-template-columns:calc(96px*var(--s)) minmax(0,1fr);padding:calc(14px*var(--s)) calc(16px*var(--s)) calc(4px*var(--s))}
+  .title{font-size:calc(24px*var(--s));-webkit-line-clamp:2}
+  .meta{-webkit-line-clamp:1}
+  .pct{font-size:calc(32px*var(--s))}
+  .card.idle{align-self:start;height:calc(240px*var(--s))}
+  .cards[data-more=true]{mask-image:none}
+  .shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(132px*var(--s)),1fr));align-content:start;overflow-x:hidden;overflow-y:auto;scroll-snap-type:y proximity;touch-action:pan-y;mask-image:none}
+  .tile{width:auto}
+  .tile:last-child{margin-right:0}
+  .art{height:auto;aspect-ratio:2/3}
+  .chip{font-size:calc(15px*var(--s))}
+}
+/* Very narrow: the title wraps beside a smaller poster, and the type keeps only its icon. */
+@media (max-width:480px){
+  .film{grid-template-columns:calc(72px*var(--s)) minmax(0,1fr);gap:calc(12px*var(--s))}
+  .cards{grid-auto-rows:calc(170px*var(--s))}
+  .title{font-size:calc(21px*var(--s))}
+  .sub .amount{display:none}
+  .type span{display:none}
+  .shelf{grid-template-columns:repeat(auto-fill,minmax(calc(110px*var(--s)),1fr));gap:calc(12px*var(--s))}
+  .meta,.name .code{display:none}
+  .top{gap:calc(8px*var(--s))}
+  .tabs{flex:1 1 auto;min-width:0}
+  .tabs .tab{flex:1 1 auto;justify-content:center;padding:0 calc(6px*var(--s));font-size:calc(16px*var(--s))}
+  .status,.status:has(.retry:not([hidden])){gap:calc(6px*var(--s));padding:0 calc(8px*var(--s));font-size:calc(15px*var(--s))}
+  .tab .count{display:none}
+  .mark{display:none}
+}
+/* Short: a slimmer header, one caption line under posters, and tighter cards. */
+@media (max-height:420px){
+  :root{--chrome:calc(128px*var(--s))}
+  .top{min-height:calc(44px*var(--s))}
+  .mark{width:calc(30px*var(--s));height:calc(30px*var(--s))}
+  .brand b{font-size:calc(22px*var(--s))}
+  .pane-head{display:none}
+  .pane{grid-template-rows:minmax(0,1fr)}
+  .pane>*{grid-row:1!important}
+  .when{display:none}
+  .film{padding:calc(10px*var(--s)) calc(14px*var(--s)) calc(2px*var(--s))}
+  .copy{gap:calc(4px*var(--s))}
+  .title{-webkit-line-clamp:2}
+  .note,.eyebrow{-webkit-line-clamp:1}
+  .rail{padding:calc(2px*var(--s)) calc(14px*var(--s)) calc(10px*var(--s))}
+  .pct{font-size:calc(30px*var(--s))}
+  .sub .amount{display:none}
+  .cards{--min-card:calc(330px*var(--s))}
+  .chip{top:calc(6px*var(--s));left:calc(6px*var(--s));padding:calc(2px*var(--s)) calc(8px*var(--s));font-size:calc(14px*var(--s))}
+  .type{left:calc(7px*var(--s));bottom:calc(7px*var(--s))}
+  .type span{display:none}
+  .art .search{right:calc(4px*var(--s));bottom:calc(4px*var(--s));padding:0 calc(12px*var(--s));font-size:calc(15px*var(--s))}
+  .name{font-size:calc(17px*var(--s))}
 }

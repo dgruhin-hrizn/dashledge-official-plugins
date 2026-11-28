@@ -9,6 +9,7 @@ import {loadConnector, loadViewScript, sample} from './harness.mjs';
 const ADDRESS = 'http://sonarr.test:8989/';
 const connections = [{address: ADDRESS, name: '', type: ''}];
 const START = Date.UTC(2026, 10, 27, 19);
+const HOUR = 60 * 60 * 1000;
 const replies = {
   status: sample('sonarr', 'system-status.json'),
   calendar: sample('sonarr', 'calendar.json'),
@@ -68,7 +69,8 @@ test('it reads status, calendar and queue, and sends the view a slim snapshot', 
   assert.equal(last.calendar.state, 'ready');
   assert.equal(last.calendar.items.length, 9);
   assert.deepEqual(last.calendar.items[2], {id: 5002, seriesId: 102, series: 'Orbit Street', season: 1, episode: 4,
-    title: 'Docking Fees', airDateUtc: '2026-11-27T14:00:00Z', hasFile: false, monitored: true, finale: ''});
+    title: 'Docking Fees', airDateUtc: '2026-11-27T14:00:00Z', hasFile: false, monitored: true, finale: '', poster: true, fanart: true});
+  assert.deepEqual(last.calendar.items.filter(e => e.seriesId === 103).map(e => [e.poster, e.fanart]), [[true, false], [true, false]], 'Saltmarsh has no fanart yet');
   assert.equal(last.calendar.items.find(e => e.id === 5005).finale, 'season');
 
   assert.equal(last.queue.state, 'ready');
@@ -82,6 +84,9 @@ test('it reads status, calendar and queue, and sends the view a slim snapshot', 
   assert.deepEqual([pack.progress, pack.timeLeft, pack.protocol], [0.25, 93784, 'torrent'], '1.02:03:04 is a day and 2 hours');
   assert.deepEqual([ledger.state, ledger.message], ['warning', 'No files found are eligible for import']);
   assert.deepEqual([orbit.state, orbit.timeLeft], ['paused', null]);
+  assert.deepEqual([saltmarsh.size, saltmarsh.left, saltmarsh.quality, saltmarsh.client, saltmarsh.poster, saltmarsh.fanart],
+    [2147483648, 536870912, 'HDTV-720p', 'Usenet client', true, false]);
+  assert.equal(pack.size, 6442450944, 'a season pack’s size is the download’s, not the sum of its records');
 
   // What reaches the view is a small fraction of Sonarr's replies: no series objects,
   // paths, release names or download IDs.
@@ -149,12 +154,15 @@ test('a failed refresh keeps the last reading, shows it as stale, then recovers'
   const stale = c.last();
   assert.deepEqual([stale.queue.state, stale.queue.error, stale.queue.items.length], ['error', 'Sonarr answered HTTP 503', 4]);
   assert.equal(stale.queue.at, START, 'when it was last read');
-  const s = M.status(stale, '', START + 12 * 60000);
-  assert.deepEqual(s, {kind: 'ready', stale: true, auth: false, note: 'Last updated 12 min ago · Sonarr answered HTTP 503'});
+  assert.equal(M.status(stale, '', START + 12 * 60000).kind, 'ready', 'the last reading stays on screen');
+  assert.deepEqual(M.freshness(stale, START + 12 * 60000), {kind: 'stale', label: 'Updated 12 min ago', short: '12 min ago',
+    note: 'Last updated 12 min ago · Sonarr answered HTTP 503', auth: false});
+  assert.deepEqual(M.paneState(stale.calendar, START + 12 * 60000, HOUR).stale, false, 'only the queue is stale');
   down = false;
   await c.advance(30 * 1000);
-  assert.equal(c.last().queue.state, 'ready');
-  assert.equal(M.status(c.last(), '', START).stale, false);
+  const fresh = c.last();
+  assert.equal(fresh.queue.state, 'ready');
+  assert.equal(M.freshness(fresh, fresh.queue.at).kind, 'live', 'something is downloading');
 });
 
 test('the queue is read every 10 seconds while something downloads, every 30 when empty', async () => {
@@ -172,7 +180,10 @@ test('the queue is read every 10 seconds while something downloads, every 30 whe
   await c.advance(10 * 1000);
   assert.equal(queueReads(), before + 1);
   assert.deepEqual(c.last().queue.items, []);
-  assert.equal(M.pane(c.last().queue).kind, 'empty');
+  const idle = c.last();
+  assert.equal(M.paneState(idle.queue, idle.queue.at, 2 * 60000).stale, false);
+  assert.deepEqual(M.queueStats(idle.queue.items, 0), [{text: 'Nothing downloading', tone: ''}]);
+  assert.equal(M.freshness(idle, idle.queue.at).kind, 'idle', 'up to date, nothing downloading');
   // A download that left the queue was probably imported: the calendar is read again soon.
   assert.ok(c.requests.filter(r => route(r.url) === 'api/v3/calendar').length >= 2);
 });
@@ -202,7 +213,7 @@ test('the last good reading survives a restart, for the same server only', async
   await after.settle();
   const stale = after.last();
   assert.equal(stale.queue.state, 'error');
-  assert.equal(M.status(stale, '', START + 5 * 60000).stale, true);
+  assert.equal(M.freshness(stale, START + 5 * 60000).kind, 'stale');
   assert.ok(JSON.stringify(storage).length < 131072, 'fits the declared storage');
 
   const other = loadConnector('sonarr', {connections: [{address: 'http://other.test:8989/', name: '', type: ''}],
@@ -249,18 +260,21 @@ test('Upcoming follows the placement’s days, time zone and hidden downloads', 
 
   const utc = M.upcoming(data, {days: 7}, START, 'UTC');
   assert.equal(utc.days, 7);
-  assert.deepEqual(ids(utc), [5009, 5001, 5002, 5003, 5004, 5005], 'yesterday’s missed episode, then today in UTC and the 6 days after');
-  const [ebb, beam, docking, high, opening, harvest] = utc.rows;
-  assert.deepEqual([ebb.state, ebb.day, ebb.canSearch], ['missing', 'Yesterday', true], 'last night’s missed episode can still be searched');
-  assert.deepEqual([beam.state, beam.label, beam.day, beam.time], ['downloaded', 'Downloaded', 'Today', '2:00 AM']);
-  assert.deepEqual([docking.state, docking.label, docking.canSearch], ['missing', 'Missing', true]);
-  assert.deepEqual([high.state, high.label, high.progress], ['downloading', 'Downloading 75%', 75], 'joined with the queue');
-  assert.deepEqual([opening.state, opening.label, opening.day, opening.canSearch], ['upcoming', '', 'Tomorrow', false]);
-  assert.equal(harvest.detail, 'S01E08 · Harvest · Season finale');
-  assert.equal(harvest.day, 'Mon');
+  assert.deepEqual(ids(utc), [5009, 5002, 5001, 5003, 5004, 5005],
+    'missed episodes first (yesterday’s, then today’s), then today in UTC and the 6 days after');
+  const [ebb, docking, beam, high, opening, harvest] = utc.rows;
+  assert.deepEqual([ebb.state, ebb.day, ebb.chip, ebb.canSearch], ['missing', 'Yesterday', 'Missing', true], 'last night’s missed episode can still be searched');
+  assert.deepEqual([beam.state, beam.label, beam.day, beam.time, beam.chip, beam.soon], ['downloaded', 'Downloaded', 'Today', '2:00 AM', 'Today', true]);
+  assert.deepEqual([docking.state, docking.label, docking.canSearch, docking.soon], ['missing', 'Missing', true, false]);
+  assert.deepEqual([high.state, high.label, high.progress, high.chip], ['downloading', 'Downloading 75%', 75, '75%'], 'joined with the queue');
+  assert.deepEqual([opening.state, opening.label, opening.day, opening.chip, opening.canSearch], ['upcoming', '', 'Tomorrow', 'Tomorrow', false]);
+  assert.deepEqual([harvest.code, harvest.title, harvest.detail], ['S01E08', 'Harvest', 'S01E08 · Harvest · Season finale']);
+  assert.deepEqual([harvest.day, harvest.chip, harvest.soon], ['Mon', 'Mon', false]);
+  assert.deepEqual([high.seriesId, high.poster, high.fanart, opening.key], [103, true, false, 'e5004']);
+  assert.equal(M.nextUp(utc.rows, START).id, 5004, 'an idle queue features the next episode to air');
   const week = M.upcoming(data, {days: 8}, START, 'UTC');
-  assert.deepEqual(ids(week), [5009, 5001, 5002, 5003, 5004, 5005, 5006, 5007]);
-  assert.equal(week.rows[6].day, 'Fri, Dec 4', 'a week out names the date');
+  assert.deepEqual(ids(week), [5009, 5002, 5001, 5003, 5004, 5005, 5006, 5007]);
+  assert.deepEqual([week.rows[6].day, week.rows[6].chip], ['Fri, Dec 4', 'Dec 4'], 'a week out names the date');
   assert.ok(!ids(M.upcoming(data, {days: 14}, START, 'UTC')).includes(5008), 'two weeks on is past the longest window');
 
   // In New York the 02:00 UTC episode aired yesterday evening and is downloaded, so it's
@@ -274,29 +288,37 @@ test('Upcoming follows the placement’s days, time zone and hidden downloads', 
   assert.equal(M.upcoming(data, {}, START, 'UTC').days, 7, 'the default');
 
   const searching = M.upcoming({...data, searching: [5002]}, {days: 1}, START, 'UTC').rows.find(r => r.id === 5002);
-  assert.deepEqual([searching.state, searching.label, searching.canSearch], ['searching', 'Searching…', false]);
+  assert.deepEqual([searching.state, searching.label, searching.chip, searching.canSearch], ['searching', 'Searching…', 'Searching…', false]);
 
   const nothing = M.upcoming({...data, calendar: {state: 'ready', items: replies.emptyCalendar}}, {days: 7}, START, 'UTC');
   assert.deepEqual(nothing.rows, []);
 });
 
-test('the queue reads problems first, then soonest done, with labels and time left', async () => {
+test('the queue reads as cards: downloading first, soonest done first, then problems and the paused', async () => {
   const c = load({respond: sonarr()});
   await c.settle();
-  const rows = M.queueRows(c.last().queue.items);
-  assert.deepEqual(rows.map(r => [r.series, r.percent, r.note, r.tone]), [
-    ['Northern Ledger', '100%', 'Needs attention', 'warning'],
-    ['Saltmarsh', '75%', '4 min left', 'ok'],
-    ['Copper & Vine', '25%', '1 d 2 h left', 'ok'],
-    ['Orbit Street', '40%', 'Paused', 'paused'],
+  const {items, more} = c.last().queue;
+  const rows = M.queueRows(items);
+  assert.deepEqual(rows.map(r => [r.title, r.eyebrow, r.percent, r.left, r.tone]), [
+    ['Saltmarsh', 'S02E10 · Downloading', '75%', '4 min', 'active'],
+    ['Copper & Vine', 'Season 1 · Downloading', '25%', '1 d 2 h', 'active'],
+    ['Northern Ledger', 'S04E12 · Needs attention', '100%', '', 'warning'],
+    ['Orbit Street', 'S01E03 · Paused', '40%', '', 'paused'],
   ]);
-  assert.deepEqual(rows.map(r => r.detail), [
-    'S04E12 · No files found are eligible for import',
-    'S02E10 · High Water',
-    'Season 1 · 3 episodes',
-    'S01E03 · Gravity Assist',
+  assert.deepEqual(rows.map(r => r.meta), [
+    'High Water · HDTV-720p · Usenet client',
+    '3 episodes · HDTV-720p · Torrent client',
+    'Year End · HDTV-720p · Usenet client',
+    'Gravity Assist · HDTV-720p · Usenet client',
   ]);
-  assert.equal(M.queueRows([{key: 'q1', series: 'X', episodes: [], progress: null, state: 'queued'}])[0].percent, '—');
+  assert.deepEqual(rows.map(r => r.amount), ['1.6 GB of 2.1 GB', '1.6 GB of 6.4 GB', '3.2 GB', '429 MB of 1.1 GB']);
+  assert.deepEqual(rows.map(r => r.note), ['', '', 'No files found are eligible for import', ''], 'only a problem carries Sonarr’s reason');
+  assert.deepEqual([rows[0].seriesId, rows[0].poster, rows[0].fanart], [103, true, false]);
+  assert.deepEqual(M.queueStats(items, more), [{text: '2 downloading', tone: ''}, {text: '5.4 GB left', tone: ''},
+    {text: '1 needs attention', tone: 'warning'}]);
+  assert.deepEqual(M.queueStats(items, 3).at(-1), {text: '3 more in Sonarr', tone: ''});
+  const queued = M.queueRows([{key: 'q1', series: 'X', episodes: [], progress: null, state: 'queued'}])[0];
+  assert.deepEqual([queued.percent, queued.eyebrow, queued.tone, queued.amount], ['', 'Queued', 'waiting', '']);
 });
 
 test('the view model’s labels and states', () => {
@@ -307,10 +329,20 @@ test('the view model’s labels and states', () => {
   assert.deepEqual(M.status(null, '', START), {kind: 'loading'});
   assert.deepEqual(M.status(null, 'Connector stopped', START), {kind: 'stopped', error: 'Connector stopped'});
   assert.deepEqual(M.status({connected: true, status: null, calendar: {state: 'loading', items: null}, queue: {state: 'loading', items: null}}, '', START), {kind: 'loading'});
-  assert.deepEqual(M.pane({state: 'error', kind: 'http', error: 'Sonarr answered HTTP 500', items: null}),
+  assert.deepEqual(M.paneState({state: 'error', kind: 'http', error: 'Sonarr answered HTTP 500', items: null}, START, HOUR),
     {kind: 'failed', error: 'Sonarr answered HTTP 500', auth: false});
-  assert.deepEqual(M.pane({state: 'loading', items: null}), {kind: 'loading'});
-  assert.deepEqual(M.pane({state: 'ready', items: [{}]}), {kind: 'list'});
+  assert.deepEqual(M.paneState({state: 'loading', items: null}, START, HOUR), {kind: 'loading'});
+  assert.deepEqual(M.paneState({state: 'ready', at: START, items: []}, START + 60000, HOUR), {kind: 'ready', stale: false, note: '', auth: false});
+  assert.equal(M.paneState({state: 'ready', at: START, items: []}, START + 2 * HOUR, HOUR).note, 'Last updated 2 hours ago', 'old data is stale without an error, as after a restart');
+  assert.deepEqual(M.freshness(null, START), {kind: 'loading', label: 'Connecting', short: '', note: ''});
+  assert.equal(M.freshness({connected: false}, START).label, 'Not set up');
+  const auth = {connected: true, calendar: {state: 'error', kind: 'auth', error: 'Sonarr refused the API key (HTTP 401)', at: START, items: []},
+    queue: {state: 'ready', at: START, items: []}};
+  assert.deepEqual(M.freshness(auth, START), {kind: 'stale', label: 'Updated just now', short: 'Just now',
+    note: 'Last updated just now · Sonarr refused the API key (HTTP 401)', auth: true});
+  assert.deepEqual([1, 999, 1500, 2.5e9, -1].map(M.bytes), ['1 B', '999 B', '1.5 KB', '2.5 GB', '']);
+  assert.deepEqual(M.settings({days: '3', hideDownloaded: true, pane: 'queue'}), {days: 3, hideDownloaded: true, pane: 'queue'});
+  assert.deepEqual(M.settings(undefined), {days: 7, hideDownloaded: false, pane: 'upcoming'});
 });
 
 // Replies recorded from a real Sonarr with scripts/record-sonarr.sh, when someone has.

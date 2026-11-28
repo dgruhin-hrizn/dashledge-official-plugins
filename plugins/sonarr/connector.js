@@ -40,6 +40,9 @@ function timeLeft(value) {
   return Number(m[1] || 0) * 86400 + Number(m[2]) * 3600 + Number(m[3]) * 60 + Number(m[4]);
 }
 
+// Whether Sonarr has a series' poster or fanart, so the view asks only for artwork that exists.
+const hasArt = (series, type) => Array.isArray(series?.images) && series.images.some(i => i?.coverType === type);
+
 function episode(e) {
   if (!e || !int(e.id) || !int(e.seriesId) || typeof e.airDateUtc !== 'string') return null;
   return {
@@ -49,6 +52,7 @@ function episode(e) {
     title: str(e.title), airDateUtc: e.airDateUtc,
     hasFile: e.hasFile === true, monitored: e.monitored !== false,
     finale: str(e.finaleType, 16),
+    poster: hasArt(e.series, 'poster'), fanart: hasArt(e.series, 'fanart'),
   };
 }
 
@@ -79,8 +83,8 @@ function queueMessage(r) {
   return str(first?.messages[0], 160) || str(r.errorMessage, 160);
 }
 
-// Sonarr lists a season pack once per episode, every record sharing its downloadId.
-// The view shows one row per download.
+// Sonarr lists a season pack once per episode, every record sharing its downloadId and
+// each carrying the whole download's size. The view shows one row per download.
 function queue(json) {
   const records = Array.isArray(json?.records) ? json.records : null;
   if (!records) throw new Error('Sonarr sent a queue without records');
@@ -98,6 +102,9 @@ function queue(json) {
         progress: size && size > 0 && left !== null ? Math.min(1, Math.max(0, 1 - left / size)) : null,
         timeLeft: timeLeft(r.timeleft), state: queueState(r), message: queueMessage(r),
         protocol: r.protocol === 'torrent' ? 'torrent' : 'usenet',
+        size: size && size > 0 ? size : null, left: left !== null && left >= 0 ? left : null,
+        quality: str(r.quality?.quality?.name, 40), client: str(r.downloadClient, 60),
+        poster: hasArt(r.series, 'poster'), fanart: hasArt(r.series, 'fanart'),
       };
       rows.set(key, row);
     }
