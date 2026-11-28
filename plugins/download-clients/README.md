@@ -56,8 +56,13 @@ The connector reads every client every 3 seconds, and SABnzbd and NZBGet history
 - A placement shows the connection you choose plus your other saved Downloads connections, up to four. It can't yet show only some of them.
 - Each client is named by its connection's name, else its address. With several clients in one placement there is no single server name to show.
 
+## Logos
+
+Each client's tile shows that client's own logo, from its repository: SABnzbd's [`icons/logo-arrow.svg`](https://github.com/sabnzbd/sabnzbd/blob/develop/icons/logo-arrow.svg) (GPL-2.0-or-later), NZBGet's [`webui/img/nzbget.svg`](https://github.com/nzbgetcom/nzbget/blob/develop/webui/img/nzbget.svg) (GPL-2.0) and qBittorrent's [`qbittorrent.svg`](https://github.com/qbittorrent/qBittorrent/blob/master/dist/unix/menuicons/scalable/apps/qbittorrent.svg) (GPL-2.0-or-later; qBittorrent ships its artwork as GPL-3.0-or-later). The GPL texts ship beside them as `LICENSE-GPL-2.0.txt` and `LICENSE-GPL-3.0.txt`. They identify each client and imply no endorsement. The plugin's own code stays MIT, and its icon stays Dashledge's, since it serves all three.
+
 ## Changes
 
+- **1.2.1:** Each client's own logo on its tile and behind its download cards, in place of the SAB, NZB and qB initials.
 - **1.2.0:** The connection form gives each client's own steps: where SABnzbd keeps its API key, NZBGet's username and password, and turning on qBittorrent's Web UI. It asks for a username only for NZBGet and qBittorrent. Needs Dashledge 0.10.0.
 - **1.1.0:** A new look, in the same design as Radarr: the total speed over a live graph, the queue as cards that glow in each product's colour with a progress rail, release names read as words, a status chip in the header, and tabs for smaller placements.
 - **1.0.0:** First release: SABnzbd, NZBGet and qBittorrent in one placement, with pause and resume per client and per download.

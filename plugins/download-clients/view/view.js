@@ -9,7 +9,7 @@
   // The speed graph keeps the last six minutes, one sample every three seconds. It lives only
   // in this view, so it starts empty whenever the widget opens.
   const SAMPLE_EVERY = 3000, SLOTS = 120;
-  const MONOGRAM = {sabnzbd: 'SAB', nzbget: 'NZB', qbittorrent: 'qB'};
+  const LOGOS = new Set(['sabnzbd', 'nzbget', 'qbittorrent']);
   let data = null, stopped = '', settings = {}, noticeTimer = 0, shown = 'now', chosen = false, last = null;
   const samples = [];
   const pending = new Set();          // commands in flight, by key, so a button can't double-fire
@@ -21,9 +21,20 @@
     if (text !== undefined) node.textContent = text;
     return node;
   };
-  // Product initials are decoration: the name beside them already says which client it is.
+  // Product logos are decoration: the name beside them already says which client it is.
   const decor = className => { const node = el('span', className); node.setAttribute('aria-hidden', 'true'); return node; };
   function set(node, text) { if (node.textContent !== text) node.textContent = text; }
+  // Puts the client's own logo (view/logos/<type>.svg) in a tile or a card's backdrop, once.
+  function logo(node, type) {
+    const kind = LOGOS.has(type) ? type : '';
+    if (node.dataset.logo === kind) return;
+    node.dataset.logo = kind;
+    if (!kind) { node.replaceChildren(); return; }
+    const img = el('img');
+    img.src = 'logos/' + kind + '.svg';
+    img.alt = '';
+    node.replaceChildren(img);
+  }
 
   function notice(text) {
     set($('notice'), text);
@@ -83,7 +94,7 @@
     node.client = c;
     node.dataset.type = c.type;
     node.dataset.state = c.state;
-    set(node.querySelector('.tile'), MONOGRAM[c.type] || '');
+    logo(node.querySelector('.tile'), c.type);
     set(node.querySelector('strong'), c.name);
     set(node.querySelector('.product'), c.name === c.label ? '' : c.label);
     set(node.querySelector('.note'), c.note);
@@ -126,8 +137,8 @@
     node.dataset.type = item.type;
     node.dataset.tone = item.tone;
     node.dataset.state = item.state;
-    set(node.querySelector('.ghost'), MONOGRAM[item.type] || '');
-    set(node.querySelector('.tile'), MONOGRAM[item.type] || '');
+    logo(node.querySelector('.ghost'), item.type);
+    logo(node.querySelector('.tile'), item.type);
     set(node.querySelector('.eyebrow'), item.eyebrow);
     set(node.querySelector('.from'), several ? names.get(item.client) || '' : '');
     const title = node.querySelector('.title');
