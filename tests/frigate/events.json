@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1790000000.000001-rec1",
+    "camera": "front_door",
+    "label": "car",
+    "sub_label": null,
+    "start_time": 1795887695.796139,
+    "end_time": 1795887700.076996,
+    "has_clip": true,
+    "has_snapshot": false,
+    "top_score": null,
+    "false_positive": null,
+    "zones": [],
+    "data": {
+      "score": 0.76953125,
+      "top_score": 0.76953125,
+      "type": "object"
+    }
+  },
+  {
+    "id": "1790000000.000002-rec2",
+    "camera": "front_door",
+    "label": "car",
+    "sub_label": null,
+    "start_time": 1795887559.88317,
+    "end_time": 1795887564.22447,
+    "has_clip": true,
+    "has_snapshot": false,
+    "top_score": null,
+    "false_positive": null,
+    "zones": [],
+    "data": {
+      "score": 0.76171875,
+      "top_score": 0.765625,
+      "type": "object"
+    }
+  }
+]

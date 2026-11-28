@@ -1,0 +1,210 @@
+{
+  "version": "0.15-1",
+  "auth": {
+    "enabled": true
+  },
+  "birdseye": {
+    "enabled": true,
+    "restream": false,
+    "width": 1280,
+    "height": 720,
+    "mode": "motion"
+  },
+  "ui": {
+    "time_format": "browser",
+    "date_style": "short",
+    "time_style": "medium"
+  },
+  "cameras": {
+    "front_door": {
+      "name": "front_door",
+      "enabled": true,
+      "live": {
+        "stream_name": "front_door",
+        "height": 720,
+        "quality": 8
+      },
+      "ui": {
+        "order": 0,
+        "dashboard": true
+      },
+      "detect": {
+        "enabled": true,
+        "width": 1280,
+        "height": 720,
+        "fps": 5
+      },
+      "ffmpeg": {
+        "inputs": [
+          {
+            "path": "rtsp://camera.invalid/stream",
+            "roles": [
+              "record"
+            ]
+          },
+          {
+            "path": "rtsp://camera.invalid/stream",
+            "roles": [
+              "detect"
+            ]
+          }
+        ]
+      }
+    },
+    "reolink_doorbell": {
+      "name": "reolink_doorbell",
+      "enabled": true,
+      "live": {
+        "stream_name": "reolink_doorbell",
+        "height": 720,
+        "quality": 8
+      },
+      "ui": {
+        "order": 0,
+        "dashboard": true
+      },
+      "detect": {
+        "enabled": true,
+        "width": 896,
+        "height": 672,
+        "fps": 5
+      },
+      "ffmpeg": {
+        "inputs": [
+          {
+            "path": "rtsp://camera.invalid/stream",
+            "roles": [
+              "record"
+            ]
+          },
+          {
+            "path": "rtsp://camera.invalid/stream",
+            "roles": [
+              "detect"
+            ]
+          }
+        ]
+      }
+    },
+    "driveway": {
+      "name": "driveway",
+      "enabled": true,
+      "live": {
+        "stream_name": "driveway",
+        "height": 720,
+        "quality": 8
+      },
+      "ui": {
+        "order": 0,
+        "dashboard": true
+      },
+      "detect": {
+        "enabled": true,
+        "width": 1280,
+        "height": 720,
+        "fps": 5
+      },
+      "ffmpeg": {
+        "inputs": [
+          {
+            "path": "rtsp://camera.invalid/stream",
+            "roles": [
+              "record",
+              "detect"
+            ]
+          }
+        ]
+      }
+    },
+    "backyard_grill": {
+      "name": "backyard_grill",
+      "enabled": true,
+      "live": {
+        "stream_name": "backyard_grill",
+        "height": 720,
+        "quality": 8
+      },
+      "ui": {
+        "order": 0,
+        "dashboard": true
+      },
+      "detect": {
+        "enabled": true,
+        "width": 1280,
+        "height": 720,
+        "fps": 5
+      },
+      "ffmpeg": {
+        "inputs": [
+          {
+            "path": "rtsp://camera.invalid/stream",
+            "roles": [
+              "record",
+              "detect"
+            ]
+          }
+        ]
+      }
+    },
+    "backyard_playground": {
+      "name": "backyard_playground",
+      "enabled": true,
+      "live": {
+        "stream_name": "backyard_playground",
+        "height": 720,
+        "quality": 8
+      },
+      "ui": {
+        "order": 0,
+        "dashboard": true
+      },
+      "detect": {
+        "enabled": true,
+        "width": 1280,
+        "height": 720,
+        "fps": 5
+      },
+      "ffmpeg": {
+        "inputs": [
+          {
+            "path": "rtsp://camera.invalid/stream",
+            "roles": [
+              "record",
+              "detect"
+            ]
+          }
+        ]
+      }
+    },
+    "backyard_patio_2": {
+      "name": "backyard_patio_2",
+      "enabled": true,
+      "live": {
+        "stream_name": "backyard_patio_2",
+        "height": 720,
+        "quality": 8
+      },
+      "ui": {
+        "order": 0,
+        "dashboard": true
+      },
+      "detect": {
+        "enabled": true,
+        "width": 1280,
+        "height": 720,
+        "fps": 5
+      },
+      "ffmpeg": {
+        "inputs": [
+          {
+            "path": "rtsp://camera.invalid/stream",
+            "roles": [
+              "record",
+              "detect"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

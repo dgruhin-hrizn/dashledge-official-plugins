@@ -1,0 +1,49 @@
+{
+  "front_door": {
+    "producers": [
+      {
+        "type": "RTSP active producer",
+        "medias": [
+          "video, recvonly, H265",
+          "audio, recvonly, MPEG4-GENERIC/16000",
+          "audio, sendonly, PCMU/8000"
+        ]
+      }
+    ]
+  },
+  "front_door_sub": {
+    "producers": [
+      {
+        "type": "RTSP active producer",
+        "medias": [
+          "video, recvonly, H.264 High 5.1",
+          "audio, recvonly, MPEG4-GENERIC/16000",
+          "audio, sendonly, PCMU/8000"
+        ]
+      }
+    ]
+  },
+  "reolink_doorbell": {
+    "producers": [
+      {
+        "type": "RTSP passive producer",
+        "medias": [
+          "video, recvonly, H.264 High 5.1",
+          "audio, recvonly, MPEG4-GENERIC/16000",
+          "audio, recvonly, OPUS/48000/2"
+        ]
+      }
+    ]
+  },
+  "reolink_doorbell_sub": {
+    "producers": [
+      {
+        "type": "RTSP passive producer",
+        "medias": [
+          "video, recvonly, H.264 High 5.1",
+          "audio, recvonly, MPEG4-GENERIC/16000"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Frigate</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="model.js"></script>
+<script defer src="player.js"></script>
+<script defer src="crt.js"></script>
+<script defer src="view.js"></script>
+</head>
+<body class="dl-surface">
+<main class="frigate" id="main" data-look="standard" data-state="loading">
+  <div class="wall" id="wall" aria-label="Cameras"></div>
+
+  <button class="back" id="back" type="button" hidden aria-label="Show all cameras">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
+  </button>
+
+  <div class="banner" id="banner" role="status" hidden>
+    <span class="banner-dot" aria-hidden="true"></span>
+    <span class="banner-text" id="bannerText"></span>
+    <button class="dl-button" type="button" data-retry>Retry</button>
+    <button class="dl-button" type="button" data-fix hidden>Check connection</button>
+  </div>
+
+  <p class="dl-loading whole" id="loading" role="status">Connecting to Frigate…</p>
+  <div class="dl-empty whole" id="unconnected" hidden>
+    <p>Choose a Frigate connection for this widget.</p>
+    <button class="dl-button" type="button" data-settings>Choose connection</button>
+  </div>
+  <div class="dl-empty whole" id="empty" hidden>
+    <p id="emptyText"></p>
+    <button class="dl-button" type="button" data-settings>Choose cameras</button>
+  </div>
+  <div class="dl-error whole" id="unavailable" role="alert" hidden>
+    <p id="unavailableText"></p>
+    <div class="actions"><button class="dl-button" type="button" data-retry>Retry</button><button class="dl-button" type="button" data-fix hidden>Check connection</button></div>
+  </div>
+  <div class="dl-error whole" id="stopped" role="alert" hidden>
+    <p id="stoppedText"></p>
+    <button class="dl-button" type="button" data-retry>Retry</button>
+  </div>
+</main>
+
+<template id="tileTemplate">
+  <div class="tile" role="button" tabindex="0">
+    <div class="housing">
+      <div class="bezel">
+        <div class="screen">
+          <img class="snap" alt="">
+          <video class="video" muted playsinline disablepictureinpicture></video>
+          <canvas class="paint" aria-hidden="true"></canvas>
+          <canvas class="crt" aria-hidden="true"></canvas>
+          <div class="noise" aria-hidden="true"></div>
+          <div class="glass" aria-hidden="true"></div>
+          <div class="pan" aria-hidden="true"><div class="pan-size"></div></div>
+          <div class="osd" aria-hidden="true"><span class="osd-cam"></span><span class="osd-rec">● REC</span><span class="osd-date"></span><span class="osd-time"></span></div>
+          <p class="message"></p>
+          <span class="pill"><span class="pill-dot" aria-hidden="true"></span><span class="pill-text"></span></span>
+          <span class="why"></span>
+          <div class="caption">
+            <span class="name"></span>
+            <span class="detection"><span class="det-dot" aria-hidden="true"></span><span class="det-text"></span><span class="det-when"></span></span>
+          </div>
+        </div>
+      </div>
+      <div class="chin" aria-hidden="true">
+        <span class="maker">NIGHTWATCH</span>
+        <span class="model">CVM-1490</span>
+        <span class="controls"><span class="knob"></span><span class="knob"></span><span class="power"><span class="led"></span></span></span>
+      </div>
+    </div>
+  </div>
+</template>
+</body>
+</html>

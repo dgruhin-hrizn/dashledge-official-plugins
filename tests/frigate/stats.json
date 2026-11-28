@@ -1,0 +1,53 @@
+{
+  "cameras": {
+    "front_door": {
+      "camera_fps": 5,
+      "process_fps": 5,
+      "skipped_fps": 0,
+      "detection_fps": 0,
+      "detection_enabled": true
+    },
+    "reolink_doorbell": {
+      "camera_fps": 5.1,
+      "process_fps": 5.1,
+      "skipped_fps": 0,
+      "detection_fps": 0,
+      "detection_enabled": true
+    },
+    "driveway": {
+      "camera_fps": 0,
+      "process_fps": 0,
+      "skipped_fps": 0,
+      "detection_fps": 0,
+      "detection_enabled": true
+    },
+    "backyard_grill": {
+      "camera_fps": 0,
+      "process_fps": 0,
+      "skipped_fps": 0,
+      "detection_fps": 0,
+      "detection_enabled": true
+    },
+    "backyard_playground": {
+      "camera_fps": 0,
+      "process_fps": 0,
+      "skipped_fps": 0,
+      "detection_fps": 0,
+      "detection_enabled": true
+    },
+    "backyard_patio_2": {
+      "camera_fps": 0,
+      "process_fps": 0,
+      "skipped_fps": 0,
+      "detection_fps": 0,
+      "detection_enabled": true
+    }
+  },
+  "detection_fps": 0,
+  "service": {
+    "uptime": 58,
+    "version": "0.15.2-3bda638",
+    "latest_version": "0.18.3",
+    "last_updated": 1795887691
+  }
+}
