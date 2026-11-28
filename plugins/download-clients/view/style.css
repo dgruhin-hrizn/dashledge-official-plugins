@@ -111,6 +111,8 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 /* A product's tile: its initials on its colour. */
 .tile{display:grid;place-items:center;flex:none;width:calc(40px*var(--s));height:calc(40px*var(--s));border-radius:calc(10px*var(--s));background:linear-gradient(150deg,color-mix(in srgb,var(--client,var(--brand)) 92%,#fff),color-mix(in srgb,var(--client,var(--brand)) 70%,#000));color:#0c1017;font-size:calc(14px*var(--s));font-weight:800;letter-spacing:-.02em;box-shadow:0 calc(3px*var(--s)) calc(10px*var(--s)) color-mix(in srgb,var(--client,var(--brand)) 30%,transparent),inset 0 1px 0 #ffffff70}
 .tile svg{width:62%;height:62%;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.tile[data-logo]:not([data-logo=""]){background:none;box-shadow:none;border-radius:0}
+.tile img{display:block;width:100%;height:100%}
 
 /* ---- Queue cards: the product's colour glowing behind each download's name and progress. */
 .cards[data-more=true]{mask-image:linear-gradient(90deg,#000 calc(100% - calc(60px*var(--s))),transparent)}
@@ -121,6 +123,7 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .pane>.card{grid-row:2}
 /* The product's initials, huge and faint, where a poster would be. */
 .ghost{position:absolute;right:calc(-10px*var(--s));bottom:calc(-34px*var(--s));z-index:-1;font-size:calc(210px*var(--s));font-weight:900;letter-spacing:-.08em;line-height:1;color:var(--client,var(--brand));opacity:.07;pointer-events:none;user-select:none}
+.ghost img{display:block;width:1em;height:1em}
 .head{display:flex;align-items:center;gap:calc(12px*var(--s));min-width:0}
 .label{display:grid;gap:calc(2px*var(--s));flex:1 1 auto;min-width:0}
 .label p{margin:0}

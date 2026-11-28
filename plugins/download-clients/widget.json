@@ -3,7 +3,7 @@
   "id": "plugin.dashledge.download-clients",
   "title": "Downloads",
   "description": "SABnzbd, NZBGet and qBittorrent queues in one place: speed, what's left, and pause or resume.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "minAppVersion": "0.10.0",
   "homepage": "https://github.com/dgruhin-hrizn/dashledge-official-plugins/tree/main/plugins/download-clients",
   "license": "MIT",
