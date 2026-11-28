@@ -52,8 +52,12 @@
     box.classList.remove('loaded');
     img.removeAttribute('src');
     if (!id) return;
-    art(seriesId, kind).then(url => {
-      if (url && box.dataset.art === id) { img.src = url; box.classList.add('loaded'); }
+    // Shown only once decoded, so a swipe never paints a poster that isn't ready as a dark tile.
+    art(seriesId, kind).then(async url => {
+      if (!url || box.dataset.art !== id) return;
+      img.src = url;
+      await img.decode().catch(() => {});
+      if (box.dataset.art === id) box.classList.add('loaded');
     });
   }
 
