@@ -16,13 +16,13 @@ In Widget Studio, open **Downloads** and add a connection for each client. Choos
 
 ## What it shows
 
-- **The reading:** the total download speed of every client, or **Paused** when they all are. Beneath it, the number downloading and waiting, how much is left, and roughly how long.
-- **Each client:** its name (the connection's name, else its address), its own speed or state, and **Pause** or **Resume**. A client that stops answering keeps its last queue on screen, marked with the error and its age, with **Retry**.
-- **The queue:** every client's downloads in one list, downloading first, then unpacking or checking, stalled, queued and paused. Each row shows progress, done of total, time left or state, and its own pause or resume button. A coloured mark on each row says which product it came from.
+- **The header:** how many are downloading and waiting, how much is left and roughly how long, and a status chip: **Live** while anything moves, **Up to date**, **Paused**, or amber with its age and **Retry** when a client stops answering.
+- **Speed:** the total download speed of every client in large type, or **Paused** when they all are, over a graph of the last six minutes and its peak. The graph starts when the widget opens. Under it, each client: its product's tile, its name (the connection's name, else its address), its own speed or state, and **Pause** or **Resume**. A client that stops answering keeps its last queue on screen, marked with the error and its age, with **Retry**.
+- **The queue:** every client's downloads as cards, downloading first, then unpacking or checking, stalled, queued and paused. Each card glows in its product's colour (SABnzbd yellow, NZBGet green, qBittorrent blue) and shows the state, the client when there are several, the name with its dots read as spaces, a progress rail with the percent, done of total, time left, and its own pause or resume button. Up to three share the width; more scroll sideways. With nothing in the queue, the last finished download is featured.
 - **Finished:** recent completions and failures, newest first, with the reason a download failed.
-- **States:** connecting, every client unavailable (with **Retry**), nothing in the queue, paused and stale.
+- **States:** connecting, every client unavailable (with **Retry** and **Check connections**), nothing in the queue, paused and stale.
 
-The full Edge sets the reading and clients, the queue, and the finished list side by side. Smaller placements stack them and drop the finished list first. The smallest tiles keep only the reading and the clients, with any client that isn't answering at the top.
+The full Edge sets speed, the queue and the finished list side by side, in the same design as Radarr. Between 1000 and 1600 pixels wide, speed stays and tabs switch between the queue and the finished list. Smaller placements show one at a time, with **Speed**, **Queue** and **Finished** tabs; a placement opens on the queue while something downloads, else on speed. Short placements put speed beside its clients, with any client that isn't answering first in the smallest.
 
 ## Settings (per placement)
 
@@ -43,7 +43,7 @@ The full Edge sets the reading and clients, the queue, and the finished list sid
 | qBittorrent's client **Pause** | qBittorrent has no pause for the whole client. Pause stops the torrents that are downloading at that moment and remembers which, and **Resume** starts exactly those again. Seeders and torrents you stopped yourself are never touched. The button offers Pause only while something downloads. |
 | Command `refresh` | **Retry**: read one client, or all of them, again now. |
 | `settings` | Each placement keeps its own two switches. |
-| `ui` | Dashledge's look: its tokens, reading, panel, list, button and state styles. |
+| `ui` | Dashledge's look: its tokens, caption, button and state styles. |
 
 It never reads a route that returns a client's own settings (SABnzbd `get_config`, NZBGet `config`, qBittorrent `app/preferences`), because those can include passwords. It logs only errors, never a reply.
 
@@ -58,4 +58,5 @@ The connector reads every client every 3 seconds, and SABnzbd and NZBGet history
 
 ## Changes
 
+- **1.1.0:** A new look, in the same design as Radarr: the total speed over a live graph, the queue as cards that glow in each product's colour with a progress rail, release names read as words, a status chip in the header, and tabs for smaller placements.
 - **1.0.0:** First release: SABnzbd, NZBGet and qBittorrent in one placement, with pause and resume per client and per download.

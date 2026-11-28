@@ -1,119 +1,285 @@
-/* Downloads, on Dashledge's ui kit. Sizes come from --dl-* tokens and --dl-scale so a
-   placement keeps its physical size at the native viewport. The only colours of its own
-   are each product's mark, so a row says which client it came from. */
+/* Downloads. Type, panels, buttons and states come from Dashledge's ui kit (--dl-* tokens and
+   dl-* classes), in the same design as Radarr. Colours of its own are the sky blue
+   that identifies Downloads (its mark and the glow behind the header) and each product's colour
+   (SABnzbd yellow, NZBGet green, qBittorrent blue), which says where a download comes from.
+   Sizes are reference pixels times --dl-scale, so a placement keeps its physical size at the
+   native viewport (2560 × 720 on the Edge). */
 :root{
+  --s:var(--dl-scale);
+  --brand:#8fd3ff;
+  --brand-2:#b6f36a;
   --sab:#f5c518;
   --nzbget:#5fbf55;
   --qbt:#4e8fe0;
-  --bar:#ffffff1a;
-  --pad:calc(var(--dl-gap)*1.4);
+  --glass:color-mix(in srgb,var(--dl-bg) 72%,transparent);
+  --line:color-mix(in srgb,var(--dl-text) 12%,transparent);
+  --well:color-mix(in srgb,var(--dl-text) 14%,transparent);
+  --scrim:color-mix(in srgb,var(--dl-bg) 86%,transparent);
+  --on-fill:var(--dl-bg);
+  --warn:#f5c86a;
+  --wash:color-mix(in srgb,var(--dl-accent) 16%,transparent);
+  --radius-lg:calc(16px*var(--s));
+  --radius-md:calc(10px*var(--s));
 }
 html,body{height:100%}
-body{overflow:hidden}
-/* Three areas. The wide Edge sets them side by side; other shapes rearrange them below. */
-.downloads{box-sizing:border-box;height:100vh;padding:var(--pad);display:grid;gap:calc(var(--pad)*1.4);
-  grid-template-areas:"summary queue" "summary finished";
-  grid-template-columns:minmax(0,clamp(calc(300px*var(--dl-scale)),30%,calc(620px*var(--dl-scale)))) minmax(0,1fr);
-  grid-template-rows:minmax(0,1fr) auto}
-.summary{grid-area:summary}
-.queue{grid-area:queue}
-.finished{grid-area:finished}
-@media (min-aspect-ratio:13/5){
-  .downloads{grid-template-areas:"summary queue finished";grid-template-rows:minmax(0,1fr);
-    grid-template-columns:minmax(0,clamp(calc(300px*var(--dl-scale)),24%,calc(560px*var(--dl-scale)))) minmax(0,1fr) minmax(0,clamp(calc(300px*var(--dl-scale)),26%,calc(600px*var(--dl-scale))))}
-  .finished{max-height:none}
-}
-#loading,#failed{height:100vh;box-sizing:border-box;align-content:center}
+body{overflow:hidden;background:radial-gradient(ellipse 70% 120% at 0% -55%,color-mix(in srgb,var(--brand) 16%,transparent),transparent 62%),radial-gradient(ellipse 60% 90% at 100% 130%,color-mix(in srgb,var(--dl-accent) 9%,transparent),transparent 60%),var(--dl-bg)}
+.downloads{box-sizing:border-box;height:100%;padding:calc(8px*var(--s)) var(--dl-gap) var(--dl-gap);display:grid;grid-template-rows:auto minmax(0,1fr);gap:calc(10px*var(--s))}
+.downloads>.whole{grid-row:2;align-self:center}
+.dl-error p{margin:0;max-width:32em}
+.actions{display:flex;gap:var(--dl-gap);justify-content:center;flex-wrap:wrap}
+button{font:inherit;color:inherit;touch-action:manipulation}
+/* Each product's colour, for its tile and the glow behind its card. */
+[data-type=sabnzbd]{--client:var(--sab)}
+[data-type=nzbget]{--client:var(--nzbget)}
+[data-type=qbittorrent]{--client:var(--qbt)}
 
-/* The summary: total speed first, then what's left, then each client. */
-.summary{display:flex;flex-direction:column;gap:calc(var(--dl-gap)*.6);min-height:0;min-width:0;container-type:inline-size}
-/* The reading fits its column as well as the height: "123 MB/s" is about 3.3em wide. */
-.summary .dl-reading{font-size:clamp(calc(40px*var(--dl-scale)),min(26vh,26cqi),calc(150px*var(--dl-scale)))}
-@container (max-width:460px){.client .product{display:none}}
-.line{margin:0;color:var(--dl-sub);font-variant-numeric:tabular-nums}
-.clients{list-style:none;margin:auto 0 0;padding:0;display:grid;gap:calc(var(--dl-gap)*.5);overflow:auto}
-.client{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"mark who act" "mark note act";align-items:center;column-gap:var(--dl-gap);padding:calc(var(--dl-gap)*.5) calc(var(--dl-gap)*.7);background:var(--dl-panel);border:1px solid var(--dl-border);border-radius:var(--dl-radius)}
-.client .mark{grid-area:mark;align-self:stretch}
-.client .who{grid-area:who;display:flex;gap:.5em;align-items:baseline;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.client .who strong{font-weight:560;overflow:hidden;text-overflow:ellipsis}
+/* ---- Header: the Downloads mark, the queue's figures and a live status chip. */
+.top{display:flex;align-items:center;gap:calc(14px*var(--s));min-width:0;min-height:calc(52px*var(--s))}
+.brand{display:flex;align-items:center;gap:calc(10px*var(--s));flex:none}
+.mark{display:grid;place-items:center;width:calc(36px*var(--s));height:calc(36px*var(--s));border-radius:calc(10px*var(--s));background:linear-gradient(145deg,#c8ecff,var(--brand) 50%,#4fb0e8);box-shadow:0 calc(4px*var(--s)) calc(14px*var(--s)) color-mix(in srgb,var(--brand) 35%,transparent),inset 0 1px 0 #ffffff80}
+.mark svg{width:72%;height:72%;fill:none;stroke:#062033;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.mark .bar{stroke:#1d5a1a}
+.brand b{font-size:calc(26px*var(--s));font-weight:740;letter-spacing:-.05em}
+.stats{display:flex;justify-content:flex-end;gap:calc(18px*var(--s));flex:1 1 auto;min-width:0;margin:0;color:var(--dl-sub);font-size:calc(19px*var(--s));font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
+.stats span{display:inline-flex;align-items:center;gap:calc(18px*var(--s))}
+.stats span+span::before{content:"";width:calc(4px*var(--s));height:calc(4px*var(--s));border-radius:50%;background:var(--dl-sub);opacity:.6}
+.stats span:first-child{color:var(--dl-text);font-weight:600}
+.stats [data-tone=warning]{color:var(--warn)}
+.status{display:flex;align-items:center;gap:calc(9px*var(--s));flex:none;min-height:var(--dl-tap);padding:0 calc(16px*var(--s));box-sizing:border-box;border:1px solid var(--line);border-radius:999px;color:var(--dl-sub);font-size:calc(18px*var(--s));font-weight:620;white-space:nowrap}
+.status:has(.retry:not([hidden])){padding-right:calc(5px*var(--s))}
+.status-short{display:none}
+.status .dot{width:calc(10px*var(--s));height:calc(10px*var(--s));border-radius:50%;background:currentColor;flex:none}
+.status[data-kind=live]{color:var(--dl-accent);background:var(--wash);border-color:transparent}
+.status[data-kind=live] .dot{box-shadow:0 0 0 calc(4px*var(--s)) var(--wash)}
+.status[data-kind=idle]{color:var(--dl-text)}
+.status[data-kind=idle] .dot{background:none;box-shadow:inset 0 0 0 calc(2px*var(--s)) var(--dl-accent)}
+.status[data-kind=paused]{color:var(--dl-text)}
+.status[data-kind=paused] .dot{border-radius:1px;width:calc(9px*var(--s));background:linear-gradient(90deg,currentColor 35%,transparent 35% 65%,currentColor 65%)}
+.status[data-kind=stale]{color:var(--warn)}
+.status .retry{min-height:var(--dl-tap);min-width:0;padding:0 calc(12px*var(--s));border-radius:999px;font-size:calc(16px*var(--s))}
+/* The tabs show only where one pane fits at a time. */
+.tabs{display:none;gap:calc(3px*var(--s));padding:calc(3px*var(--s));border:1px solid var(--line);border-radius:calc(12px*var(--s));background:var(--glass)}
+.tab{display:inline-flex;align-items:center;gap:.45em;min-height:var(--dl-tap);padding:0 calc(16px*var(--s));border:0;border-radius:calc(9px*var(--s));background:none;color:var(--dl-sub);font-size:calc(18px*var(--s));font-weight:650;white-space:nowrap;cursor:pointer}
+.tab[aria-pressed=true]{color:var(--dl-text);background:color-mix(in srgb,var(--dl-accent) 22%,var(--dl-panel))}
+.tab:focus-visible{outline:2px solid var(--dl-accent);outline-offset:-2px}
+.tab .count{color:var(--dl-accent);font-variant-numeric:tabular-nums}
+.tab .count:empty{display:none}
+.downloads[data-done=false] #tabDone{display:none}
+
+/* ---- The stage: speed, the queue and what finished, side by side on the Edge. */
+.stage{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,2fr) minmax(0,.9fr);gap:calc(18px*var(--s));min-height:0}
+.downloads[data-done=false] .stage{grid-template-columns:minmax(0,.95fr) minmax(0,2.6fr)}
+.downloads[data-done=false] #donePane{display:none}
+.downloads[data-queue=empty] .stage{grid-template-columns:minmax(0,1.25fr) minmax(0,1.3fr) minmax(0,1.1fr)}
+.pane{display:grid;grid-template-rows:auto minmax(0,1fr);gap:calc(8px*var(--s));min-height:0;min-width:0}
+.pane-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--dl-gap);min-height:calc(30px*var(--s))}
+.pane-head .count{color:var(--dl-sub);font-size:var(--dl-small);font-variant-numeric:tabular-nums}
+.cards,.finished,.clients{scrollbar-width:none;overscroll-behavior:contain}
+.cards::-webkit-scrollbar,.finished::-webkit-scrollbar,.clients::-webkit-scrollbar{display:none}
+.cards:focus-visible,.finished:focus-visible{outline:2px solid var(--dl-accent);outline-offset:2px;border-radius:var(--radius-lg)}
+.eyebrow{margin:0;font-size:var(--dl-small);font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--dl-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- Speed: the total reading over a live graph of the last few minutes, then each client. */
+.now{grid-template-rows:minmax(0,1fr) auto;gap:calc(12px*var(--s))}
+.meter{position:relative;isolation:isolate;display:grid;align-content:start;min-height:0;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-lg);background:linear-gradient(160deg,color-mix(in srgb,var(--brand) 9%,var(--dl-panel)),var(--dl-bg));box-shadow:0 calc(8px*var(--s)) calc(24px*var(--s)) #0006,inset 0 1px 0 var(--line);container-type:size}
+/* The graph fills the lower part of the card, edge to edge, behind the reading's foot. */
+.trend{position:absolute;left:0;right:0;bottom:0;z-index:-1;display:block;width:100%;height:58%;overflow:visible}
+.trend .from{stop-color:var(--dl-accent);stop-opacity:.42}
+.trend .to{stop-color:var(--dl-accent);stop-opacity:0}
+.trend .line{fill:none;stroke:var(--dl-accent);stroke-width:calc(2.5px*var(--s));stroke-linejoin:round;filter:drop-shadow(0 0 calc(6px*var(--s)) color-mix(in srgb,var(--dl-accent) 70%,transparent))}
+.downloads[data-paused=true] .trend{opacity:.35}
+.readout{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--dl-gap);row-gap:calc(6px*var(--s));padding:calc(16px*var(--s)) calc(20px*var(--s))}
+.readout .speed{grid-column:1/-1;text-shadow:0 calc(2px*var(--s)) calc(14px*var(--s)) var(--dl-bg)}
+.readout p{margin:0}
+.speed{display:flex;align-items:baseline;gap:.18em;min-width:0;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:.92}
+/* The reading fits the card's width and height: "123 MB/s" is about 3.6em wide. */
+.speed strong{font-size:clamp(calc(40px*var(--s)),min(25cqi,30cqh),calc(150px*var(--s)));font-weight:300;letter-spacing:-.05em}
+.speed .unit{font-size:clamp(calc(18px*var(--s)),min(8cqi,10cqh),calc(40px*var(--s)));color:var(--dl-sub);font-weight:500}
+.peak{grid-area:1/2;color:var(--dl-sub);font-size:var(--dl-small);font-variant-numeric:tabular-nums;white-space:nowrap}
+.clients{list-style:none;margin:0;padding:0;display:grid;gap:calc(6px*var(--s));max-height:calc(52vh);overflow-y:auto}
+.client{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tile who act" "tile note act";align-items:center;column-gap:calc(12px*var(--s));row-gap:calc(2px*var(--s));padding:calc(8px*var(--s)) calc(8px*var(--s)) calc(8px*var(--s)) calc(10px*var(--s));border:1px solid var(--line);border-radius:var(--radius-md);background:var(--glass)}
+.client .tile{grid-area:tile}
+.client .who{grid-area:who;display:flex;gap:.5em;align-items:baseline;min-width:0;white-space:nowrap;overflow:hidden}
+.client .who strong{font-weight:620;overflow:hidden;text-overflow:ellipsis}
 .client .product{color:var(--dl-sub);font-size:var(--dl-small)}
 .client .note{grid-area:note;color:var(--dl-sub);font-size:var(--dl-small);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.client .act{grid-area:act;min-width:calc(var(--dl-tap)*2)}
-.client[data-state=failed] .note,.client[data-state=stale] .note{color:var(--dl-danger)}
+.client .act{grid-area:act;min-width:calc(var(--dl-tap)*2);min-height:var(--dl-tap);border-radius:999px}
+.client .act[aria-pressed=true]{background:var(--wash);color:var(--dl-accent);border-color:transparent}
+.client[data-state=failed] .note,.client[data-state=stale] .note{color:var(--warn)}
+.client[data-state=failed],.client[data-state=stale]{border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
 .client[data-state=paused] .note{color:var(--dl-accent)}
+/* A product's tile: its initials on its colour. */
+.tile{display:grid;place-items:center;flex:none;width:calc(40px*var(--s));height:calc(40px*var(--s));border-radius:calc(10px*var(--s));background:linear-gradient(150deg,color-mix(in srgb,var(--client,var(--brand)) 92%,#fff),color-mix(in srgb,var(--client,var(--brand)) 70%,#000));color:#0c1017;font-size:calc(14px*var(--s));font-weight:800;letter-spacing:-.02em;box-shadow:0 calc(3px*var(--s)) calc(10px*var(--s)) color-mix(in srgb,var(--client,var(--brand)) 30%,transparent),inset 0 1px 0 #ffffff70}
+.tile svg{width:62%;height:62%;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 
-/* Each product's mark. */
-.mark{width:calc(6px*var(--dl-scale));min-height:calc(24px*var(--dl-scale));border-radius:99px;background:var(--dl-sub)}
-[data-type=sabnzbd] .mark{background:var(--sab)}
-[data-type=nzbget] .mark{background:var(--nzbget)}
-[data-type=qbittorrent] .mark{background:var(--qbt)}
-/* With one client the mark says nothing, so its column goes too. */
-.single .item .mark,.single .done .mark{display:none}
-.single .item{grid-template-columns:minmax(0,1fr) auto auto}
-.single .done{grid-template-columns:minmax(0,1fr) auto}
+/* ---- Queue cards: the product's colour glowing behind each download's name and progress. */
+.cards[data-more=true]{mask-image:linear-gradient(90deg,#000 calc(100% - calc(60px*var(--s))),transparent)}
+/* Cards share the width up to three at a time, but never shrink below a readable card. */
+.cards{--min-card:calc(380px*var(--s));display:grid;grid-auto-flow:column;grid-auto-columns:max(min(100%,var(--min-card)),calc((100% - (var(--cols,1) - 1)*var(--dl-gap))/var(--cols,1)));gap:var(--dl-gap);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;touch-action:pan-x;min-height:0}
+.cards[hidden]{display:none}
+.card{position:relative;isolation:isolate;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:calc(10px*var(--s));min-width:0;min-height:0;margin:0;padding:calc(16px*var(--s)) calc(18px*var(--s)) calc(14px*var(--s));overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-lg);background:radial-gradient(ellipse 90% 70% at 0% 0%,color-mix(in srgb,var(--client,var(--brand)) 22%,transparent),transparent 70%),linear-gradient(140deg,var(--dl-panel),var(--dl-bg));box-shadow:0 calc(8px*var(--s)) calc(24px*var(--s)) #0006,inset 0 1px 0 var(--line);scroll-snap-align:start}
+.pane>.card{grid-row:2}
+/* The product's initials, huge and faint, where a poster would be. */
+.ghost{position:absolute;right:calc(-10px*var(--s));bottom:calc(-34px*var(--s));z-index:-1;font-size:calc(210px*var(--s));font-weight:900;letter-spacing:-.08em;line-height:1;color:var(--client,var(--brand));opacity:.07;pointer-events:none;user-select:none}
+.head{display:flex;align-items:center;gap:calc(12px*var(--s));min-width:0}
+.label{display:grid;gap:calc(2px*var(--s));flex:1 1 auto;min-width:0}
+.label p{margin:0}
+.label .from{color:var(--dl-sub);font-size:var(--dl-small);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.label .from:empty{display:none}
+.card[data-tone=active] .eyebrow{color:var(--dl-accent)}
+.card[data-tone=done] .eyebrow{color:var(--dl-text)}
+.card[data-tone=warning] .eyebrow{color:var(--warn)}
+.card[data-tone=failed] .eyebrow{color:var(--dl-danger)}
+.toggle{flex:none;display:grid;place-items:center;width:var(--dl-tap);min-width:var(--dl-tap);height:var(--dl-tap);padding:0;border-radius:50%;background:var(--glass);border:1px solid var(--line);color:var(--dl-text)}
+.toggle svg{width:calc(18px*var(--s));height:calc(18px*var(--s));fill:currentColor}
+.toggle[aria-pressed=true]{background:var(--dl-accent);border-color:transparent;color:var(--on-fill)}
+.title{margin:0;align-self:end;font-size:clamp(calc(22px*var(--s)),min(1.9vw,7vh),calc(40px*var(--s)));font-weight:700;letter-spacing:-.035em;line-height:1.08;overflow-wrap:anywhere;text-wrap:balance;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4}
+.meta{margin:0;color:var(--dl-sub);font-size:calc(18px*var(--s));line-height:1.3;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta:empty{display:none}
+.card[data-tone=failed] .meta{color:var(--dl-danger)}
+.card[data-tone=warning] .meta{color:var(--warn)}
+/* The rail: progress, then what's done and what's left; the percent is the reading. */
+.rail{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:calc(16px*var(--s));row-gap:calc(6px*var(--s));align-items:end}
+.track{grid-area:1/1;align-self:center;display:block;height:calc(8px*var(--s));border-radius:999px;background:var(--well);overflow:hidden;box-shadow:inset 0 1px calc(2px*var(--s)) #0008}
+.track i{display:block;height:100%;width:0;border-radius:inherit;background:var(--dl-accent);box-shadow:0 0 calc(12px*var(--s)) color-mix(in srgb,var(--dl-accent) 70%,transparent);transition:width .8s ease-out}
+.card[data-tone=warning] .track i{background:var(--warn);box-shadow:none}
+.card[data-tone=failed] .track i{background:var(--dl-danger);box-shadow:none}
+.card:is([data-tone=paused],[data-tone=waiting]) .track i{background:var(--dl-sub);box-shadow:none}
+.card[data-tone=done] .track i{background:var(--client,var(--dl-text));box-shadow:none}
+.card[data-state=processing] .track i{background:linear-gradient(90deg,var(--dl-accent),color-mix(in srgb,var(--dl-accent) 40%,var(--dl-text)),var(--dl-accent));background-size:200% 100%}
+.pct{grid-area:1/2/3/3;align-self:end;min-width:3.6ch;text-align:right;font-size:calc(40px*var(--s));font-weight:300;letter-spacing:-.04em;line-height:.95;font-variant-numeric:tabular-nums}
+.pct:empty{display:none}
+.sub{grid-area:2/1;display:flex;justify-content:space-between;gap:var(--dl-gap);margin:0;color:var(--dl-sub);font-size:var(--dl-small);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
+.sub .amount{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sub .left{flex:none;color:var(--dl-text);font-weight:600}
+/* An idle queue: what finished last, featured. */
+.card.idle{grid-template-rows:auto minmax(0,1fr) auto;background:radial-gradient(ellipse 90% 70% at 0% 0%,color-mix(in srgb,var(--brand) 18%,transparent),transparent 70%),linear-gradient(140deg,var(--dl-panel),var(--dl-bg))}
+.card.idle .tile{--client:var(--dl-accent)}
+.card.idle .eyebrow{color:var(--dl-accent)}
+.card.idle .meta{white-space:normal}
 
-/* The queue. */
-.queue{display:flex;flex-direction:column;gap:var(--dl-gap);min-height:0;min-width:0}
-.items{flex:1 1 auto;min-height:0;align-content:start}
-.item,.done{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:var(--dl-gap);padding:calc(var(--dl-gap)*.7) 0}
-.done{grid-template-columns:auto minmax(0,1fr) auto}
-.body{display:grid;gap:calc(5px*var(--dl-scale));min-width:0}
-.item .bar{margin-top:calc(3px*var(--dl-scale))}
-.name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.meta{color:var(--dl-sub);font-size:var(--dl-small);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bar{height:calc(6px*var(--dl-scale));border-radius:99px;background:var(--bar);overflow:hidden}
-.fill{display:block;height:100%;background:var(--dl-accent);border-radius:inherit;transition:width .8s ease}
-.item .right,.done .right{min-width:calc(110px*var(--dl-scale));text-align:right;white-space:nowrap;color:var(--dl-sub);font-variant-numeric:tabular-nums}
-.item[data-state=downloading] .right{color:var(--dl-text)}
-.item[data-state=paused] .fill,.item[data-state=queued] .fill{background:var(--dl-sub)}
-.item[data-state=failed] .right,.done[data-ok=false] .right{color:var(--dl-danger)}
-.item[data-state=processing] .fill{background:color-mix(in srgb,var(--dl-accent) 55%,var(--dl-text))}
-.item[data-state=seeding] .fill{background:var(--qbt)}
-.toggle{width:var(--dl-tap);color:var(--dl-sub)}
-.toggle svg{width:calc(18px*var(--dl-scale));height:calc(18px*var(--dl-scale));fill:currentColor}
-.toggle[aria-pressed=true]{color:var(--dl-accent)}
-.toggle[hidden]{display:inline-grid!important;visibility:hidden}
-.nothing{margin:0;padding:var(--dl-gap) 0;color:var(--dl-sub)}
-.finished{max-height:36vh;min-height:0;min-width:0;display:flex;flex-direction:column;gap:calc(var(--dl-gap)*.4)}
-.finished .dl-list{min-height:0}
-.notice{position:fixed;left:50%;bottom:var(--pad);transform:translateX(-50%);max-width:80vw;margin:0;padding:calc(var(--dl-gap)*.6) var(--dl-gap);background:var(--dl-panel);border:1px solid var(--dl-danger);border-radius:var(--dl-radius);color:var(--dl-danger)}
+/* ---- Finished: the last day's downloads, newest first. */
+.finished{list-style:none;margin:0;padding:0;display:grid;align-content:start;gap:calc(6px*var(--s));overflow-y:auto;min-height:0;touch-action:pan-y}
+.fin{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:calc(12px*var(--s));padding:calc(10px*var(--s)) calc(12px*var(--s));border:1px solid var(--line);border-radius:var(--radius-md);background:var(--glass)}
+.tick{display:grid;place-items:center;width:calc(28px*var(--s));height:calc(28px*var(--s));border-radius:50%;background:color-mix(in srgb,var(--client,var(--dl-accent)) 22%,transparent);box-shadow:inset 0 0 0 calc(2px*var(--s)) var(--client,var(--dl-accent))}
+.tick::after{content:"";width:28%;height:52%;margin-top:-14%;border:solid var(--dl-text);border-width:0 calc(2.5px*var(--s)) calc(2.5px*var(--s)) 0;transform:rotate(45deg)}
+.fin[data-ok=false] .tick{background:color-mix(in srgb,var(--dl-danger) 22%,transparent);box-shadow:inset 0 0 0 calc(2px*var(--s)) var(--dl-danger)}
+.fin[data-ok=false] .tick::after{content:"!";width:auto;height:auto;margin:0;border:0;transform:none;font-weight:800;font-size:calc(16px*var(--s));color:var(--dl-danger)}
+.fin .body{display:grid;gap:calc(2px*var(--s));min-width:0}
+.fin .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fin .meta{font-size:var(--dl-small)}
+.fin .when{color:var(--dl-sub);font-size:var(--dl-small);white-space:nowrap;font-variant-numeric:tabular-nums}
+.fin[data-ok=false] .when{color:var(--dl-danger)}
+.quiet{grid-row:2;align-self:start;margin:0;padding:calc(12px*var(--s)) 0;color:var(--dl-sub)}
+.quiet[hidden]{display:none}
+.notice{position:fixed;left:50%;bottom:var(--dl-gap);transform:translateX(-50%);max-width:80vw;margin:0;padding:calc(10px*var(--s)) calc(18px*var(--s));background:var(--dl-panel);border:1px solid var(--dl-danger);border-radius:999px;color:var(--dl-danger);box-shadow:0 calc(8px*var(--s)) calc(24px*var(--s)) #0008}
 
-/* A tile taller than it is wide: the summary on top, the queue under it. */
-@media (max-aspect-ratio:3/2){
-  .downloads{grid-template-areas:"summary" "queue" "finished";grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;gap:var(--pad)}
-  .finished{max-height:28vh}
-  .summary .dl-reading{font-size:clamp(calc(36px*var(--dl-scale)),min(12vh,22cqi),calc(96px*var(--dl-scale)))}
-  .clients{margin:0;grid-template-columns:repeat(auto-fill,minmax(calc(260px*var(--dl-scale)),1fr))}
+/* ---- Not wide enough for three: speed stays, and tabs switch the queue and what finished. */
+@media (min-width:1000px) and (max-width:1599px){
+  .tabs{display:flex}
+  #tabNow{display:none}
+  .stage,.downloads[data-queue=empty] .stage{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+  .downloads[data-show=queue] #donePane,.downloads[data-show=done] #queuePane{display:none}
+  .pane:not(.now){grid-template-rows:minmax(0,1fr)}
+  .pane:not(.now)>.pane-head{display:none}
+  .pane:not(.now)>*{grid-row:1!important}
+  .stats span:nth-child(n+3){display:none}
 }
-/* A tall tile without much height keeps the queue and drops the finished list. */
-@media (max-aspect-ratio:3/2) and (max-height:960px){.finished{display:none!important}}
-/* A short tile: the reading, the line and the clients; the queue's first rows if they fit. */
-@media (max-height:320px){
-  .downloads{grid-template-areas:"summary queue";grid-template-rows:minmax(0,1fr);
-    grid-template-columns:minmax(0,clamp(calc(260px*var(--dl-scale)),34%,calc(560px*var(--dl-scale)))) minmax(0,1fr)}
-  .finished{display:none!important}
-  .summary{gap:calc(var(--dl-gap)*.35)}
-  .summary .dl-caption{display:none}
-  .summary .dl-reading{font-size:clamp(calc(28px*var(--dl-scale)),min(24vh,24cqi),calc(76px*var(--dl-scale)))}
-  .line{font-size:var(--dl-small)}
-  /* Clients become one-line chips; one that isn't answering is outlined. */
-  .clients{margin:0;display:flex;flex-wrap:wrap;gap:calc(var(--dl-gap)*.4)}
-  .client{grid-template-areas:"mark who act";padding:calc(var(--dl-gap)*.25) calc(var(--dl-gap)*.4);min-width:0;flex:1 1 auto}
+
+@media (prefers-reduced-motion:no-preference){
+  .status[data-kind=live] .dot{animation:breathe 2.8s ease-in-out infinite}
+  .card[data-state=processing] .track i{animation:sweep 2.4s linear infinite}
+  .trend path{transition:d .6s ease-out}
+  @keyframes breathe{50%{opacity:.45}}
+  @keyframes sweep{to{background-position:-200% 0}}
+}
+@media (prefers-reduced-motion:reduce){.track i{transition:none}}
+
+/* ---- One pane at a time where they don't fit side by side, with tabs in the header. */
+@media (max-width:999px){
+  .tabs{display:flex}
+  .stats{display:none}
+  .top{justify-content:space-between}
+  .brand b{display:none}
+  .stage,.downloads[data-done=false] .stage,.downloads[data-queue=empty] .stage{grid-template-columns:minmax(0,1fr)}
+  .downloads[data-show=now] :is(#queuePane,#donePane),.downloads[data-show=queue] :is(#nowPane,#donePane),.downloads[data-show=done] :is(#nowPane,#queuePane){display:none}
+  .pane:not(.now){grid-template-rows:minmax(0,1fr)}
+  .pane-head{display:none}
+  .pane:not(.now)>*{grid-row:1!important}
+  .status .status-text{display:none}
+  /* Stale data keeps its age on screen, even here, in short. */
+  .status[data-kind=stale] .status-short{display:inline}
+  .status{padding:0 calc(14px*var(--s))}
+  .tabs{flex:0 1 auto;min-width:0}
+  .tab{min-width:0;overflow:hidden}
+}
+/* Wide but not wide enough for three panes, and short: the speed beside its clients. */
+@media (max-width:999px) and (min-aspect-ratio:2/1){
+  .now{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+  .clients{max-height:none;align-content:start}
+}
+/* No room for the Retry pill beside the tabs: the stale chip itself retries. */
+@media (max-width:760px){
+  .status .retry{display:none}
+  .status:has(.retry:not([hidden])){padding:0 calc(12px*var(--s));cursor:pointer}
+}
+/* Taller than wide-ish: cards stack, scrolling down. */
+@media (max-width:999px) and (max-aspect-ratio:4/3){
+  .cards{grid-auto-flow:row;grid-auto-columns:auto;grid-auto-rows:calc(210px*var(--s));overflow-x:hidden;overflow-y:auto;scroll-snap-type:y proximity;touch-action:pan-y}
+  .cards[data-more=true]{mask-image:none}
+  .card{gap:calc(6px*var(--s))}
+  .title{font-size:calc(24px*var(--s));-webkit-line-clamp:2}
+  .ghost{font-size:calc(150px*var(--s))}
+  .pct{font-size:calc(32px*var(--s))}
+  .card.idle{align-self:start;height:calc(240px*var(--s))}
+}
+/* Very narrow: smaller type, and the tabs share the width. */
+@media (max-width:480px){
+  .title{font-size:calc(21px*var(--s))}
+  .sub .amount{display:none}
+  .top{gap:calc(8px*var(--s))}
+  .tabs{flex:1 1 auto;min-width:0}
+  .tabs .tab{flex:1 1 auto;justify-content:center;padding:0 calc(6px*var(--s));font-size:calc(16px*var(--s))}
+  .status,.status:has(.retry:not([hidden])){gap:calc(6px*var(--s));padding:0 calc(8px*var(--s));font-size:calc(15px*var(--s))}
+  .tab .count{display:none}
+  .mark{display:none}
+  .client .product{display:none}
+}
+/* Short: a slimmer header, tighter cards, and one-line clients. */
+@media (max-height:420px){
+  .top{min-height:calc(44px*var(--s))}
+  .mark{width:calc(30px*var(--s));height:calc(30px*var(--s))}
+  .brand b{font-size:calc(22px*var(--s))}
+  .pane-head{display:none}
+  .pane:not(.now){grid-template-rows:minmax(0,1fr)}
+  .pane:not(.now)>*{grid-row:1!important}
+  .card{padding:calc(10px*var(--s)) calc(14px*var(--s)) calc(10px*var(--s));gap:calc(6px*var(--s))}
+  .tile{width:calc(32px*var(--s));height:calc(32px*var(--s));font-size:calc(12px*var(--s))}
+  .title{-webkit-line-clamp:2;font-size:clamp(calc(20px*var(--s)),min(1.6vw,8vh),calc(30px*var(--s)))}
+  .meta{display:none}
+  .pct{font-size:calc(30px*var(--s))}
+  .sub .amount{display:none}
+  .cards{--min-card:calc(330px*var(--s))}
+  .ghost{font-size:calc(140px*var(--s))}
+  .readout{padding:calc(10px*var(--s)) calc(14px*var(--s))}
+  .client{grid-template-areas:"tile who act";padding:calc(4px*var(--s)) calc(4px*var(--s)) calc(4px*var(--s)) calc(6px*var(--s))}
   .client .note,.client .product{display:none}
-  .client[data-state=failed],.client[data-state=stale]{border-color:var(--dl-danger)}
-  .client .act{min-width:var(--dl-tap)}
+  .client .tile{width:calc(30px*var(--s));height:calc(30px*var(--s));font-size:calc(11px*var(--s))}
+  .now{gap:calc(8px*var(--s))}
+  .clients{max-height:45vh}
+  .fin{padding:calc(6px*var(--s)) calc(10px*var(--s))}
+  .fin .meta{display:none}
 }
-@media (max-width:640px){
-  .downloads{grid-template-areas:"summary" "queue" "finished";grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
-  .clients{margin:0}
-  .item .right{min-width:0}
-  .item .meta{display:none}
+/* Wide and short: the speed beside its clients. */
+@media (min-width:1600px) and (max-height:420px){
+  .now{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+  .clients{max-height:none;align-content:start}
+  .stage{grid-template-columns:minmax(0,1.25fr) minmax(0,2fr) minmax(0,.9fr)}
 }
-/* The smallest tiles: the reading and each client's state and button; the queue waits for room. */
+/* The smallest tiles: the speed beside its clients, failing ones first. */
 @media (max-width:640px) and (max-height:320px){
-  .downloads{grid-template-areas:"summary";grid-template-rows:minmax(0,1fr)}
-  .queue{display:none}
-  .clients{overflow:auto}
+  .now{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+  .clients{max-height:none;align-content:start}
   .client[data-state=failed],.client[data-state=stale]{order:-1}
+  .peak{display:none}
 }
-@media (prefers-reduced-motion:reduce){.fill{transition:none}}
