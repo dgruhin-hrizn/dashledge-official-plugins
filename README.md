@@ -41,7 +41,8 @@ The packed ZIPs are attached to each run as the `packages` artifact, so you can 
    ```
 
 3. The release workflow runs the same checks and tests as a pull request. It refuses a tag that isn't on `main`, or one that disagrees with `widget.json`. It then packs the plugin and creates a GitHub release with `<folder>-<version>.zip`. It never replaces a published ZIP, because its listing pins the sha256.
-4. The release notes hold the registry listing. Add it to [dashledge-plugins](https://github.com/dgruhin-hrizn/dashledge-plugins) as `listings/plugin.dashledge.<folder>/<version>.json` in a pull request. After it merges, the plugin appears in the Marketplace within a few minutes.
+4. The release notes say what changed and what existing users must approve. They take the version's line from the plugin README's **Changes** list, which CI requires. They also compare this version's grants with the previous release's, then list the new ones or say there are none.
+5. The release notes hold the registry listing, with the Changes line as its `notes`. Add it to [dashledge-plugins](https://github.com/dgruhin-hrizn/dashledge-plugins) as `listings/plugin.dashledge.<folder>/<version>.json` in a pull request. After it merges, the plugin appears in the Marketplace within a few minutes.
 
 ## Building the checker locally
 

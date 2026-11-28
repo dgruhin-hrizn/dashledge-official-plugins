@@ -47,7 +47,7 @@ The Dashledge repository's `AGENTS.md` (section *First-party and third-party plu
 
 ### Documentation and tests
 
-- **(CI)** `plugins/<folder>/README.md` covers what it shows, its settings, and a table of every grant with why it's needed. It names each connector host. Keep a **Changes** list with a line per version.
+- **(CI)** `plugins/<folder>/README.md` covers what it shows, its settings, and a table of every grant with why it's needed. It names each connector host. Keep a **Changes** list with a line per version, `- **1.2.0:** what changed`. The release notes and the listing's `notes` are taken from it.
 - **(CI)** `tests/<folder>.test.mjs` runs with `node --test`, with recorded server replies in `tests/<folder>/`. `tests/harness.mjs` runs a connector the way Dashledge does: only its declared hosts and connections, a clock the test moves, and storage that survives a restart.
   - Cover the main reply, every state the view distinguishes, a failure and its retry, and a restart.
   - Record replies from a real server, and strip anything personal from them first.
@@ -57,7 +57,7 @@ The Dashledge repository's `AGENTS.md` (section *First-party and third-party plu
 ### Before a release
 
 - Load the folder unpacked in Dashledge and exercise it at the full Edge and in a compact placement. Try a long real name, an empty or missing choice, a failure, and a live refresh.
-- Release notes say what changed and which new grants, if any, will ask existing users for approval.
+- The release workflow writes the notes: the Changes line, plus the grants this version adds over the previous release, which existing users approve before it installs. Read them on the release before you list it.
 
 ## Adding a plugin
 
