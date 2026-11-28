@@ -6,6 +6,21 @@
   const ORDER = {downloading: 0, processing: 1, checking: 2, stalled: 3, queued: 4, paused: 5, failed: 6, seeding: 7};
   const STATE_LABEL = {downloading: 'Downloading', processing: 'Processing', checking: 'Checking', stalled: 'Stalled',
     queued: 'Queued', paused: 'Paused', failed: 'Failed', seeding: 'Uploading'};
+  // A card's colour: active is the accent, warning amber, failed danger, waiting and paused muted.
+  const TONE = {downloading: 'active', processing: 'active', checking: 'active', stalled: 'warning',
+    queued: 'waiting', paused: 'paused', failed: 'failed', seeding: 'done'};
+  const EXTENSION = /\.(nzb|torrent|mkv|mp4|m4v|avi|iso|zip|rar|7z|flac|mp3|m4a|m4b|epub|pdf)$/i;
+
+  // Usenet and torrent names are dot-separated ("Show.Name.S01E05.1080p.WEB.H.264-GRP"). With
+  // no spaces at all, dots and underscores become spaces, except in a number like 5.1 or 24.04
+  // (a dot between digits with one or two after it; "2025.1080p" is a year and a resolution).
+  function cleanName(name) {
+    const raw = String(name || '').trim();
+    let text = raw.replace(EXTENSION, '');
+    const keep = (str, i) => /\d/.test(str[i - 1] || '') && /^\d{1,2}(?!\d)/.test(str.slice(i + 1));
+    if (!/\s/.test(text) && /[._]/.test(text)) text = text.replace(/_+/g, ' ').replace(/\./g, (dot, i, str) => keep(str, i) ? '.' : ' ');
+    return text.replace(/\s+/g, ' ').trim() || raw;
+  }
 
   // Three significant digits, so a changing value keeps its width: 1.23, 12.3, 123.
   function bytes(n) {
@@ -70,6 +85,13 @@
     return item.detail || STATE_LABEL[item.state] || '';
   }
 
+  // "5.00 GB of 8.00 GB", or the size alone once nothing is left.
+  function itemAmount(item) {
+    if (!(item.size > 0)) return '';
+    if (item.state === 'processing' || item.state === 'seeding' || !(item.left > 0)) return size(item.size);
+    return size(item.size - item.left) + ' of ' + size(item.size);
+  }
+
   function itemMeta(item) {
     const parts = [];
     if (item.state === 'processing' || item.state === 'seeding') parts.push(size(item.size));
@@ -78,6 +100,38 @@
     if (item.detail && item.state !== 'processing' && item.state !== 'failed' && item.detail !== STATE_LABEL[item.state]) parts.push(item.detail);
     if (item.category) parts.push(item.category);
     return parts.join(' · ');
+  }
+
+  // The header's status chip: stale (some client isn't answering), paused, live or idle.
+  function freshness(views, usable, {allPaused, total, now}) {
+    const down = views.filter(v => v.state === 'failed' || v.state === 'stale');
+    if (down.length) {
+      const first = down[0];
+      const raw = usable.find(c => c.i === first.i);
+      const age = first.state === 'stale' && raw ? ago(raw.at, now) : '';
+      const who = views.length > 1 ? first.name + ' ' : '';
+      // The short label (narrow placements) says how many are down when it isn't all of them.
+      const some = down.length < views.length ? down.length + ' of ' + views.length + ' down' : '';
+      return {kind: 'stale', label: age ? who + 'updated ' + age : who + 'unavailable',
+        short: some || (age ? age[0].toUpperCase() + age.slice(1) : 'Offline'), note: down.map(v => v.name + ': ' + v.note).join('\n')};
+    }
+    if (allPaused) return {kind: 'paused', label: 'Paused', short: '', note: ''};
+    return total > 0 ? {kind: 'live', label: 'Live', short: '', note: ''} : {kind: 'idle', label: 'Up to date', short: '', note: ''};
+  }
+
+  // The speed graph: SVG paths for `samples` (bytes per second, oldest first) in a width × height
+  // box, right-aligned so the newest sample is at the right edge and older ones scroll left.
+  function trend(samples, width, height, slots) {
+    const n = Math.max(2, slots || samples.length);
+    const list = samples.slice(-n);
+    const peak = Math.max(0, ...list);
+    if (list.length < 2 || !(peak > 0)) return {line: '', area: '', peak};
+    const step = width / (n - 1);
+    const top = height * 0.12;
+    const points = list.map((v, i) => [width - (list.length - 1 - i) * step, height - (Math.max(0, v) / peak) * (height - top)]);
+    const line = points.map(([x, y], i) => (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1)).join('');
+    const area = line + 'L' + width + ' ' + height + 'L' + points[0][0].toFixed(1) + ' ' + height + 'Z';
+    return {line, area, peak};
   }
 
   // Everything the view draws, from the connector's data and this placement's settings.
@@ -105,15 +159,19 @@
       for (const item of list) {
         // A paused client's next download is waiting, not downloading.
         const held = c.reading.paused && item.state === 'downloading';
-        items.push({key: c.i + ':' + item.id, client: c.i, type: c.type, id: item.id, name: item.name, state: held ? 'queued' : item.state,
+        const state = held ? 'queued' : item.state;
+        items.push({key: c.i + ':' + item.id, client: c.i, type: c.type, id: item.id, name: item.name, state,
           progress: item.progress, meta: itemMeta(item), right: held ? 'Client paused' : itemRight(item),
+          title: cleanName(item.name), eyebrow: held ? 'Waiting' : STATE_LABEL[item.state] || '', tone: TONE[state] || 'waiting',
+          percent: item.state === 'processing' ? '' : Math.floor(clamp01(item.progress) * 100) + '%', amount: itemAmount(item),
+          speed: item.state === 'downloading' && item.speed > 0 ? speedText(item.speed) : '',
           canPause: !!item.canPause && ['downloading', 'queued', 'stalled', 'checking', 'paused', 'seeding'].includes(item.state),
           paused: item.state === 'paused'});
       }
     }
     items.sort((a, b) => ORDER[a.state] - ORDER[b.state] || a.client - b.client);
     const finished = showFinished ? usable.flatMap(c => (c.reading.finished || []).map(f => ({
-      key: c.i + ':' + f.id, client: c.i, type: c.type, name: f.name, ok: f.ok, at: f.at,
+      key: c.i + ':' + f.id, client: c.i, type: c.type, name: f.name, title: cleanName(f.name), ok: f.ok, at: f.at,
       right: f.ok ? ago(f.at, now) : 'Failed', meta: f.ok ? size(f.size) : (f.detail || 'Failed'),
     }))).sort((a, b) => b.at - a.at).slice(0, 8) : [];
     const live = usable.filter(c => clientState(c, now) !== 'stale');
@@ -129,8 +187,12 @@
     if (left > 0) parts.push(size(left) + ' left');
     if (etas.length && !allPaused) parts.push('about ' + eta(Math.max(...etas)));
     const reading = speed(total);
+    const failing = items.filter(i => i.state === 'failed').length;
+    const stats = parts.map(text => ({text}));
+    if (failing) stats.push({text: failing + ' failed', tone: 'warning'});
     return {
-      status: 'ready', clients: views, items, finished,
+      status: 'ready', clients: views, items, finished, stats, rate: allPaused ? 0 : total,
+      fresh: freshness(views, usable, {allPaused, total, now}),
       speed: allPaused ? {value: 'Paused', unit: ''} : reading,
       line: parts.join(' · ') || (allPaused ? 'Everything is paused' : 'Nothing downloading'),
       empty: !items.length,
@@ -138,5 +200,7 @@
     };
   }
 
-  root.DownloadsModel = {bytes, size, speed, speedText, eta, ago, clientState, summarize};
+  const clamp01 = n => Math.max(0, Math.min(1, Number(n) || 0));
+
+  root.DownloadsModel = {bytes, size, speed, speedText, eta, ago, clientState, cleanName, trend, summarize};
 })(typeof window === 'undefined' ? globalThis : window);

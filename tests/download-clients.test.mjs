@@ -344,6 +344,19 @@ test('model: three clients add up to one reading and one queue', async () => {
   assert.equal(s.items.at(-1).state, 'paused');
   assert.ok(!s.items.some(i => i.state === 'seeding'), 'uploading torrents only when asked');
   assert.match(s.line, /^3 downloading · \d+ waiting · [\d.]+ GB left · about /);
+  assert.deepEqual(s.stats.map(x => x.text).join(' · '), s.line);
+  assert.equal(s.fresh.kind, 'live');
+  assert.equal(s.rate, 19046.4 * 1024 + 20971520 + 5242880);
+  // Each card: a readable title, its state as the eyebrow, a tone, the percent and the amount.
+  const first = s.items[0];
+  assert.equal(first.title, 'Example Show S02E05 1080p WEB h264-GROUP');
+  assert.equal(first.name, 'Example.Show.S02E05.1080p.WEB.h264-GROUP', 'the full name stays for the tooltip');
+  assert.deepEqual([first.eyebrow, first.tone], ['Downloading', 'active']);
+  assert.match(first.percent, /^\d{1,3}%$/);
+  assert.match(first.amount, /^[\d.]+ [KMGT]B of [\d.]+ [KMGT]B$/);
+  const processing = s.items.find(i => i.state === 'processing');
+  if (processing) assert.equal(processing.percent, '', 'post-processing shows no percent');
+  assert.equal(s.finished[0].title, 'Example Show S02E10 1080p WEB-GROUP');
   assert.equal(s.finished[0].name, 'Example.Show.S02E10.1080p.WEB-GROUP', 'newest first, across clients');
   assert.equal(M.summarize(c.last(), {finished: false}, c.last().at).finished.length, 0);
   const seeding = M.summarize(c.last(), {seeding: true}, c.last().at);
@@ -362,6 +375,10 @@ test('model: paused, stale, failed and empty are told apart', async () => {
   assert.ok(!p.items.some(i => i.state === 'downloading'), 'a paused client downloads nothing');
   assert.equal(p.items.find(i => i.name.startsWith('Example.Show.S02E05')).right, 'Client paused');
   assert.match(p.line, /^4 waiting · /);
+  assert.equal(p.fresh.kind, 'paused');
+  assert.equal(p.rate, 0);
+  const held = p.items.find(i => i.name.startsWith('Example.Show.S02E05'));
+  assert.deepEqual([held.eyebrow, held.tone], ['Waiting', 'waiting']);
 
   const failed = await reading([SAB], {'sab-queue': {status: 403}});
   const f = M.summarize(failed.last(), {}, now);
@@ -374,12 +391,47 @@ test('model: paused, stale, failed and empty are told apart', async () => {
   const stale = M.summarize(data, {}, now);
   assert.equal(stale.clients[0].state, 'stale');
   assert.match(stale.clients[0].note, /^Server unreachable · from /);
+  assert.equal(stale.fresh.kind, 'stale');
+  assert.match(stale.fresh.label, /^updated (just now|\d+ (min|h) ago)$/);
+  const two = (await reading([SAB, NZB])).last();
+  two.clients[1].ok = false;
+  two.clients[1].error = 'Server unreachable';
+  const some = M.summarize(two, {}, now);
+  assert.equal(some.fresh.kind, 'stale');
+  assert.equal(some.fresh.short, '1 of 2 down', 'a narrow chip says how many are down, not "Offline"');
+  assert.match(some.fresh.label, /^nzbget\.local:6789 updated /);
 
   const empty = await reading([SAB], {'sab-queue': {json: {queue: {paused: false, kbpersec: '0', mbleft: '0', timeleft: '0:00:00', slots: [], noofslots_total: 0}}}, 'sab-history': {json: {history: {slots: []}}}});
   const e = M.summarize(empty.last(), {}, now);
   assert.equal(e.empty, true);
   assert.equal(e.line, 'Nothing downloading');
   assert.equal(e.clients[0].note, 'Idle');
+  assert.deepEqual([e.fresh.kind, e.fresh.label], ['idle', 'Up to date']);
+  assert.deepEqual(e.stats, []);
 
   assert.equal(M.summarize({clients: []}, {}, now).status, 'loading');
+});
+
+test('model: dot-separated release names read as words', () => {
+  const M = model();
+  assert.equal(M.cleanName('Example.Show.S02E05.1080p.WEB.h264-GROUP'), 'Example Show S02E05 1080p WEB h264-GROUP');
+  assert.equal(M.cleanName('Doc.S03E11.DDP5.1.Atmos.H.265-GRP'), 'Doc S03E11 DDP5.1 Atmos H 265-GRP', 'a channel count keeps its dot');
+  assert.equal(M.cleanName('Sample.Movie.2025.2160p.UHD-GRP'), 'Sample Movie 2025 2160p UHD-GRP', 'a year and a resolution split');
+  assert.equal(M.cleanName('Example_Show_S02E07_1080p.nzb'), 'Example Show S02E07 1080p', 'underscores, and the file extension goes');
+  assert.equal(M.cleanName('Sample Movie (2024) [1080p].mkv'), 'Sample Movie (2024) [1080p]', 'a name with spaces keeps its dots');
+  assert.equal(M.cleanName('ubuntu-24.04-desktop-amd64.iso'), 'ubuntu-24.04-desktop-amd64');
+  assert.equal(M.cleanName(''), '');
+});
+
+test('model: the speed graph is right-aligned and scaled to its peak', () => {
+  const M = model();
+  assert.deepEqual(M.trend([], 600, 200, 120), {line: '', area: '', peak: 0});
+  assert.deepEqual(M.trend([0, 0, 0], 600, 200, 120), {line: '', area: '', peak: 0}, 'all zero draws nothing');
+  const t = M.trend([10, 20, 40], 600, 200, 3);
+  assert.equal(t.peak, 40);
+  assert.equal(t.line, 'M0.0 156.0L300.0 112.0L600.0 24.0', 'the newest sample is at the right edge, the peak near the top');
+  assert.equal(t.area, t.line + 'L600 200L0.0 200Z');
+  // With room for more samples than there are, the graph starts part way across.
+  assert.equal(M.trend([1, 2], 600, 200, 120).line, 'M595.0 112.0L600.0 24.0');
+  assert.equal(M.trend(Array.from({length: 200}, (_, i) => i), 600, 200, 120).peak, 199, 'only the last slots count');
 });
