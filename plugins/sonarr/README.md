@@ -54,8 +54,13 @@ Add a connection with your **Sonarr URL**, such as `http://sonarr.local:8989/`, 
 
 It reads the queue every 10 seconds while something is downloading and every 30 seconds when it's empty. It reads the calendar every 5 minutes, and again soon after a download leaves the queue. It reads the status every 30 minutes. After a failure it waits 30 seconds, then 1, 2, 5 and 10 minutes. The connector stores the last reading, up to 128 KiB, and only for the server it came from.
 
+## Logo
+
+The header and the package icon use Sonarr's own logo, from [`Logo/Sonarr.svg`](https://github.com/Sonarr/Sonarr/blob/develop/Logo/Sonarr.svg) in the Sonarr repository. It is © the Sonarr project under the GPL-3.0, whose text ships beside it as `LICENSE-GPL-3.0.txt`. It identifies Sonarr and implies no endorsement. The plugin's own code stays MIT.
+
 ## Changes
 
+- **1.2.1:** Sonarr's own logo, in the header and as the package icon, in place of a drawn TV.
 - **1.2.0:** The connection form explains where to find Sonarr's address and API key, and links to Sonarr's security settings. Needs Dashledge 0.10.0.
 - **1.1.0:** The same design as the Radarr plugin: Sonarr's mark, queue figures and a live status chip in the header; queue cards over each series' fanart with a progress rail and sizes; and Coming up as a shelf of posters with day chips and Search on the poster. Cards show the quality and download client. The image grant adds `fanart*.jpg` (and the full-size `poster.jpg`), so existing users are asked to approve it.
 - **1.0.0:** First release.
