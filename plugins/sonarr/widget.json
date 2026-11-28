@@ -1,0 +1,60 @@
+{
+  "apiVersion": 2,
+  "id": "plugin.dashledge.sonarr",
+  "title": "Sonarr",
+  "description": "Upcoming episodes and the download queue from your Sonarr server, with series posters. Search for a missed episode from the Edge.",
+  "version": "1.0.0",
+  "category": "Music & media",
+  "icon": "icon.svg",
+  "license": "MIT",
+  "homepage": "https://github.com/dgruhin-hrizn/dashledge-official-plugins/tree/main/plugins/sonarr",
+  "minAppVersion": "0.9.0",
+  "view": {"entry": "view/index.html", "viewport": "native", "theme": true},
+  "sources": {
+    "min": 1,
+    "max": 1,
+    "auth": {"header": "X-Api-Key"},
+    "test": ["api/v3/system/status"],
+    "addressLabel": "Sonarr URL",
+    "addressPlaceholder": "http://sonarr.local:8989/",
+    "credentialLabel": "API key"
+  },
+  "displayName": {"serverField": "status.instanceName"},
+  "permissions": ["images", "settings", "ui"],
+  "images": ["api/v3/mediacover/*/poster-*.jpg"],
+  "settings": [
+    {
+      "id": "days",
+      "label": "Days ahead",
+      "type": "number",
+      "min": 1,
+      "max": 14,
+      "step": 1,
+      "default": 7,
+      "help": "How far ahead Upcoming looks, counting today."
+    },
+    {
+      "id": "hideDownloaded",
+      "label": "Hide downloaded episodes",
+      "type": "toggle",
+      "default": false,
+      "help": "Upcoming then lists only episodes you don't have yet."
+    },
+    {
+      "id": "pane",
+      "label": "In a small placement, show first",
+      "type": "choice",
+      "options": [
+        {"value": "upcoming", "label": "Upcoming"},
+        {"value": "queue", "label": "Queue"}
+      ],
+      "default": "upcoming",
+      "help": "A small placement shows one list at a time, with the other a tap away. The full Edge shows both."
+    }
+  ],
+  "connector": {
+    "entry": "connector.js",
+    "commands": ["watch", "search"],
+    "storage": 131072
+  }
+}

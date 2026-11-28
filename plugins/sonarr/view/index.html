@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sonarr</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="model.js"></script>
+<script defer src="view.js"></script>
+</head>
+<body class="dl-surface">
+<main class="sonarr" id="app" data-pane="upcoming">
+  <div class="content" id="content" hidden>
+    <header class="top">
+      <p class="dl-caption server" id="server">Sonarr</p>
+      <div class="tabs" id="tabs">
+        <button class="dl-button tab" id="tabUpcoming" type="button" aria-pressed="true" aria-controls="paneUpcoming">Upcoming<span class="count" id="countUpcoming"></span></button>
+        <button class="dl-button tab" id="tabQueue" type="button" aria-pressed="false" aria-controls="paneQueue">Queue<span class="count" id="countQueue"></span></button>
+      </div>
+      <p class="stale" id="stale" role="status" hidden><span class="stale-text" id="staleText"></span><button class="dl-button" id="staleFix" type="button" hidden>Check connection</button><button class="dl-button" id="staleRetry" type="button">Retry</button></p>
+    </header>
+    <div class="panes">
+      <section class="dl-panel pane upcoming" id="paneUpcoming" aria-labelledby="upcomingTitle">
+        <h2 class="dl-caption pane-title"><span id="upcomingTitle">Upcoming</span><span class="pane-note" id="upcomingNote"></span></h2>
+        <ul class="dl-list rows" id="upcomingList"></ul>
+        <p class="dl-empty pane-state" id="upcomingEmpty" hidden></p>
+        <p class="dl-loading pane-state" id="upcomingLoading" role="status" hidden>Loading the calendar…</p>
+        <p class="dl-error pane-state" id="upcomingError" hidden></p>
+      </section>
+      <section class="dl-panel pane queue" id="paneQueue" aria-labelledby="queueTitle">
+        <h2 class="dl-caption pane-title"><span id="queueTitle">Queue</span><span class="pane-note" id="queueNote"></span></h2>
+        <ul class="dl-list rows" id="queueList"></ul>
+        <p class="dl-empty pane-state" id="queueEmpty" hidden>Nothing downloading</p>
+        <p class="dl-loading pane-state" id="queueLoading" role="status" hidden>Loading the queue…</p>
+        <p class="dl-error pane-state" id="queueError" hidden></p>
+      </section>
+    </div>
+  </div>
+  <p class="dl-loading state" id="loading" role="status">Connecting to Sonarr…</p>
+  <div class="dl-empty state" id="empty" hidden>
+    <p>Choose a Sonarr connection for this widget.</p>
+    <button class="dl-button" id="choose" type="button">Choose connection</button>
+  </div>
+  <div class="dl-error state" id="failed" role="alert" hidden>
+    <p id="failedText"></p>
+    <p class="actions"><button class="dl-button" id="fix" type="button" hidden>Check connection</button><button class="dl-button" id="retry" type="button">Retry</button></p>
+  </div>
+</main>
+</body>
+</html>

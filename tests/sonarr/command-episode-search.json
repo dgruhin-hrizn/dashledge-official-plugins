@@ -1,0 +1,29 @@
+{
+  "name": "EpisodeSearch",
+  "commandName": "Episode Search",
+  "message": "Searching for 1 episode",
+  "body": {
+    "episodeIds": [
+      5002
+    ],
+    "sendUpdatesToClient": true,
+    "updateScheduledTask": true,
+    "completionMessage": "Completed",
+    "requiresDiskAccess": false,
+    "isExclusive": false,
+    "isTypeExclusive": false,
+    "isLongRunning": false,
+    "name": "EpisodeSearch",
+    "trigger": "manual",
+    "suppressMessages": false
+  },
+  "priority": "normal",
+  "status": "queued",
+  "result": "unknown",
+  "queued": "2026-11-27T19:00:05Z",
+  "trigger": "manual",
+  "stateChangeTime": "2026-11-27T19:00:05Z",
+  "sendUpdatesToClient": true,
+  "updateScheduledTask": true,
+  "id": 31337
+}
