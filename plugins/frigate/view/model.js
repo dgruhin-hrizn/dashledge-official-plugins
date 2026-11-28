@@ -23,31 +23,37 @@
     };
   }
 
+  // A camera's value in the placement's settings. Dashledge's setting values may use
+  // letters, digits and . _ : @ / - but not _, which nearly every Frigate camera name has
+  // ("front_door"). Frigate names never contain ".", so _ is stored as "." and back.
+  const toValue = name => String(name).replace(/_/g, '.');
+  const fromValue = value => String(value).replace(/\./g, '_');
+
   // The cameras this placement shows, in Frigate's order. "*" is every camera Frigate
   // puts on its own dashboard; a list names cameras, and ones Frigate no longer has are
   // left out (the view says so when none are left).
   function chosen(cameras, prefs) {
     const list = Array.isArray(cameras) ? cameras : [];
     if (prefs.cameras.includes('*')) return list.filter(c => c.enabled !== false && c.dashboard !== false);
-    const wanted = new Set(prefs.cameras);
+    const wanted = new Set(prefs.cameras.map(fromValue));
     return list.filter(c => wanted.has(c.name));
   }
   // Names the placement chose that this Frigate doesn't have (renamed or removed).
   function missing(cameras, prefs) {
     if (prefs.cameras.includes('*')) return [];
     const have = new Set((cameras || []).map(c => c.name));
-    return prefs.cameras.filter(n => !have.has(n));
+    return prefs.cameras.map(fromValue).filter(n => !have.has(n));
   }
 
   function label(camera, prefs) {
-    const own = prefs.names && typeof prefs.names[camera.name] === 'string' ? prefs.names[camera.name].trim() : '';
+    const own = prefs.names && typeof prefs.names[toValue(camera.name)] === 'string' ? prefs.names[toValue(camera.name)].trim() : '';
     return own || camera.label || camera.name;
   }
 
   // The options a placement's Cameras setting lists.
   function offer(cameras) {
     return (cameras || []).slice(0, 64).map(c => ({
-      value: c.name, label: c.label || c.name,
+      value: toValue(c.name), label: c.label || c.name,
       detail: !c.enabled ? 'Turned off in Frigate' : c.main ? 'Live video' : 'Snapshots only (no go2rtc stream)',
     }));
   }
@@ -224,7 +230,7 @@
   }
 
   global.FrigateModel = {
-    MAX_LIVE, status, settings, chosen, missing, label, offer, aspectOf, grid, gridRects, spotlightRects, rects,
+    MAX_LIVE, status, settings, toValue, fromValue, chosen, missing, label, offer, aspectOf, grid, gridRects, spotlightRects, rects,
     signal, stream, liveSet, snapshotHeight, isCapError, isMissingStream, word, ago, detection, osd, pill,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -52,7 +52,7 @@
           "steps": [
             "Copy the address you open Frigate at, such as https://frigate.local:8971/ at home or https://cameras.example.com/ from outside. Include a path if your proxy serves Frigate under one.",
             "Use a Frigate user’s name and password. An admin can add one in Frigate under Settings → Users; the viewer role is enough.",
-            "If Frigate uses its own self-signed certificate on port 8971, add it under Certificate so Dashledge trusts it."
+            "Frigate’s own certificate on port 8971 is self-signed, and Dashledge accepts only one this Mac trusts. Give Frigate a trusted certificate (see Frigate’s TLS guide), or open the certificate in Keychain Access and set it to Always Trust."
           ],
           "address": {
             "placeholder": "https://frigate.local:8971/"

@@ -17,7 +17,7 @@ A placement plays at most four cameras live, the first four in its order. Dashle
 
 Choose how Dashledge reaches Frigate when you add the connection:
 
-- **Signed in (port 8971 or a proxy).** Frigate's authenticated port, at home (`https://frigate.local:8971/`) or from outside through your proxy (`https://cameras.example.com/`). Enter a Frigate user's name and password. A user with the viewer role is enough. Frigate's own certificate on port 8971 is self-signed, so add it under **Certificate**.
+- **Signed in (port 8971 or a proxy).** Frigate's authenticated port, at home (`https://frigate.local:8971/`) or from outside through your proxy (`https://cameras.example.com/`). Enter a Frigate user's name and password. A user with the viewer role is enough. Frigate's own certificate on port 8971 is self-signed, and Dashledge accepts only certificates this Mac trusts: give Frigate a trusted one ([Frigate's TLS guide](https://docs.frigate.video/configuration/tls)), or set its certificate to **Always Trust** in Keychain Access.
 - **On my network (port 5000, no sign-in).** Frigate's internal port, such as `http://frigate.local:5000/`. Anyone on your network can use it, so keep it off networks you don't trust.
 
 Both work from anywhere Dashledge can reach the address. If you serve Frigate under a path, such as `https://example.com/frigate/`, include the path.
