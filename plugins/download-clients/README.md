@@ -4,7 +4,7 @@ Your SABnzbd, NZBGet and qBittorrent queues in one widget: how fast they're goin
 
 ## Connect your clients
 
-In Widget Studio, open **Downloads** and add a connection for each client. Choose its type first:
+In Widget Studio, open **Downloads** and add a connection for each client. Choose its type first, and the form shows that client's own steps and fields (Dashledge 0.10.0 or later):
 
 | Type | Address | Credential |
 |---|---|---|
@@ -58,5 +58,6 @@ The connector reads every client every 3 seconds, and SABnzbd and NZBGet history
 
 ## Changes
 
+- **1.2.0:** The connection form gives each client's own steps: where SABnzbd keeps its API key, NZBGet's username and password, and turning on qBittorrent's Web UI. It asks for a username only for NZBGet and qBittorrent. Needs Dashledge 0.10.0.
 - **1.1.0:** A new look, in the same design as Radarr: the total speed over a live graph, the queue as cards that glow in each product's colour with a progress rail, release names read as words, a status chip in the header, and tabs for smaller placements.
 - **1.0.0:** First release: SABnzbd, NZBGet and qBittorrent in one placement, with pause and resume per client and per download.

@@ -3,33 +3,127 @@
   "id": "plugin.dashledge.download-clients",
   "title": "Downloads",
   "description": "SABnzbd, NZBGet and qBittorrent queues in one place: speed, what's left, and pause or resume.",
-  "version": "1.1.0",
-  "minAppVersion": "0.9.0",
+  "version": "1.2.0",
+  "minAppVersion": "0.10.0",
   "homepage": "https://github.com/dgruhin-hrizn/dashledge-official-plugins/tree/main/plugins/download-clients",
   "license": "MIT",
   "category": "Music & media",
   "icon": "icon.svg",
-  "view": {"entry": "view/index.html", "viewport": "native", "theme": true},
+  "view": {
+    "entry": "view/index.html",
+    "viewport": "native",
+    "theme": true
+  },
   "sources": {
     "min": 1,
     "max": 4,
     "auth": "none",
     "types": [
-      {"id": "sabnzbd", "label": "SABnzbd", "auth": {"query": "apikey"}, "test": ["api?mode=queue&output=json&limit=1"],
-       "addressLabel": "SABnzbd URL", "addressPlaceholder": "http://sabnzbd.local:8080/", "credentialLabel": "API key"},
-      {"id": "nzbget", "label": "NZBGet", "auth": "basic", "test": ["jsonrpc/version"],
-       "addressLabel": "NZBGet URL", "addressPlaceholder": "http://nzbget.local:6789/", "usernameLabel": "Username", "credentialLabel": "Password"},
-      {"id": "qbittorrent", "label": "qBittorrent", "test": ["api/v2/transfer/info"],
-       "auth": {"login": {"path": "api/v2/auth/login", "fields": {"username": "{user}", "password": "{key}"}, "session": "cookie"}},
-       "addressLabel": "qBittorrent Web UI URL", "addressPlaceholder": "http://qbittorrent.local:8080/", "usernameLabel": "Username", "credentialLabel": "Password"}
-    ]
+      {
+        "id": "sabnzbd",
+        "label": "SABnzbd",
+        "auth": {
+          "query": "apikey"
+        },
+        "test": [
+          "api?mode=queue&output=json&limit=1"
+        ],
+        "setup": {
+          "steps": [
+            "Copy the address you open SABnzbd at, such as http://sabnzbd.local:8080/.",
+            "In SABnzbd, open Config → General and copy the API Key under Security."
+          ],
+          "link": {
+            "label": "SABnzbd’s General settings",
+            "url": "https://sabnzbd.org/wiki/configuration/4.5/general"
+          },
+          "address": {
+            "label": "SABnzbd URL",
+            "placeholder": "http://sabnzbd.local:8080/"
+          },
+          "credential": {
+            "label": "API key",
+            "hint": "The API key, not the NZB key: pausing and resuming need it."
+          }
+        }
+      },
+      {
+        "id": "nzbget",
+        "label": "NZBGet",
+        "auth": "basic",
+        "test": [
+          "jsonrpc/version"
+        ],
+        "setup": {
+          "steps": [
+            "Copy the address you open NZBGet at, such as http://nzbget.local:6789/.",
+            "Use a username and password from Settings → Security: the control pair or the restricted one."
+          ],
+          "address": {
+            "label": "NZBGet URL",
+            "placeholder": "http://nzbget.local:6789/"
+          }
+        }
+      },
+      {
+        "id": "qbittorrent",
+        "label": "qBittorrent",
+        "test": [
+          "api/v2/transfer/info"
+        ],
+        "auth": {
+          "login": {
+            "path": "api/v2/auth/login",
+            "fields": {
+              "username": "{user}",
+              "password": "{key}"
+            },
+            "session": "cookie"
+          }
+        },
+        "setup": {
+          "steps": [
+            "In qBittorrent, open Tools → Options → Web UI and turn on the Web User Interface.",
+            "Copy its address, such as http://qbittorrent.local:8080/, and the username and password set there."
+          ],
+          "address": {
+            "label": "qBittorrent Web UI URL",
+            "placeholder": "http://qbittorrent.local:8080/"
+          }
+        }
+      }
+    ],
+    "setup": {
+      "intro": "Shows what your download clients are doing: total speed, the queue and what finished. Add one connection for each client."
+    }
   },
-  "connector": {"entry": "connector.js", "commands": ["pause", "resume", "refresh"], "storage": 131072},
-  "permissions": ["settings", "ui"],
+  "connector": {
+    "entry": "connector.js",
+    "commands": [
+      "pause",
+      "resume",
+      "refresh"
+    ],
+    "storage": 131072
+  },
+  "permissions": [
+    "settings",
+    "ui"
+  ],
   "settings": [
-    {"id": "finished", "label": "Show recent finishes", "type": "toggle", "default": true,
-     "help": "Completed and failed downloads from the last day, under the queue."},
-    {"id": "seeding", "label": "Show torrents that are uploading", "type": "toggle", "default": false,
-     "help": "qBittorrent only. Finished torrents still sending to peers."}
+    {
+      "id": "finished",
+      "label": "Show recent finishes",
+      "type": "toggle",
+      "default": true,
+      "help": "Completed and failed downloads from the last day, under the queue."
+    },
+    {
+      "id": "seeding",
+      "label": "Show torrents that are uploading",
+      "type": "toggle",
+      "default": false,
+      "help": "qBittorrent only. Finished torrents still sending to peers."
+    }
   ]
 }
