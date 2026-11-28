@@ -1,0 +1,199 @@
+/* Frigate. The camera picture is what matters, so it runs edge to edge and everything else
+   sits on it: the camera's name and what it saw at the bottom, a state pill at the top.
+   Type, buttons and states come from Dashledge's ui kit (--dl-* tokens and dl-* classes).
+   Tiles size their own text with container units, so a small tile in a grid and a full
+   Edge keep the same proportions. The CRT look puts each camera in a monitor housing. */
+:root{
+  --s:var(--dl-scale);
+  --live:#ff4d4d;
+  --line:color-mix(in srgb,var(--dl-text) 14%,transparent);
+  --glass:color-mix(in srgb,#000 52%,transparent);
+  --wash:color-mix(in srgb,var(--dl-accent) 86%,transparent);
+  --tile-gap:calc(6px*var(--s));
+  --tile-radius:calc(12px*var(--s));
+}
+html,body{height:100%}
+body{overflow:hidden}
+.frigate{position:relative;box-sizing:border-box;height:100%;overflow:hidden}
+.frigate>.whole{position:absolute;inset:0;margin:auto;height:max-content;max-width:80%}
+.dl-empty p,.dl-error p{margin:0;max-width:34em}
+.actions{display:flex;gap:var(--dl-gap);justify-content:center;flex-wrap:wrap}
+button{font:inherit;color:inherit;touch-action:manipulation}
+
+/* ---- The wall of tiles. The view positions each tile from the layout model. */
+.wall{position:absolute;inset:calc(4px*var(--s));column-gap:var(--tile-gap)}
+.tile{position:absolute;left:0;top:0;box-sizing:border-box;container-type:size;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+/* Tiles glide when the layout changes (a tap to full size and back), not when they first appear. */
+.tile.placed{transition:transform .32s cubic-bezier(.2,.7,.2,1),width .32s cubic-bezier(.2,.7,.2,1),height .32s cubic-bezier(.2,.7,.2,1)}
+.frigate[data-motion=reduced] .tile{transition:none}
+.frigate[data-count="1"] .tile{cursor:default}
+.tile:focus-visible .screen{outline:calc(3px*var(--s)) solid var(--dl-accent);outline-offset:calc(-3px*var(--s))}
+.tile.edge-pressed .screen,.tile:active .screen{filter:brightness(.86)}
+.housing,.bezel{height:100%;box-sizing:border-box}
+.chin{display:none}
+.screen{position:relative;height:100%;overflow:hidden;border-radius:var(--tile-radius);background:#050607;isolation:isolate}
+.screen>img,.screen>video,.screen>canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
+.frigate[data-fill=false] .screen>img,.frigate[data-fill=false] .screen>video{object-fit:contain}
+.tile[data-picture=video] .video,.tile[data-picture=snap] .snap{opacity:1}
+.crt,.osd,.noise,.glass{display:none}
+
+/* A camera without signal: a dark screen with faint diagonal lines behind the message. */
+.tile[data-state=offline] .screen,.tile[data-state=off] .screen{background:repeating-linear-gradient(135deg,#ffffff06 0 calc(2px*var(--s)),transparent calc(2px*var(--s)) calc(14px*var(--s))),#08090a}
+.message{position:absolute;inset:0;margin:auto;height:max-content;display:flex;align-items:center;justify-content:center;gap:.4em;
+  font-size:clamp(calc(13px*var(--s)),6cqmin,calc(30px*var(--s)));font-weight:650;color:color-mix(in srgb,var(--dl-text) 88%,transparent);text-align:center;padding:0 1em}
+.message::before{content:"";width:.9em;height:.9em;flex:none;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M3 3l18 18M10.6 6H15a2 2 0 0 1 2 2v3l4-2.5v7.3M17 17.4V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1'/%3E%3C/svg%3E") center/contain no-repeat}
+
+/* ---- The state pill, top right. */
+.pill{position:absolute;top:clamp(calc(5px*var(--s)),2.6cqmin,calc(16px*var(--s)));right:clamp(calc(5px*var(--s)),2.6cqmin,calc(16px*var(--s)));
+  display:inline-flex;align-items:center;gap:.4em;padding:.28em .7em;border-radius:999px;background:var(--glass);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--dl-text);
+  font-size:clamp(calc(11px*var(--s)),3.4cqmin,calc(17px*var(--s)));font-weight:680;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.pill-dot{width:.55em;height:.55em;border-radius:50%;background:var(--dl-sub);flex:none}
+.tile[data-state=live] .pill-dot{background:var(--live);box-shadow:0 0 0 .2em color-mix(in srgb,var(--live) 30%,transparent)}
+.tile[data-state=offline] .pill,.tile[data-state=error] .pill{color:var(--dl-danger)}
+.tile[data-state=offline] .pill-dot,.tile[data-state=error] .pill-dot{background:var(--dl-danger)}
+.tile[data-state=connecting] .pill-dot{background:none;border:.12em solid var(--dl-sub);border-top-color:var(--dl-accent);box-sizing:border-box}
+@media (prefers-reduced-motion:no-preference){
+  .tile[data-state=live] .pill-dot{animation:beat 2s ease-in-out infinite}
+  .tile[data-state=connecting] .pill-dot{animation:dl-spin 1s linear infinite}
+  @keyframes beat{50%{opacity:.45}}
+  @keyframes dl-spin{to{transform:rotate(1turn)}}
+}
+
+/* ---- The caption: the camera's name and what it saw last. */
+.caption{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;justify-content:space-between;gap:.6em;
+  padding:2.2em clamp(calc(8px*var(--s)),3.4cqmin,calc(22px*var(--s))) clamp(calc(6px*var(--s)),2.8cqmin,calc(18px*var(--s)));
+  background:linear-gradient(transparent,color-mix(in srgb,#000 72%,transparent));pointer-events:none;
+  font-size:clamp(calc(12px*var(--s)),4.6cqmin,calc(30px*var(--s)))}
+.name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:720;letter-spacing:-.01em;text-shadow:0 1px 3px #0009}
+.detection{display:inline-flex;align-items:center;gap:.4em;flex:none;max-width:60%;padding:.25em .65em;border-radius:999px;
+  background:var(--glass);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:.72em;font-weight:620;white-space:nowrap;font-variant-numeric:tabular-nums}
+.det-dot{width:.55em;height:.55em;border-radius:50%;background:var(--dl-sub);flex:none}
+.det-text{overflow:hidden;text-overflow:ellipsis}
+.det-when{color:var(--dl-sub)}
+.det-when:empty{display:none}
+.detection[data-active=true]{background:var(--wash);color:var(--dl-bg)}
+.detection[data-active=true] .det-dot{background:currentColor}
+.tile[data-size=tiny] .det-when,.tile[data-size=tiny] .pill-text{display:none}
+.tile[data-size=tiny] .pill{padding:.45em}
+.tile[data-size=tiny] .detection{max-width:45%}
+
+/* ---- Back to every camera, from one shown full size. */
+.back{position:absolute;z-index:3;top:calc(14px*var(--s));left:calc(14px*var(--s));width:calc(56px*var(--s));height:calc(56px*var(--s));
+  display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--glass);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);cursor:pointer}
+.back svg{width:44%;height:44%;fill:var(--dl-text)}
+.back:focus-visible{outline:2px solid var(--dl-accent);outline-offset:2px}
+.back.edge-pressed,.back:active{background:color-mix(in srgb,var(--dl-accent) 40%,#000)}
+
+/* ---- A failed read with cameras still on screen. */
+.banner{position:absolute;z-index:4;left:50%;top:calc(12px*var(--s));transform:translateX(-50%);max-width:calc(100% - 140px*var(--s));
+  display:flex;align-items:center;gap:calc(12px*var(--s));padding:calc(5px*var(--s)) calc(5px*var(--s)) calc(5px*var(--s)) calc(18px*var(--s));
+  border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--dl-bg) 82%,transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font-size:calc(17px*var(--s));box-shadow:0 calc(6px*var(--s)) calc(24px*var(--s)) #0007}
+.banner-dot{width:calc(10px*var(--s));height:calc(10px*var(--s));border-radius:50%;background:var(--dl-danger);flex:none}
+.banner-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.banner .dl-button{border-radius:999px;font-size:calc(16px*var(--s));flex:none}
+
+/* ======================================================================================
+   CRT security monitor. Each camera sits in a monitor: a plastic housing, a dark recessed
+   bezel, a curved tube with rounded corners, the camera's on-screen display in a blocky
+   monospace, and a chin with the maker's plate, two knobs and a power light. The colour
+   monitor is charcoal; the black and white one is the putty grey of an old CCTV desk.
+   ====================================================================================== */
+.frigate[data-look^=crt]{--tile-gap:calc(12px*var(--s));
+  background:radial-gradient(ellipse 120% 90% at 50% 0%,#24252a,#101113 70%),#101113}
+.frigate[data-look^=crt] .wall{inset:calc(10px*var(--s))}
+.frigate[data-look=crt]{--case-hi:#4a4c51;--case:#303236;--case-lo:#1c1d20;--case-ink:#0f1012;--case-text:#8d9097;--knob:#2a2b2f}
+.frigate[data-look=crt-mono]{--case-hi:#ddd6c5;--case:#c3bba7;--case-lo:#a39b87;--case-ink:#6f6858;--case-text:#5d5749;--knob:#3b3a37}
+
+.frigate[data-look^=crt] .housing{display:grid;grid-template-rows:minmax(0,1fr) auto;padding:3.6cqmin 3.6cqmin 0;border-radius:3.2cqmin;
+  background:linear-gradient(180deg,var(--case-hi),var(--case) 22%,var(--case) 70%,var(--case-lo));
+  box-shadow:inset 0 .35cqmin 0 color-mix(in srgb,#fff 30%,transparent),inset 0 -.5cqmin 0 color-mix(in srgb,#000 35%,transparent),
+    0 1.4cqmin 3cqmin #000a}
+.frigate[data-look^=crt] .bezel{padding:2.3cqmin;border-radius:3cqmin;
+  background:radial-gradient(ellipse at 50% 30%,#232427,#0b0b0c 80%);
+  box-shadow:inset 0 .6cqmin 1.4cqmin #000,inset 0 -.25cqmin 0 color-mix(in srgb,#fff 12%,transparent),0 .3cqmin 0 color-mix(in srgb,#fff 22%,transparent)}
+.frigate[data-look^=crt] .screen{border-radius:9% / 12%;background:#020302;
+  box-shadow:inset 0 0 4cqmin #000,0 0 0 .3cqmin #000}
+.frigate[data-look^=crt] .tile:focus-visible .screen{outline:none;box-shadow:inset 0 0 4cqmin #000,0 0 0 .5cqmin var(--dl-accent)}
+
+/* The tube's picture: the shader's canvas, or CSS scanlines when WebGL isn't there. */
+.frigate[data-look^=crt] .crt{display:block;opacity:1}
+.frigate[data-look^=crt] .tile[data-gl=on] .video,.frigate[data-look^=crt] .tile[data-gl=on] .snap{opacity:0!important}
+.frigate[data-look^=crt] .tile:not([data-gl=on]) .crt{opacity:0}
+.frigate[data-look^=crt] .tile:not([data-gl=on]) .screen>img,.frigate[data-look^=crt] .tile:not([data-gl=on]) .screen>video{filter:contrast(1.2) saturate(.8) brightness(1.05) blur(.3px)}
+.frigate[data-look=crt-mono] .tile:not([data-gl=on]) .screen>img,.frigate[data-look=crt-mono] .tile:not([data-gl=on]) .screen>video{filter:grayscale(1) contrast(1.25) brightness(1.08) sepia(.12) hue-rotate(170deg) blur(.3px)}
+.frigate[data-look^=crt] .glass{display:block;position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(ellipse 60% 45% at 28% 18%,color-mix(in srgb,#fff 11%,transparent),transparent 70%),
+    radial-gradient(ellipse 110% 110% at 50% 50%,transparent 58%,color-mix(in srgb,#000 55%,transparent));
+  box-shadow:inset 0 0 3cqmin color-mix(in srgb,#000 70%,transparent)}
+.frigate[data-look^=crt] .tile:not([data-gl=on]) .glass{
+  background:repeating-linear-gradient(0deg,color-mix(in srgb,#000 38%,transparent) 0 1px,transparent 1px 3px),
+    radial-gradient(ellipse 60% 45% at 28% 18%,color-mix(in srgb,#fff 11%,transparent),transparent 70%),
+    radial-gradient(ellipse 110% 110% at 50% 50%,transparent 55%,color-mix(in srgb,#000 65%,transparent))}
+/* Snow, where the shader can't draw it. */
+.frigate[data-look^=crt] .tile:not([data-gl=on])[data-state=offline] .noise{display:block;position:absolute;inset:-50%;
+  background:repeating-radial-gradient(circle at 17% 32%,#fff2 0 1px,#0000 1px 3px),repeating-radial-gradient(circle at 71% 64%,#fff3 0 1px,#0000 1px 2px),#222}
+
+/* The camera's on-screen display. */
+.frigate[data-look^=crt] .osd{display:block;position:absolute;inset:0;pointer-events:none;
+  font:700 clamp(calc(9px*var(--s)),4.4cqmin,calc(30px*var(--s)))/1 "Courier New",ui-monospace,monospace;letter-spacing:.06em;
+  color:#f4f6f2;text-shadow:0 0 .15em #fffa,.08em .08em 0 #000,-.04em -.04em 0 #000}
+.osd>span{position:absolute;white-space:nowrap}
+.osd-cam{top:9%;left:8%;max-width:62%;overflow:hidden;text-overflow:clip}
+.osd-rec{top:9%;right:8%;color:#ff4a3d}
+.osd-date{bottom:9%;left:8%}
+.osd-time{bottom:9%;right:8%;font-variant-numeric:tabular-nums}
+.frigate[data-look^=crt] .pill{display:none}
+.frigate[data-look^=crt] .caption{left:8%;right:8%;bottom:17%;padding:0;background:none;justify-content:flex-start;
+  font:700 clamp(calc(9px*var(--s)),3.8cqmin,calc(26px*var(--s)))/1 "Courier New",ui-monospace,monospace;letter-spacing:.06em;color:#f4f6f2}
+.frigate[data-look^=crt] .name{display:none}
+.frigate[data-look^=crt] .detection{max-width:100%;padding:0;border-radius:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;
+  font-size:1em;text-transform:uppercase;text-shadow:.08em .08em 0 #000;color:inherit}
+.frigate[data-look^=crt] .detection::before{content:"MOTION:";margin-right:.2em}
+.frigate[data-look^=crt] .det-dot{display:none}
+.frigate[data-look^=crt] .detection[data-active=true]{color:#ffd23d}
+.frigate[data-look^=crt] .det-when{color:inherit;opacity:.8}
+.frigate[data-look^=crt] .message{font:700 clamp(calc(11px*var(--s)),7cqmin,calc(46px*var(--s)))/1 "Courier New",ui-monospace,monospace;letter-spacing:.12em;
+  text-transform:uppercase;color:#f4f6f2;text-shadow:0 0 .2em #fff8,.06em .06em 0 #000}
+.frigate[data-look^=crt] .message::before{display:none}
+
+/* The chin: maker's plate on the left, knobs and the power light on the right. */
+.frigate[data-look^=crt] .chin{display:flex;align-items:center;gap:2.4cqmin;height:max(7.5cqh,calc(18px*var(--s)));padding:0 1.2cqmin;
+  font-family:"Futura","Avenir Next Condensed","Helvetica Neue",sans-serif;color:var(--case-text);white-space:nowrap;overflow:hidden}
+.maker{font-size:max(3.4cqh,calc(9px*var(--s)));font-weight:800;letter-spacing:.32em;
+  text-shadow:0 1px 0 color-mix(in srgb,#fff 26%,transparent),0 -1px 0 color-mix(in srgb,#000 40%,transparent)}
+.model{font-size:max(2.4cqh,calc(7px*var(--s)));font-weight:600;letter-spacing:.18em;opacity:.8}
+.controls{display:flex;align-items:center;gap:1.8cqmin;margin-left:auto}
+.knob{width:max(4cqh,calc(10px*var(--s)));aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,color-mix(in srgb,#fff 35%,var(--knob)),var(--knob) 55%,#000 100%);
+  box-shadow:0 .2cqmin .3cqmin #0009,inset 0 0 0 .2cqmin color-mix(in srgb,#000 30%,transparent)}
+.power{display:grid;place-items:center;width:max(5.2cqh,calc(13px*var(--s)));aspect-ratio:1.5;border-radius:.6cqmin;
+  background:linear-gradient(180deg,var(--case-lo),var(--case-ink));box-shadow:inset 0 .2cqmin .3cqmin #000a}
+.led{width:max(1.4cqh,calc(4px*var(--s)));aspect-ratio:1;border-radius:50%;background:#5bff7a;box-shadow:0 0 .8cqmin #5bff7a,0 0 2cqmin #2bd94a}
+.tile[data-state=offline] .led,.tile[data-state=off] .led{background:#ffb02e;box-shadow:0 0 .8cqmin #ffb02e}
+
+/* Small monitors lose the chin, then the bezel's depth. */
+@container (max-height:230px){
+  .frigate[data-look^=crt] .chin{display:none}
+  .frigate[data-look^=crt] .housing{padding-bottom:3.6cqmin}
+}
+@container (max-height:150px){
+  .frigate[data-look^=crt] .osd-date,.frigate[data-look^=crt] .caption{display:none}
+}
+
+/* Switching on: a bright line opens into the picture, as a tube warms up. Played when a
+   monitor first appears and when the look changes to CRT. */
+@media (prefers-reduced-motion:no-preference){
+  .frigate[data-look^=crt] .screen>canvas,.frigate[data-look^=crt] .screen>video,.frigate[data-look^=crt] .screen>img{animation:power-on .7s cubic-bezier(.2,.8,.3,1) backwards}
+  .frigate[data-look^=crt] .glass{animation:flicker 4s steps(40) infinite}
+  .frigate[data-look^=crt] .osd-rec{animation:blink 1.1s steps(2) infinite}
+  .frigate[data-look^=crt] .tile[data-state=offline] .message{animation:blink 1.6s steps(2) infinite}
+  .frigate[data-look^=crt] .tile:not([data-gl=on])[data-state=offline] .noise{animation:snow .2s steps(4) infinite}
+  @keyframes power-on{0%{transform:scale(.9,.004);filter:brightness(6)}40%{transform:scale(1,.012);filter:brightness(4)}100%{transform:none;filter:none}}
+  @keyframes flicker{0%,100%{opacity:1}31%{opacity:.94}33%{opacity:1}74%{opacity:.97}76%{opacity:1}}
+  @keyframes blink{50%{opacity:0}}
+  @keyframes snow{25%{transform:translate(3%,-2%)}50%{transform:translate(-2%,3%)}75%{transform:translate(2%,2%)}}
+}

@@ -1,0 +1,187 @@
+{
+  "apiVersion": 2,
+  "id": "plugin.dashledge.frigate",
+  "title": "Frigate",
+  "description": "Live video from your Frigate cameras: one camera full size, or several in a grid, with what each one detected. Optionally on an old CRT security monitor.",
+  "version": "1.0.0",
+  "category": "Servers & storage",
+  "icon": "icon.svg",
+  "license": "MIT",
+  "homepage": "https://github.com/dgruhin-hrizn/dashledge-official-plugins/tree/main/plugins/frigate",
+  "minAppVersion": "0.10.0",
+  "view": {
+    "entry": "view/index.html",
+    "viewport": "native",
+    "theme": true
+  },
+  "sources": {
+    "min": 1,
+    "max": 1,
+    "auth": "none",
+    "address": "path",
+    "setup": {
+      "intro": "Shows your Frigate cameras live, with what each one detected recently.",
+      "link": {
+        "label": "Frigate’s authentication guide",
+        "url": "https://docs.frigate.video/configuration/authentication"
+      },
+      "address": {
+        "label": "Frigate URL",
+        "placeholder": "http://frigate.local:5000/"
+      }
+    },
+    "types": [
+      {
+        "id": "signin",
+        "label": "Signed in (port 8971 or a proxy)",
+        "auth": {
+          "login": {
+            "path": "api/login",
+            "body": "json",
+            "fields": {
+              "user": "{user}",
+              "password": "{key}"
+            },
+            "session": "cookie"
+          }
+        },
+        "test": [
+          "api/stats"
+        ],
+        "setup": {
+          "steps": [
+            "Copy the address you open Frigate at, such as https://frigate.local:8971/ at home or https://cameras.example.com/ from outside. Include a path if your proxy serves Frigate under one.",
+            "Use a Frigate user’s name and password. An admin can add one in Frigate under Settings → Users; the viewer role is enough.",
+            "If Frigate uses its own self-signed certificate on port 8971, add it under Certificate so Dashledge trusts it."
+          ],
+          "address": {
+            "placeholder": "https://frigate.local:8971/"
+          },
+          "username": {
+            "label": "Frigate user"
+          },
+          "credential": {
+            "label": "Password"
+          }
+        }
+      },
+      {
+        "id": "open",
+        "label": "On my network (port 5000, no sign-in)",
+        "auth": "none",
+        "test": [
+          "api/stats"
+        ],
+        "setup": {
+          "steps": [
+            "Use Frigate’s internal port 5000, such as http://frigate.local:5000/. It needs no sign-in, so use it only on a network you trust.",
+            "If port 5000 doesn’t answer, check that your Frigate container publishes it (ports: \"5000:5000\" in Docker Compose)."
+          ],
+          "address": {
+            "placeholder": "http://frigate.local:5000/"
+          }
+        }
+      }
+    ]
+  },
+  "permissions": [
+    "images",
+    "settings",
+    "settings.choices",
+    "stream",
+    "ui"
+  ],
+  "images": [
+    "api/*/latest.jpg"
+  ],
+  "streams": [
+    {
+      "id": "live",
+      "path": "live/mse/api/ws?src={stream}"
+    }
+  ],
+  "settings": [
+    {
+      "id": "cameras",
+      "label": "Cameras",
+      "type": "multi",
+      "dynamic": true,
+      "default": ["*"],
+      "help": "Choose one camera to show it full size, or several for a grid. The grid follows the order you pick them in Frigate."
+    },
+    {
+      "id": "names",
+      "label": "Camera names",
+      "type": "names",
+      "for": "cameras",
+      "help": "Your own name for a camera on this placement."
+    },
+    {
+      "id": "layout",
+      "label": "Several cameras as",
+      "type": "choice",
+      "options": [
+        {"value": "grid", "label": "An even grid"},
+        {"value": "spotlight", "label": "One large, the rest beside it"}
+      ],
+      "default": "grid",
+      "help": "Tap any camera to see it full size; tap again to go back."
+    },
+    {
+      "id": "look",
+      "label": "Look",
+      "type": "choice",
+      "options": [
+        {"value": "standard", "label": "Standard"},
+        {"value": "crt", "label": "CRT security monitor"},
+        {"value": "crt-mono", "label": "CRT security monitor, black and white"}
+      ],
+      "default": "standard",
+      "help": "The security monitor shows each camera on an old curved CRT with scanlines."
+    },
+    {
+      "id": "video",
+      "label": "Video",
+      "type": "choice",
+      "options": [
+        {"value": "live", "label": "Live video"},
+        {"value": "snapshots", "label": "A snapshot every second"}
+      ],
+      "default": "live",
+      "help": "Snapshots use far less network and are used anyway for cameras without a go2rtc stream."
+    },
+    {
+      "id": "quality",
+      "label": "Video quality",
+      "type": "choice",
+      "options": [
+        {"value": "auto", "label": "Automatic"},
+        {"value": "main", "label": "Always the main stream"},
+        {"value": "sub", "label": "Always the sub stream"}
+      ],
+      "default": "auto",
+      "help": "Automatic plays a camera’s sub stream in small tiles and its main stream when it’s large."
+    },
+    {
+      "id": "fill",
+      "label": "Crop video to fill each tile",
+      "type": "toggle",
+      "default": true,
+      "help": "Off shows the whole picture with bars around it."
+    },
+    {
+      "id": "detections",
+      "label": "Show detections",
+      "type": "toggle",
+      "default": true,
+      "help": "What each camera saw last, such as a person or a car, and when."
+    }
+  ],
+  "connector": {
+    "entry": "connector.js",
+    "commands": [
+      "watch"
+    ],
+    "storage": 65536
+  }
+}
