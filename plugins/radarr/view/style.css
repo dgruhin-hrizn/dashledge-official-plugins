@@ -30,9 +30,7 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 /* ---- Header: Radarr's mark, the server, the queue's figures and a live status chip. */
 .top{display:flex;align-items:center;gap:calc(14px*var(--s));min-width:0;min-height:calc(52px*var(--s))}
 .brand{display:flex;align-items:center;gap:calc(10px*var(--s));flex:none}
-.mark{display:grid;place-items:center;width:calc(36px*var(--s));height:calc(36px*var(--s));border-radius:calc(10px*var(--s));background:linear-gradient(145deg,#ffd862,var(--brand) 55%,#e39d00);box-shadow:0 calc(4px*var(--s)) calc(14px*var(--s)) color-mix(in srgb,var(--brand) 35%,transparent),inset 0 1px 0 #ffffff80}
-.mark svg{width:72%;height:72%;fill:none;stroke:#2a1f05;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.mark .play{fill:#2a1f05;stroke:none}
+.mark{display:block;flex:none;width:calc(36px*var(--s));height:calc(36px*var(--s))}
 .brand b{font-size:calc(26px*var(--s));font-weight:740;letter-spacing:-.05em}
 .server{margin:0;min-width:0;flex:0 1 auto;padding-left:calc(14px*var(--s));border-left:1px solid var(--line);color:var(--dl-sub);font-size:calc(19px*var(--s));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .server:empty{display:none}
