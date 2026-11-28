@@ -106,7 +106,9 @@
       "label": "Cameras",
       "type": "multi",
       "dynamic": true,
-      "default": ["*"],
+      "default": [
+        "*"
+      ],
       "help": "Choose one camera to show it full size, or several for a grid. The grid follows the order you pick them in Frigate."
     },
     {
@@ -121,8 +123,14 @@
       "label": "Several cameras as",
       "type": "choice",
       "options": [
-        {"value": "grid", "label": "An even grid"},
-        {"value": "spotlight", "label": "One large, the rest beside it"}
+        {
+          "value": "grid",
+          "label": "An even grid"
+        },
+        {
+          "value": "spotlight",
+          "label": "One large, the rest beside it"
+        }
       ],
       "default": "grid",
       "help": "Tap any camera to see it full size; tap again to go back."
@@ -132,9 +140,18 @@
       "label": "Look",
       "type": "choice",
       "options": [
-        {"value": "standard", "label": "Standard"},
-        {"value": "crt", "label": "CRT security monitor"},
-        {"value": "crt-mono", "label": "CRT security monitor, black and white"}
+        {
+          "value": "standard",
+          "label": "Standard"
+        },
+        {
+          "value": "crt",
+          "label": "CRT security monitor"
+        },
+        {
+          "value": "crt-mono",
+          "label": "CRT security monitor, black and white"
+        }
       ],
       "default": "standard",
       "help": "The security monitor shows each camera on an old curved CRT with scanlines."
@@ -144,8 +161,14 @@
       "label": "Video",
       "type": "choice",
       "options": [
-        {"value": "live", "label": "Live video"},
-        {"value": "snapshots", "label": "A snapshot every second"}
+        {
+          "value": "live",
+          "label": "Live video"
+        },
+        {
+          "value": "snapshots",
+          "label": "A snapshot every second"
+        }
       ],
       "default": "live",
       "help": "Snapshots use far less network and are used anyway for cameras without a go2rtc stream."
@@ -155,19 +178,42 @@
       "label": "Video quality",
       "type": "choice",
       "options": [
-        {"value": "auto", "label": "Automatic"},
-        {"value": "main", "label": "Always the main stream"},
-        {"value": "sub", "label": "Always the sub stream"}
+        {
+          "value": "auto",
+          "label": "Automatic"
+        },
+        {
+          "value": "main",
+          "label": "Always the main stream"
+        },
+        {
+          "value": "sub",
+          "label": "Always the sub stream"
+        }
       ],
       "default": "auto",
       "help": "Automatic plays a camera’s sub stream in small tiles and its main stream when it’s large."
     },
     {
-      "id": "fill",
-      "label": "Crop video to fill each tile",
-      "type": "toggle",
-      "default": true,
-      "help": "Off shows the whole picture with bars around it."
+      "id": "fit",
+      "label": "Fit pictures",
+      "type": "choice",
+      "options": [
+        {
+          "value": "smart",
+          "label": "Fill, but show very wide pictures whole"
+        },
+        {
+          "value": "pan",
+          "label": "Fill, and drag a picture to choose what shows"
+        },
+        {
+          "value": "whole",
+          "label": "Show the whole picture"
+        }
+      ],
+      "default": "smart",
+      "help": "A very wide camera, such as a dual-lens panorama, loses its sides when cropped to fill. Fill and drag remembers where you leave each camera."
     },
     {
       "id": "detections",
@@ -180,7 +226,8 @@
   "connector": {
     "entry": "connector.js",
     "commands": [
-      "watch"
+      "watch",
+      "focus"
     ],
     "storage": 65536
   }

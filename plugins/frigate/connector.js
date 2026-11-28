@@ -165,6 +165,9 @@ async function getJson(path) {
 // ---- State ----------------------------------------------------------------------------
 
 const saved = dashledge.storage.get('last') || null;
+// Where the user dragged each camera's picture ({camera: {x, y}}, 0–1), for placements
+// that fill and pan. Kept per camera on this Frigate.
+let focus = dashledge.storage.get('focus') || {};
 const state = {
   // What the views get. `cameras` survives a restart so a view draws tiles at once.
   server: saved?.server || {version: '', uptime: null},
@@ -185,6 +188,7 @@ function emit() {
     cameras: state.cameras,
     signals: state.signals,
     detections: state.detections,
+    focus,
     updated: state.updated,
     error: state.error,
     stale: state.stale,
@@ -254,6 +258,18 @@ function tick() {
   }
   poll();
 }
+
+// A view remembers where the user dragged a camera's picture.
+dashledge.onCommand('focus', ({camera, x, y} = {}) => {
+  const n = v => (typeof v === 'number' && Number.isFinite(v) ? Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000 : 0.5);
+  if (typeof camera !== 'string' || !NAME.test(camera)) return {ok: false};
+  focus = {...focus, [camera]: {x: n(x), y: n(y)}};
+  const names = Object.keys(focus);
+  if (names.length > MAX_CAMERAS) for (const name of names.slice(0, names.length - MAX_CAMERAS)) delete focus[name];
+  dashledge.storage.set('focus', focus);
+  emit();
+  return {ok: true};
+});
 
 // A view on screen asks every few minutes; Retry asks with refresh, which reads all now.
 dashledge.onCommand('watch', async ({refresh} = {}) => {

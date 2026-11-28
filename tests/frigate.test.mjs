@@ -48,7 +48,7 @@ test('the manifest declares only the routes, stream and images the plugin uses',
   assert.equal(m.id, 'plugin.dashledge.frigate');
   assert.deepEqual(m.streams, [{id: 'live', path: 'live/mse/api/ws?src={stream}'}]);
   assert.deepEqual(m.images, ['api/*/latest.jpg']);
-  assert.deepEqual(m.connector.commands, ['watch']);
+  assert.deepEqual(m.connector.commands, ['watch', 'focus']);
   assert.equal(m.connector.hosts, undefined, 'no outside host');
   const types = Object.fromEntries(m.sources.types.map(t => [t.id, t]));
   assert.deepEqual(types.signin.auth.login, {path: 'api/login', body: 'json', fields: {user: '{user}', password: '{key}'}, session: 'cookie'});
@@ -184,6 +184,18 @@ test('a reply that isn’t JSON says to check the address', async () => {
   assert.match(c.last().error.message, /Check the address/);
 });
 
+test('it remembers where each camera was dragged, across a restart', async () => {
+  const storage = {};
+  const c = load({respond: frigate(), storage});
+  await c.settle();
+  assert.deepEqual(c.last().focus, {});
+  assert.deepEqual(await c.command('focus', {camera: 'front_door', x: 0.12345, y: 7}), {ok: true});
+  assert.deepEqual(c.last().focus, {front_door: {x: 0.123, y: 1}});
+  assert.deepEqual(await c.command('focus', {camera: '../etc', x: 0}), {ok: false});
+  const again = load({respond: frigate(), storage});
+  assert.deepEqual(again.emitted[0].focus, {front_door: {x: 0.123, y: 1}});
+});
+
 test('without a connection it asks for one', () => {
   const c = loadConnector('frigate', {connections: []});
   assert.equal(c.last().connected, false);
@@ -221,8 +233,10 @@ test('every camera value Dashledge stores passes its setting-value rule, and map
 });
 
 test('settings fall back to defaults', () => {
-  assert.deepEqual(M.settings({look: 'neon', layout: 1, fill: false}), {cameras: ['*'], names: {}, layout: 'grid', look: 'standard',
-    video: 'live', quality: 'auto', fill: false, detections: true});
+  assert.deepEqual(M.settings({look: 'neon', layout: 1}), {cameras: ['*'], names: {}, layout: 'grid', look: 'standard',
+    video: 'live', quality: 'auto', fit: 'smart', detections: true});
+  assert.equal(M.settings({fit: 'pan'}).fit, 'pan');
+  assert.equal(M.settings({fill: false}).fit, 'whole', 'a draft’s fill toggle still means something');
 });
 
 test('the grid picks the arrangement that shows each picture largest', () => {
@@ -269,21 +283,34 @@ test('up to four tiles play live: offline cameras, snapshot-only cameras and ref
   assert.deepEqual(M.liveSet(many, M.settings({video: 'snapshots'}), {}), []);
 });
 
-test('filling crops a little, but shows a panorama whole over a blurred copy', () => {
+test('smart fit crops a little, but shows a panorama whole over a blurred copy', () => {
   // The front door's dual-lens panorama (5120 × 1552) in a 16 : 9 tile would lose 46 %.
-  const pano = M.fit(1280, 720, 5120 / 1552, true);
-  assert.equal(pano.cover, false);
-  assert.equal(pano.backdrop, true);
+  const pano = M.fit(1280, 720, 5120 / 1552, 'smart');
+  assert.deepEqual([pano.cover, pano.backdrop, pano.pan], [false, true, false]);
   assert.deepEqual([pano.dw, Math.round(pano.dh), Math.round(pano.dy)], [1280, 388, 166]);
-  // The same panorama in a wide grid tile (853 × 356) loses 27 %: cropped to fill.
-  const wide = M.fit(853, 356, 5120 / 1552, true);
+  // The same panorama in a wide grid tile (853 × 356) loses 27 %: cropped to fill, centred.
+  const wide = M.fit(853, 356, 5120 / 1552, 'smart');
   assert.equal(wide.cover, true);
   assert.equal(Math.round(wide.dh), 356);
-  assert.ok(wide.dw > 853);
-  // A 16 : 9 camera fills a 16 : 9 tile exactly; with filling off nothing is cropped or blurred.
-  assert.deepEqual(M.fit(1280, 720, 16 / 9, true), {cover: true, backdrop: false, dw: 1280, dh: 720, dx: 0, dy: 0});
-  const off = M.fit(1280, 720, 5120 / 1552, false);
-  assert.deepEqual([off.cover, off.backdrop, off.dw], [false, false, 1280]);
+  assert.equal(Math.round(wide.dx * 2), Math.round(853 - wide.dw));
+  // A 16 : 9 camera fills a 16 : 9 tile exactly; whole never crops or blurs.
+  assert.deepEqual(M.fit(1280, 720, 16 / 9, 'smart'), {cover: true, backdrop: false, pan: false, dw: 1280, dh: 720, dx: 0, dy: 0});
+  const whole = M.fit(1280, 720, 5120 / 1552, 'whole');
+  assert.deepEqual([whole.cover, whole.backdrop, whole.pan, whole.dw], [false, false, false, 1280]);
+});
+
+test('fill and drag always fills, and the focus picks the part that shows', () => {
+  const left = M.fit(1280, 720, 5120 / 1552, 'pan', {x: 0, y: 0.5});
+  assert.deepEqual([left.cover, left.backdrop, left.pan], [true, false, true]);
+  assert.equal(left.dh, 720);
+  assert.equal(left.dx, 0, 'the left edge');
+  const right = M.fit(1280, 720, 5120 / 1552, 'pan', {x: 1, y: 0.5});
+  assert.equal(Math.round(right.dx + right.dw), 1280, 'the right edge');
+  const centre = M.fit(1280, 720, 5120 / 1552, 'pan');
+  assert.equal(Math.round(centre.dx * 2), Math.round(1280 - centre.dw));
+  const tall = M.fit(400, 800, 16 / 9, 'pan', {x: 0.25, y: 9});
+  assert.equal(tall.dy, 0, 'a focus out of range is clamped; there’s nothing to pan vertically');
+  assert.equal(M.fit(1280, 720, 16 / 9, 'pan').pan, false, 'a picture that fits exactly has nothing to drag');
 });
 
 test('quality picks the sub stream for small tiles', () => {

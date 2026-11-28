@@ -56,6 +56,7 @@
     const tile = {
       name: camera.name, camera, el,
       screen: q('.screen'), img: q('.snap'), video: q('.video'), canvas: q('.crt'), paint: q('.paint'), paintCtx: null, paintTime: -1, painted: '', videoAt: 0, backdrop: null,
+      pan: q('.pan'), panSize: q('.pan-size'), panning: false, panSaveTimer: 0, panSetting: false, focus: null,
       parts: {name: q('.name'), det: q('.detection'), detText: q('.det-text'), detWhen: q('.det-when'),
         pill: q('.pill'), pillText: q('.pill-text'), why: q('.why'), message: q('.message'),
         osdCam: q('.osd-cam'), osdDate: q('.osd-date'), osdTime: q('.osd-time'), osdRec: q('.osd-rec')},
@@ -69,6 +70,20 @@
     tile.video.addEventListener('loadeddata', wake);
     tile.video.addEventListener('waiting', () => { if (tile.video.readyState < 2) { tile.playing = false; refreshTile(tile); } });
     tile.img.addEventListener('load', () => { tile.hasSnap = true; tile.snapVersion++; paintStill(tile); refreshTile(tile); });
+    // Fill and drag: the pan layer scrolls over the picture; where it's scrolled to is
+    // the part that shows. Touch on the Edge and the trackpad in the preview both scroll it.
+    tile.pan.addEventListener('scroll', () => {
+      if (tile.panSetting) return;
+      const p = tile.pan, rx = p.scrollWidth - p.clientWidth, ry = p.scrollHeight - p.clientHeight;
+      tile.focus = {x: rx > 0 ? p.scrollLeft / rx : 0.5, y: ry > 0 ? p.scrollTop / ry : 0.5};
+      tile.panning = true;
+      repaint(tile);
+      clearTimeout(tile.panSaveTimer);
+      tile.panSaveTimer = setTimeout(() => {
+        tile.panning = false;
+        D.command('focus', {camera: tile.name, x: tile.focus.x, y: tile.focus.y}).catch(() => {});
+      }, 700);
+    }, {passive: true});
     el.addEventListener('click', () => toggleFocus(tile.name));
     el.addEventListener('keydown', event => {
       if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleFocus(tile.name); }
@@ -270,7 +285,7 @@
     for (const [name, at] of missing) if (now - at > MISSING_FOR) missing.delete(name);
     const main = $('main');
     main.dataset.look = prefs.look;
-    main.dataset.fill = String(prefs.fill);
+    main.dataset.fit = prefs.fit;
     main.dataset.motion = reduceMotion.matches ? 'reduced' : 'full';
 
     const s = M.status(data, stopped);
@@ -351,6 +366,32 @@
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; return true; }
     return false;
   }
+  // Where a camera's picture is panned to: this view's drag, else what the connector remembers.
+  const focusOf = tile => tile.focus || data?.focus?.[tile.name] || null;
+  function repaint(tile) {
+    tile.paintTime = -1;
+    tile.drawnStill = -1;
+    if (tile.player && tile.playing) paint(tile, Math.min(window.devicePixelRatio || 1, 2)); else paintStill(tile);
+    wake();
+  }
+  // Size the pan layer to the picture and scroll it to the focus, unless a drag is under way.
+  function syncPan(tile, f, dpr) {
+    const on = !!f?.pan;
+    tile.el.dataset.pan = String(on);
+    if (!on) return;
+    const w = Math.round(f.dw / dpr) + 'px', h = Math.round(f.dh / dpr) + 'px';
+    if (tile.panSize.style.width !== w) tile.panSize.style.width = w;
+    if (tile.panSize.style.height !== h) tile.panSize.style.height = h;
+    if (tile.panning) return;
+    const p = tile.pan, rx = p.scrollWidth - p.clientWidth, ry = p.scrollHeight - p.clientHeight;
+    const focus = focusOf(tile) || {x: 0.5, y: 0.5};
+    const left = Math.round(rx * focus.x), top = Math.round(ry * focus.y);
+    if (Math.abs(p.scrollLeft - left) > 1 || Math.abs(p.scrollTop - top) > 1) {
+      tile.panSetting = true;
+      p.scrollLeft = left; p.scrollTop = top;
+      requestAnimationFrame(() => { tile.panSetting = false; });
+    }
+  }
   function learnShape(tile) {
     const v = tile.video;
     if (!v.videoWidth || !v.videoHeight) return;
@@ -365,7 +406,9 @@
     const c = tile.paint;
     const ctx = tile.paintCtx || (tile.paintCtx = c.getContext('2d', {alpha: false}));
     if (!ctx) return false;
-    const f = M.fit(c.width, c.height, aspect, prefs.fill);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const f = M.fit(c.width, c.height, aspect, prefs.fit, focusOf(tile));
+    syncPan(tile, f, dpr);
     if (!f.cover) {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, c.width, c.height);
@@ -373,7 +416,7 @@
     if (f.backdrop) {
       const b = tile.backdrop || (tile.backdrop = document.createElement('canvas'));
       b.width = 48; b.height = Math.max(8, Math.round(48 * c.height / c.width));
-      const bf = M.fit(b.width, b.height, aspect, true, 1);
+      const bf = M.fit(b.width, b.height, aspect, 'pan');
       b.getContext('2d').drawImage(source, bf.dx, bf.dy, bf.dw, bf.dh);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
@@ -449,8 +492,9 @@
         tile.drawnSnap = tile.snapVersion;
       }
       const shape = video ? tile.video.videoWidth / tile.video.videoHeight : shapes.get(tile.name) || (tile.img.naturalWidth / tile.img.naturalHeight) || 16 / 9;
-      const cover = M.fit(w, h, shape, prefs.fill).cover;
-      const ok = tile.crt.draw(source, {mono: prefs.look === 'crt-mono', noSignal, cover, aspect: shape, time: t / 1000, motion, fresh});
+      const f = M.fit(w, h, shape, prefs.fit, focusOf(tile));
+      syncPan(tile, f, dpr);
+      const ok = tile.crt.draw(source, {mono: prefs.look === 'crt-mono', noSignal, cover: f.cover, aspect: shape, focus: focusOf(tile), time: t / 1000, motion, fresh});
       if (!ok) {
         tile.crt.destroy();
         tile.crt = null;

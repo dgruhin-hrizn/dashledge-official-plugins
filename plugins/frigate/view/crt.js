@@ -19,6 +19,7 @@
     uniform sampler2D tex;
     uniform vec2 size;        // canvas pixels
     uniform vec2 fit;         // texture scale for cover/contain
+    uniform vec2 shift;       // where a cropped picture is panned to
     uniform float time;
     uniform float mono;
     uniform float noSignal;
@@ -37,7 +38,7 @@
     }
 
     vec3 picture(vec2 q) {
-      vec2 t = (q - 0.5) * fit + 0.5;
+      vec2 t = (q - 0.5) * fit + 0.5 + shift;
       if (t.x < 0.0 || t.x > 1.0 || t.y < 0.0 || t.y > 1.0) return vec3(0.0);
       float shift = 0.0012 * (1.0 - mono);
       return vec3(
@@ -117,7 +118,7 @@
       gl.bindTexture(gl.TEXTURE_2D, texture);
       for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
       const u = name => gl.getUniformLocation(program, name);
-      const uni = {size: u('size'), fit: u('fit'), time: u('time'), mono: u('mono'), noSignal: u('noSignal'), hasPicture: u('hasPicture'), lines: u('lines'), motion: u('motion'), curve: u('curve')};
+      const uni = {size: u('size'), fit: u('fit'), shift: u('shift'), time: u('time'), mono: u('mono'), noSignal: u('noSignal'), hasPicture: u('hasPicture'), lines: u('lines'), motion: u('motion'), curve: u('curve')};
       let lost = false, uploaded = false, shrink = null;
       // A picture much larger than the screen is drawn down to the screen's size first, so
       // a 5K main stream doesn't upload 7 million pixels a frame.
@@ -140,7 +141,7 @@
         },
         // source: a playing <video> or a loaded <img>, or null for snow.
         // Returns false when the picture can't be read (the view then drops the shader).
-        draw(source, {mono = false, noSignal = false, cover = true, aspect = 0, time = 0, motion = true, fresh = true} = {}) {
+        draw(source, {mono = false, noSignal = false, cover = true, aspect = 0, focus = null, time = 0, motion = true, fresh = true} = {}) {
           if (lost) return false;
           const w = canvas.width, h = canvas.height;
           let sw = 0, sh = 0;
@@ -165,6 +166,9 @@
             if (cover ? picture > screen : picture < screen) fx = screen / picture; else fy = picture / screen;
           }
           gl.uniform2f(uni.size, w, h);
+          // A cropped picture (fit < 1) slides by the focus: 0 shows its left or top edge.
+          const at = v => (typeof v === 'number' ? Math.min(1, Math.max(0, v)) : 0.5);
+          gl.uniform2f(uni.shift, fx < 1 ? (at(focus?.x) - 0.5) * (1 - fx) : 0, fy < 1 ? (at(focus?.y) - 0.5) * (1 - fy) : 0);
           gl.uniform2f(uni.fit, fx, fy);
           gl.uniform1f(uni.time, time);
           gl.uniform1f(uni.mono, mono ? 1 : 0);

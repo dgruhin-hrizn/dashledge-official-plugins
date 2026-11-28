@@ -9,6 +9,7 @@ For fun, the **CRT security monitor** look puts every camera on an old curved tu
 - **Live video** through Frigate's go2rtc restream, for up to four cameras per placement at once. Small tiles play a camera's sub stream and large ones its main stream, H.264 or H.265.
 - **Snapshots** about once a second for the other cameras, for cameras without a go2rtc stream, and when a placement chooses snapshots. A tile shows the latest frame at once and swaps to video when it plays.
 - **Signal:** a camera Frigate gets no frames from says *No signal*, and one turned off in Frigate says so.
+- **Wide cameras:** a dual-lens panorama shows whole over a blurred copy of itself, or fills its tile and lets you drag it to choose what shows. Snapshots are drawn at the camera's real shape, even when Frigate's detect size squashes them.
 - **Detections:** what's in view now, highlighted, or the last thing seen in the past two hours, such as *Person · 3 min ago*. Frigate sub labels, such as a recognised face, are shown in place of the label.
 
 A placement plays at most four cameras live, the first four in its order. Dashledge also limits how many streams it opens for one widget, so when several placements share a Frigate connection, a tile Dashledge refuses a stream shows snapshots and tries again every 30 seconds.
@@ -34,7 +35,7 @@ Each placement keeps its own:
 | Look | Standard, CRT security monitor, or the black and white CRT. |
 | Video | Live video, or a snapshot every second. |
 | Video quality | Automatic, always the main stream, or always the sub stream. |
-| Crop video to fill each tile | On fills each tile; off shows the whole picture with bars. |
+| Fit pictures | **Fill, but show very wide pictures whole** (a dual-lens panorama shows whole over a blurred copy of itself), **Fill, and drag a picture to choose what shows**, or **Show the whole picture**. Where you drag each camera is remembered for that camera on this Frigate. |
 | Show detections | What each camera saw last. |
 
 ## What it may do

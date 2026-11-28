@@ -18,7 +18,9 @@
       look: pick(v.look, LOOKS, 'standard'),
       video: pick(v.video, ['live', 'snapshots'], 'live'),
       quality: pick(v.quality, ['auto', 'main', 'sub'], 'auto'),
-      fill: v.fill !== false,
+      // How a picture fills its tile: smart (crop a little, show very wide pictures whole),
+      // pan (always fill; drag to choose what shows) or whole. 1.0 drafts had a fill toggle.
+      fit: pick(v.fit, ['smart', 'pan', 'whole'], v.fill === false ? 'whole' : 'smart'),
       detections: v.detections !== false,
     };
   }
@@ -218,17 +220,23 @@
     }[state] ?? '';
   }
 
-  // Where a picture of `aspect` goes in a w × h tile. Filling crops at most `maxCrop` of
-  // the picture: a panorama (a dual-lens camera's 3.3 : 1) in a 16 : 9 tile shows whole,
-  // over a blurred copy of itself (`backdrop`), instead of losing both sides.
-  function fit(w, h, aspect, fill, maxCrop = 0.3) {
+  // Where a picture of `aspect` goes in a w × h tile, for a fit mode (see settings):
+  // - smart crops at most `maxCrop` of the picture; a wider one (a dual-lens camera's
+  //   3.3 : 1 panorama in a 16 : 9 tile) shows whole over a blurred copy (`backdrop`);
+  // - pan always fills, and `focus` ({x, y}, 0–1) chooses which part shows;
+  // - whole shows the whole picture with black bars.
+  // `pan` says the picture overflows the tile, so a drag can move it.
+  function fit(w, h, aspect, mode = 'smart', focus = null, maxCrop = 0.3) {
     const tile = w / h;
     const crop = 1 - Math.min(aspect / tile, tile / aspect);
-    const cover = !!fill && crop <= maxCrop;
+    const cover = mode === 'pan' || (mode === 'smart' && crop <= maxCrop);
     let dw, dh;
     if (cover ? aspect > tile : aspect < tile) { dh = h; dw = h * aspect; } else { dw = w; dh = w / aspect; }
-    return {cover, backdrop: !!fill && !cover, dw, dh, dx: (w - dw) / 2, dy: (h - dh) / 2};
+    const fx = clamp01(focus?.x), fy = clamp01(focus?.y);
+    const dx = dw > w ? (w - dw) * fx : (w - dw) / 2, dy = dh > h ? (h - dh) * fy : (h - dh) / 2;
+    return {cover, backdrop: mode === 'smart' && !cover, pan: mode === 'pan' && (dw > w + 1 || dh > h + 1), dw, dh, dx, dy};
   }
+  const clamp01 = v => (typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.5);
 
   // The whole widget's state from the connector's snapshot. Once cameras are known they
   // stay on screen through a failed read, with a banner instead.
