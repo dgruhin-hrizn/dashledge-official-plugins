@@ -56,6 +56,7 @@ It reads the queue every 10 seconds while something is downloading and every 30 
 
 ## Changes
 
+- **1.2.1:** Lighter to swipe through, for the black flashes in Coming up and the queue on the Edge. The date chips on posters drop their blur for a solid backing, the icons lose their shadow filter, and artwork appears only once it's ready to draw.
 - **1.2.0:** The connection form explains where to find Sonarr's address and API key, and links to Sonarr's security settings. Needs Dashledge 0.10.0.
 - **1.1.0:** The same design as the Radarr plugin: Sonarr's mark, queue figures and a live status chip in the header; queue cards over each series' fanart with a progress rail and sizes; and Coming up as a shelf of posters with day chips and Search on the poster. Cards show the quality and download client. The image grant adds `fanart*.jpg` (and the full-size `poster.jpg`), so existing users are asked to approve it.
 - **1.0.0:** First release.
