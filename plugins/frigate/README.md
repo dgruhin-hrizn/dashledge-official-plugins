@@ -51,6 +51,10 @@ Each placement keeps its own:
 
 The connector reaches no host but the Frigate connection.
 
+## Requirements
+
+Dashledge 0.11.0 or later: it's the first release whose stream relay delivers video to views on the Edge.
+
 ## Frigate versions
 
 Tested against Frigate 0.15. It reads Frigate 0.16 and later's `live.streams` (the first stream is the main one, a stream named like *sub* is used for small tiles) and 0.14 and 0.15's `live.stream_name` (a go2rtc stream with the same name plus `_sub` is used for small tiles).

@@ -8,7 +8,7 @@
   "icon": "icon.svg",
   "license": "MIT",
   "homepage": "https://github.com/dgruhin-hrizn/dashledge-official-plugins/tree/main/plugins/frigate",
-  "minAppVersion": "0.10.0",
+  "minAppVersion": "0.11.0",
   "view": {
     "entry": "view/index.html",
     "viewport": "native",
