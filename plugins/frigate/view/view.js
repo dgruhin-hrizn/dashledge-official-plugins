@@ -48,7 +48,7 @@
     const q = s => el.querySelector(s);
     const tile = {
       name: camera.name, camera, el,
-      screen: q('.screen'), img: q('.snap'), video: q('.video'), canvas: q('.crt'),
+      screen: q('.screen'), img: q('.snap'), video: q('.video'), canvas: q('.crt'), paint: q('.paint'), paintCtx: null, paintTime: -1,
       parts: {name: q('.name'), det: q('.detection'), detText: q('.det-text'), detWhen: q('.det-when'),
         pill: q('.pill'), pillText: q('.pill-text'), why: q('.why'), message: q('.message'),
         osdCam: q('.osd-cam'), osdDate: q('.osd-date'), osdTime: q('.osd-time'), osdRec: q('.osd-rec')},
@@ -57,7 +57,8 @@
       crt: null, glFailed: false, lastVideoTime: -1, index: 0,
     };
     el.dataset.name = camera.name;
-    tile.video.addEventListener('playing', () => { tile.playing = true; tile.why = ''; refreshTile(tile); });
+    tile.video.addEventListener('playing', () => { tile.playing = true; tile.why = ''; tile.paintTime = -1; refreshTile(tile); });
+    tile.video.addEventListener('loadeddata', wake);
     tile.video.addEventListener('waiting', () => { if (tile.video.readyState < 2) { tile.playing = false; refreshTile(tile); } });
     tile.img.addEventListener('load', () => { tile.hasSnap = true; tile.snapVersion++; refreshTile(tile); });
     el.addEventListener('click', () => toggleFocus(tile.name));
@@ -321,22 +322,54 @@
     clock();
   }
 
-  // ---- The CRT monitor's picture and clock --------------------------------------------------
+  // ---- Drawing the picture ----------------------------------------------------------------
+  // Live video is decoded by the tile's <video> and drawn onto a canvas: plain in the
+  // standard look, through the CRT shader in the monitor looks. Dashledge's Edge window
+  // doesn't composite a <video> inside a widget's frame (it plays, decodes, and shows
+  // black), while a canvas shows everywhere.
   let frame = 0, lastFrame = 0;
   const crtLook = () => prefs.look === 'crt' || prefs.look === 'crt-mono';
+  const playing = tile => !tile.el.hidden && tile.state === 'live' && tile.video.readyState >= 2;
+  const needsFrames = () => !document.hidden && tiles.size && (crtLook() || [...tiles.values()].some(playing));
   function wake() {
-    if (!frame && crtLook() && !document.hidden) frame = requestAnimationFrame(render);
+    if (!frame && needsFrames()) frame = requestAnimationFrame(render);
+  }
+  function fitCanvas(canvas, dpr) {
+    const w = Math.min(2560, Math.max(1, Math.round(canvas.clientWidth * dpr)));
+    const h = Math.min(1440, Math.max(1, Math.round(canvas.clientHeight * dpr)));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; return true; }
+    return false;
+  }
+  // The latest video frame, scaled to cover (or fit inside) the tile.
+  function paint(tile, dpr) {
+    if (!playing(tile)) return;
+    const v = tile.video, c = tile.paint;
+    const resized = fitCanvas(c, dpr);
+    if (!resized && v.currentTime === tile.paintTime) return;
+    tile.paintTime = v.currentTime;
+    const ctx = tile.paintCtx || (tile.paintCtx = c.getContext('2d', {alpha: false}));
+    const sw = v.videoWidth, sh = v.videoHeight;
+    if (!ctx || !sw || !sh) return;
+    const scale = prefs.fill ? Math.max(c.width / sw, c.height / sh) : Math.min(c.width / sw, c.height / sh);
+    const dw = sw * scale, dh = sh * scale;
+    if (!prefs.fill) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, c.width, c.height); }
+    ctx.drawImage(v, (c.width - dw) / 2, (c.height - dh) / 2, dw, dh);
   }
   function render(t) {
     frame = 0;
-    if (!crtLook() || document.hidden || !tiles.size) return;
+    if (!needsFrames()) return;
     frame = requestAnimationFrame(render);
     if (t - lastFrame < FRAME_MS) return;
     lastFrame = t;
-    const motion = !reduceMotion.matches;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (!crtLook()) {
+      for (const tile of tiles.values()) paint(tile, dpr);
+      return;
+    }
+    const motion = !reduceMotion.matches;
     for (const tile of tiles.values()) {
-      if (tile.el.hidden || tile.glFailed) continue;
+      if (tile.el.hidden) continue;
+      if (tile.glFailed) { paint(tile, dpr); continue; }
       if (!tile.crt) {
         tile.crt = window.FrigateCRT.create(tile.canvas);
         if (!tile.crt) { tile.glFailed = true; tile.el.dataset.gl = 'none'; continue; }
@@ -344,7 +377,7 @@
       }
       const w = Math.max(1, Math.round(tile.canvas.clientWidth * dpr)), h = Math.max(1, Math.round(tile.canvas.clientHeight * dpr));
       tile.crt.resize(Math.min(w, 2560), Math.min(h, 1440));
-      const video = tile.state === 'live' && tile.video.readyState >= 2;
+      const video = playing(tile);
       const noSignal = tile.state === 'offline' || tile.state === 'off';
       let source = null, fresh = true;
       if (video) {
