@@ -36,6 +36,8 @@ Your [Radarr](https://radarr.video) download queue, beside the movies coming out
 
 ## Connecting
 
+The connection form in Widget Studio walks you through it: where to find the address and the key, with a link to the guide. Dashledge 0.10.0 or later.
+
 In Widget Studio, add a connection with your **Radarr URL**, such as `http://radarr.local:7878/` (include a URL base like `/radarr/` if you use one), and your **API key** from Radarr's **Settings → General → Security**. **Test** reads `api/v3/system/status`. It passes only when Radarr answers with JSON, and a wrong key fails with HTTP 401. The widget names the server with the name you gave the connection, else Radarr's own instance name.
 
 ## What it may do
@@ -54,4 +56,5 @@ One connector serves every placement on a connection. Placement settings reach o
 
 ## Changes
 
+- **1.1.0:** The connection form explains where to find Radarr's address and API key, and links to Radarr's security settings. Needs Dashledge 0.10.0.
 - **1.0.0:** First release. The queue as cards over each movie's fanart, and Coming up as a shelf of posters. They sit side by side on the Edge, or a tap apart in a small placement. It searches for missing movies, and each placement chooses its days ahead, release dates and first pane.
