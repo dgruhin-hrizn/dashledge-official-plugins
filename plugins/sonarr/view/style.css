@@ -127,8 +127,9 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .art>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s ease}
 .art.loaded>img{opacity:1}
 .art::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,var(--scrim-soft) 0%,transparent 26%,transparent 58%,var(--scrim) 100%)}
-/* No blur or filter on anything inside a tile: one blurred layer per poster, scrolled by a
-   swipe, painted black on the Edge until WebKit caught up. The chips use the opaque scrim. */
+/* No blur or filter inside a tile: a swipe scrolls the shelf a step at a time, and a
+   filtered layer per poster painted black on the Edge until WebKit caught up. The chips
+   sit on the opaque scrim, and a downloaded poster dims under its overlay. */
 .chip,.badge,.type,.mini,.art .search{position:absolute;z-index:1}
 .chip{top:calc(10px*var(--s));left:calc(10px*var(--s));max-width:calc(100% - calc(20px*var(--s)));box-sizing:border-box;padding:calc(4px*var(--s)) calc(11px*var(--s));border-radius:999px;background:var(--scrim);border:1px solid var(--line);font-size:calc(17px*var(--s));font-weight:700;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 .tile[data-soon=true] .chip{background:var(--dl-accent);border-color:transparent;color:var(--on-fill)}
@@ -138,7 +139,7 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .tile[data-state=searching] .chip{background:var(--wash);border-color:var(--dl-accent);color:var(--dl-accent)}
 .badge{top:calc(10px*var(--s));right:calc(10px*var(--s));display:grid;place-items:center;min-width:calc(32px*var(--s));height:calc(32px*var(--s));padding:0 calc(8px*var(--s));box-sizing:border-box;border-radius:999px;background:var(--glass);border:1px solid var(--line);font-size:calc(16px*var(--s));font-weight:700;font-variant-numeric:tabular-nums}
 .tile[data-state=downloaded] .badge{background:var(--dl-accent);color:var(--on-fill);border-color:transparent}
-.tile[data-state=downloaded] .art>img{filter:saturate(.75) brightness(.8)}
+.tile[data-state=downloaded] .art::after{box-shadow:inset 0 0 0 9999px color-mix(in srgb,var(--dl-bg) 30%,transparent)}
 .type{left:calc(10px*var(--s));bottom:calc(10px*var(--s));display:inline-flex;align-items:center;gap:calc(6px*var(--s));color:var(--dl-text);font-size:var(--dl-small);font-weight:650;text-shadow:0 1px calc(4px*var(--s)) #000}
 .type svg{width:calc(20px*var(--s));height:calc(20px*var(--s));fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .mini{left:0;right:0;bottom:0;height:calc(6px*var(--s));background:var(--well)}
