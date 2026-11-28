@@ -3,25 +3,57 @@
   "id": "plugin.dashledge.radarr",
   "title": "Radarr",
   "description": "Your Radarr download queue with progress and time left, beside the movies coming out soon, with posters.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "Music & media",
   "icon": "icon.svg",
   "license": "MIT",
   "homepage": "https://github.com/dgruhin-hrizn/dashledge-official-plugins/tree/main/plugins/radarr",
-  "minAppVersion": "0.9.0",
-  "view": {"entry": "view/index.html", "viewport": "native", "theme": true},
+  "minAppVersion": "0.10.0",
+  "view": {
+    "entry": "view/index.html",
+    "viewport": "native",
+    "theme": true
+  },
   "sources": {
     "min": 1,
     "max": 1,
-    "auth": {"header": "X-Api-Key"},
-    "test": ["api/v3/system/status"],
-    "addressLabel": "Radarr URL",
-    "addressPlaceholder": "http://radarr.local:7878/",
-    "credentialLabel": "API key"
+    "auth": {
+      "header": "X-Api-Key"
+    },
+    "test": [
+      "api/v3/system/status"
+    ],
+    "setup": {
+      "intro": "Shows the movies Radarr is downloading now, beside the ones coming out soon.",
+      "steps": [
+        "Copy the address you open Radarr at, such as http://radarr.local:7878/. Include a URL base like /radarr/ if you set one.",
+        "In Radarr, open Settings → General and copy the API Key under Security."
+      ],
+      "link": {
+        "label": "Radarr’s security settings",
+        "url": "https://wiki.servarr.com/radarr/settings#security"
+      },
+      "address": {
+        "label": "Radarr URL",
+        "placeholder": "http://radarr.local:7878/"
+      },
+      "credential": {
+        "label": "API key",
+        "hint": "32 letters and digits."
+      }
+    }
   },
-  "displayName": {"serverField": "status.instanceName"},
-  "permissions": ["images", "settings", "ui"],
-  "images": ["api/v3/mediacover/*/*"],
+  "displayName": {
+    "serverField": "status.instanceName"
+  },
+  "permissions": [
+    "images",
+    "settings",
+    "ui"
+  ],
+  "images": [
+    "api/v3/mediacover/*/*"
+  ],
   "settings": [
     {
       "id": "days",
@@ -38,11 +70,22 @@
       "label": "Release dates",
       "type": "multi",
       "options": [
-        {"value": "cinema", "label": "In cinemas"},
-        {"value": "digital", "label": "Digital"},
-        {"value": "physical", "label": "Physical"}
+        {
+          "value": "cinema",
+          "label": "In cinemas"
+        },
+        {
+          "value": "digital",
+          "label": "Digital"
+        },
+        {
+          "value": "physical",
+          "label": "Physical"
+        }
       ],
-      "default": ["*"],
+      "default": [
+        "*"
+      ],
       "help": "Which of a movie's release dates Coming up lists."
     },
     {
@@ -50,9 +93,18 @@
       "label": "In a small placement, show",
       "type": "choice",
       "options": [
-        {"value": "auto", "label": "Queue while something downloads"},
-        {"value": "queue", "label": "Queue"},
-        {"value": "upcoming", "label": "Coming up"}
+        {
+          "value": "auto",
+          "label": "Queue while something downloads"
+        },
+        {
+          "value": "queue",
+          "label": "Queue"
+        },
+        {
+          "value": "upcoming",
+          "label": "Coming up"
+        }
       ],
       "default": "auto",
       "help": "The other is a tap away."
@@ -60,7 +112,10 @@
   ],
   "connector": {
     "entry": "connector.js",
-    "commands": ["refresh", "search"],
+    "commands": [
+      "refresh",
+      "search"
+    ],
     "storage": 262144
   }
 }
