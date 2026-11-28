@@ -50,14 +50,14 @@
       name: camera.name, camera, el,
       screen: q('.screen'), img: q('.snap'), video: q('.video'), canvas: q('.crt'),
       parts: {name: q('.name'), det: q('.detection'), detText: q('.det-text'), detWhen: q('.det-when'),
-        pill: q('.pill'), pillText: q('.pill-text'), message: q('.message'),
+        pill: q('.pill'), pillText: q('.pill-text'), why: q('.why'), message: q('.message'),
         osdCam: q('.osd-cam'), osdDate: q('.osd-date'), osdTime: q('.osd-time'), osdRec: q('.osd-rec')},
       player: null, stream: '', playing: false, state: 'unknown', failed: '',
       snapTimer: 0, snapBusy: false, snapH: 0, hasSnap: false, snapVersion: 0, drawnSnap: -1,
       crt: null, glFailed: false, lastVideoTime: -1, index: 0,
     };
     el.dataset.name = camera.name;
-    tile.video.addEventListener('playing', () => { tile.playing = true; refreshTile(tile); });
+    tile.video.addEventListener('playing', () => { tile.playing = true; tile.why = ''; refreshTile(tile); });
     tile.video.addEventListener('waiting', () => { if (tile.video.readyState < 2) { tile.playing = false; refreshTile(tile); } });
     tile.img.addEventListener('load', () => { tile.hasSnap = true; tile.snapVersion++; refreshTile(tile); });
     el.addEventListener('click', () => toggleFocus(tile.name));
@@ -137,7 +137,7 @@
       stopPlayer(tile);
       tile.stream = wanted;
       tile.failed = '';
-      tile.player = window.FrigatePlayer(tile.video, wanted, {onState: state => onPlayerState(tile, wanted, state)});
+      tile.player = window.FrigatePlayer(tile.video, wanted, {onState: (state, why) => onPlayerState(tile, wanted, state, why)});
     } else if (!wanted && tile.player) {
       stopPlayer(tile);
     }
@@ -163,9 +163,10 @@
     refreshTile(tile);
   }
 
-  function onPlayerState(tile, stream, state) {
+  function onPlayerState(tile, stream, state, why = '') {
     if (tile.stream !== stream) return;
     tile.playerState = state;
+    if (why) tile.why = why;
     if (state === 'capped') {
       capped.set(tile.name, Date.now());
       stopPlayer(tile);
@@ -200,6 +201,10 @@
     el.dataset.picture = video ? 'video' : tile.hasSnap && state !== 'off' && state !== 'offline' ? 'snap' : 'none';
     set(tile.parts.pillText, M.pill(state));
     tile.parts.pill.hidden = !M.pill(state);
+    // Why live video is down, once it has failed: small, under the pill.
+    const why = state === 'error' || state === 'connecting' || state === 'snapshot' ? tile.why || '' : '';
+    set(tile.parts.why, why ? 'Live video: ' + why : '');
+    tile.parts.why.hidden = !why;
     set(tile.parts.message, state === 'offline' ? 'No signal' : state === 'off' ? 'Turned off in Frigate' : '');
     tile.parts.message.hidden = !tile.parts.message.textContent;
     wake();

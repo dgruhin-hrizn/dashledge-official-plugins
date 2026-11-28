@@ -17,7 +17,7 @@
   const STALL = 12000;
 
   window.FrigatePlayer = function play(video, stream, {onState = () => {}, maxBuffer = 10} = {}) {
-    let socket = null, source = null, buffer = null, queue = [], stopped = false, retry = 1000, timer = 0, watchdog = 0, lastData = 0, lastTrim = 0;
+    let lastError = '', socket = null, source = null, buffer = null, queue = [], stopped = false, retry = 1000, timer = 0, watchdog = 0, lastData = 0, lastTrim = 0;
     video.muted = true;
     video.playsInline = true;
     video.disableRemotePlayback = true; // ManagedMediaSource needs this before attaching.
@@ -42,7 +42,7 @@
         const now = Date.now();
         // A camera that rarely sends a keyframe can't be trimmed at all; start it afresh
         // before its buffer grows without bound.
-        if (end - start > 90) return restart('reconnecting');
+        if (end - start > 90) return restart('reconnecting', 'buffer full');
         if (video.currentTime - start > maxBuffer * 1.5 && now - lastTrim > 5000) {
           lastTrim = now;
           try { buffer.remove(start, video.currentTime - maxBuffer); return; } catch {}
@@ -50,7 +50,7 @@
       }
       const next = queue.shift();
       if (next) {
-        try { buffer.appendBuffer(next); } catch { restart('error'); }
+        try { buffer.appendBuffer(next); } catch (error) { restart('error', 'append: ' + (error?.name || error)); }
       }
     };
     let objectURL = '';
@@ -70,9 +70,9 @@
           buffer.mode = 'segments';
           buffer.addEventListener('updateend', pump);
           pump();
-          video.play().catch(() => {});
-        } catch {
-          end('unsupported');
+          video.play().catch(error => onState('blocked', 'play: ' + (error?.name || error)));
+        } catch (error) {
+          end('unsupported', mime + ': ' + (error?.message || error));
         }
       }, {once: true});
     };
@@ -84,47 +84,51 @@
       current?.close();
       reset();
     };
-    const restart = state => {
+    // `why` says what went wrong, for the tile to show while live video is down.
+    const restart = (state, why = '') => {
       if (stopped) return;
-      onState(state || 'reconnecting');
+      onState(state || 'reconnecting', why);
       drop();
       clearTimeout(timer);
       timer = setTimeout(start, retry);
       retry = Math.min(retry * 2, 15000);
     };
     // Stop for good: the view falls back to snapshots.
-    const end = state => {
+    const end = (state, why = '') => {
       stopped = true;
       clearTimeout(timer);
       drop();
-      onState(state);
+      onState(state, why);
     };
     async function start() {
       if (stopped || socket) return;
-      if (!Source) return end('unsupported');
+      if (!Source) return end('unsupported', 'no Media Source Extensions');
       onState('connecting');
       let current;
       try {
         current = await Dashledge.stream.open('live', {stream});
       } catch (error) {
         const message = String(error?.message || error);
-        if (M.isCapError(message)) return end('capped');
-        return restart('error');
+        if (M.isCapError(message)) return end('capped', message);
+        return restart('error', message);
       }
       if (stopped) return current.close();
       socket = current;
       lastData = Date.now();
+      lastError = '';
+      let opened = false;
       // Restart when go2rtc goes quiet, or when data arrives but the picture stops moving
       // (a decoder that fell behind and dropped segments it needed).
       let lastTime = -1, still = Date.now();
       watchdog = setInterval(() => {
         const now = Date.now();
-        if (now - lastData > STALL) return restart('reconnecting');
+        if (now - lastData > STALL) return restart('reconnecting', socket && opened ? 'no video from go2rtc for 12 s' : 'the stream never opened');
         if (!buffer || video.paused || document.hidden) { still = now; return; }
         if (video.currentTime !== lastTime) { lastTime = video.currentTime; still = now; }
-        else if (now - still > STALL) restart('reconnecting');
+        else if (now - still > STALL) restart('reconnecting', 'the picture stopped');
       }, 3000);
-      current.onopen = () => current.send(JSON.stringify({type: 'mse', value: supported()}));
+      current.onopen = () => { opened = true; current.send(JSON.stringify({type: 'mse', value: supported()})).catch(error => restart('error', 'send: ' + (error?.message || error))); };
+      current.onerror = ({message}) => { lastError = String(message || 'stream error'); };
       current.onmessage = ({data}) => {
         if (socket !== current) return;
         lastData = Date.now();
@@ -137,15 +141,15 @@
         try { message = JSON.parse(data); } catch { return; }
         if (message.type === 'mse') { retry = 1000; onState('live'); attach(String(message.value || '')); }
         else if (message.type === 'error') {
-          if (M.isMissingStream(message.value)) end('missing');
-          else if (/codec/i.test(String(message.value))) end('unsupported');
-          else restart('error');
+          if (M.isMissingStream(message.value)) end('missing', String(message.value));
+          else if (/codec/i.test(String(message.value))) end('unsupported', String(message.value));
+          else restart('error', 'go2rtc: ' + String(message.value).slice(0, 120));
         }
       };
-      current.onclose = () => {
+      current.onclose = ({code} = {}) => {
         if (socket !== current) return;
         socket = null;
-        restart('reconnecting');
+        restart('reconnecting', (lastError ? lastError + ', ' : '') + 'closed' + (code ? ' (' + code + ')' : '') + (opened ? '' : ' before opening'));
       };
     }
     start();

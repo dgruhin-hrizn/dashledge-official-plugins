@@ -61,6 +61,12 @@ button{font:inherit;color:inherit;touch-action:manipulation}
   @keyframes dl-spin{to{transform:rotate(1turn)}}
 }
 
+/* Why live video is down, under the pill, until it plays. */
+.why{position:absolute;top:calc(clamp(calc(5px*var(--s)),2.6cqmin,calc(16px*var(--s))) + 2.4em);right:clamp(calc(5px*var(--s)),2.6cqmin,calc(16px*var(--s)));
+  max-width:70%;padding:.3em .6em;border-radius:calc(6px*var(--s));background:var(--glass);color:var(--dl-sub);
+  font-size:clamp(calc(10px*var(--s)),2.6cqmin,calc(14px*var(--s)));text-align:right;overflow-wrap:anywhere}
+.tile[data-size=tiny] .why,.frigate[data-look^=crt] .why{display:none}
+
 /* ---- The caption: the camera's name and what it saw last. */
 .caption{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;justify-content:space-between;gap:.6em;
   padding:2.2em clamp(calc(8px*var(--s)),3.4cqmin,calc(22px*var(--s))) clamp(calc(6px*var(--s)),2.8cqmin,calc(18px*var(--s)));
