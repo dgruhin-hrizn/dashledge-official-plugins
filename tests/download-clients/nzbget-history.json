@@ -1,0 +1,6 @@
+{"version": "1.1", "id": 1, "result": [
+  {"NZBID": 39, "Name": "Example.Show.S02E10.1080p.WEB-GROUP", "Kind": "NZB", "Category": "tv", "Status": "SUCCESS/ALL", "HistoryTime": 1795804200, "FileSizeLo": 1610612736, "FileSizeHi": 0, "FileSizeMB": 1536, "DestDir": "/downloads/complete/tv/Example.Show.S02E10"},
+  {"NZBID": 38, "Name": "Damaged.Release.2022.1080p-GROUP", "Kind": "NZB", "Category": "movies", "Status": "FAILURE/PAR", "HistoryTime": 1795800000, "FileSizeLo": 0, "FileSizeHi": 1, "FileSizeMB": 4096, "DestDir": ""},
+  {"NZBID": 37, "Name": "Removed.By.Hand.2021-GROUP", "Kind": "NZB", "Category": "", "Status": "DELETED/MANUAL", "HistoryTime": 1795799000, "FileSizeLo": 1048576, "FileSizeHi": 0, "FileSizeMB": 1, "DestDir": ""},
+  {"ID": 5, "Name": "Daily feed", "Kind": "URL", "Status": "SUCCESS/ALL", "HistoryTime": 1795798000}
+]}

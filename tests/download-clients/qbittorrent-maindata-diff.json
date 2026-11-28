@@ -1,0 +1,8 @@
+{
+  "rid": 2,
+  "torrents": {
+    "8f3c1a2b4d5e6f708192a3b4c5d6e7f801234567": {"progress": 0.55, "amount_left": 2751646925, "dlspeed": 6291456, "eta": 437}
+  },
+  "torrents_removed": ["aa11bb22cc33dd44ee55ff6677889900aabbccdd"],
+  "server_state": {"dl_info_speed": 6291456}
+}

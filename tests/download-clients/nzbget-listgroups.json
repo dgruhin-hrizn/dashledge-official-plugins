@@ -1,0 +1,17 @@
+{"version": "1.1", "id": 1, "result": [
+  {"NZBID": 41, "NZBName": "Sample.Movie.2025.1080p.WEB-DL-GROUP", "NZBNicename": "Sample.Movie.2025.1080p.WEB-DL-GROUP", "Kind": "NZB", "URL": "", "NZBFilename": "Sample.Movie.2025.1080p.WEB-DL-GROUP.nzb", "DestDir": "/downloads/intermediate/Sample.Movie.2025.1080p.WEB-DL-GROUP.#41", "FinalDir": "", "Category": "movies",
+   "FileSizeLo": 2147483648, "FileSizeHi": 1, "FileSizeMB": 6144, "RemainingSizeLo": 1048576000, "RemainingSizeHi": 1, "RemainingSizeMB": 5096,
+   "PausedSizeLo": 0, "PausedSizeHi": 0, "PausedSizeMB": 0, "FileCount": 120, "RemainingFileCount": 100, "RemainingParCount": 10,
+   "MinPostTime": 1795700000, "MaxPostTime": 1795700100, "MinPriority": 0, "MaxPriority": 0, "ActiveDownloads": 6, "Status": "DOWNLOADING",
+   "PostInfoText": "", "PostStageProgress": 0, "PostTotalTimeSec": 0, "Health": 1000, "CriticalHealth": 900, "Parameters": [], "Deleted": false},
+  {"NZBID": 40, "NZBName": "Example.Show.S03E01.1080p.WEB-GROUP", "NZBNicename": "Example.Show.S03E01.1080p.WEB-GROUP", "Kind": "NZB", "URL": "", "NZBFilename": "Example.Show.S03E01.1080p.WEB-GROUP.nzb", "DestDir": "/downloads/intermediate/Example.Show.S03E01.#40", "FinalDir": "", "Category": "tv",
+   "FileSizeLo": 1610612736, "FileSizeHi": 0, "FileSizeMB": 1536, "RemainingSizeLo": 0, "RemainingSizeHi": 0, "RemainingSizeMB": 0,
+   "PausedSizeLo": 0, "PausedSizeHi": 0, "PausedSizeMB": 0, "FileCount": 40, "RemainingFileCount": 0, "RemainingParCount": 0,
+   "MinPostTime": 1795700000, "MaxPostTime": 1795700100, "MinPriority": 0, "MaxPriority": 0, "ActiveDownloads": 0, "Status": "UNPACKING",
+   "PostInfoText": "Unpacking", "PostStageProgress": 420, "PostTotalTimeSec": 25, "Health": 1000, "CriticalHealth": 900, "Parameters": [], "Deleted": false},
+  {"NZBID": 42, "NZBName": "Queued.Documentary.2023.720p-GROUP", "NZBNicename": "Queued.Documentary.2023.720p-GROUP", "Kind": "NZB", "URL": "", "NZBFilename": "Queued.Documentary.2023.720p-GROUP.nzb", "DestDir": "", "FinalDir": "", "Category": "",
+   "FileSizeLo": 943718400, "FileSizeHi": 0, "FileSizeMB": 900, "RemainingSizeLo": 943718400, "RemainingSizeHi": 0, "RemainingSizeMB": 900,
+   "PausedSizeLo": 943718400, "PausedSizeHi": 0, "PausedSizeMB": 900, "FileCount": 30, "RemainingFileCount": 30, "RemainingParCount": 3,
+   "MinPostTime": 1795700000, "MaxPostTime": 1795700100, "MinPriority": 0, "MaxPriority": 0, "ActiveDownloads": 0, "Status": "PAUSED",
+   "PostInfoText": "", "PostStageProgress": 0, "PostTotalTimeSec": 0, "Health": 1000, "CriticalHealth": 900, "Parameters": [], "Deleted": false}
+]}
