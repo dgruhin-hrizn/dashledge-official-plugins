@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Radarr</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="model.js"></script>
+<script defer src="view.js"></script>
+</head>
+<body class="dl-surface">
+<main class="radarr" id="main" data-show="queue">
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 18V6A1.5 1.5 0 0 1 5 4.5zM3.5 8.5h17M3.5 15.5h17M7 4.5v4M12 4.5v4M17 4.5v4M7 15.5v4M12 15.5v4M17 15.5v4"/><path class="play" d="M10.5 10.2v3.6l3.1-1.8z"/></svg></span>
+      <b>Radarr</b>
+    </div>
+    <p class="server" id="server"></p>
+    <div class="tabs" role="group" aria-label="Show">
+      <button class="tab" id="tabQueue" type="button" aria-pressed="true" data-pane="queue">Queue <span class="count" id="tabQueueCount"></span></button>
+      <button class="tab" id="tabUpcoming" type="button" aria-pressed="false" data-pane="upcoming">Coming up <span class="count" id="tabUpcomingCount"></span></button>
+    </div>
+    <p class="stats" id="stats" aria-live="polite"></p>
+    <div class="status" id="status" data-kind="loading" role="status">
+      <span class="dot" aria-hidden="true"></span><span class="status-text" id="statusText">Connecting</span><span class="status-short" id="statusShort"></span>
+      <button class="dl-button retry" id="statusRetry" type="button" data-retry hidden>Retry</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage" hidden>
+    <section class="pane queue" id="queuePane" aria-labelledby="queueTitle">
+      <header class="pane-head"><h2 class="dl-caption" id="queueTitle">Queue</h2><span class="count" id="queueCount"></span></header>
+      <div class="cards" id="queueCards" tabindex="0" aria-label="Downloads"></div>
+      <article class="card idle" id="queueIdle" hidden>
+        <div class="backdrop"><img alt=""></div>
+        <div class="film">
+          <div class="sleeve"><span class="ph"></span><img alt=""></div>
+          <div class="copy">
+            <p class="eyebrow">Nothing downloading</p>
+            <h3 class="title" id="idleTitle"></h3>
+            <p class="meta" id="idleMeta"></p>
+          </div>
+        </div>
+      </article>
+      <p class="dl-loading" id="queueLoading" role="status">Loading the queue…</p>
+      <div class="dl-error" id="queueFailed" role="alert" hidden>
+        <p id="queueFailedText"></p>
+        <div class="actions"><button class="dl-button" type="button" data-retry>Retry</button><button class="dl-button" type="button" data-fix hidden>Check connection</button></div>
+      </div>
+    </section>
+
+    <section class="pane upcoming" id="upcomingPane" aria-labelledby="upcomingTitle">
+      <header class="pane-head"><h2 class="dl-caption" id="upcomingTitle">Coming up</h2><span class="count" id="upcomingCount"></span></header>
+      <ol class="shelf" id="shelf" tabindex="0" aria-label="Releases coming up"></ol>
+      <p class="dl-loading" id="upcomingLoading" role="status">Loading releases…</p>
+      <div class="dl-empty" id="upcomingEmpty" hidden>
+        <p id="upcomingEmptyText"></p>
+        <button class="dl-button" type="button" data-settings>Change what’s shown</button>
+      </div>
+      <div class="dl-error" id="upcomingFailed" role="alert" hidden>
+        <p id="upcomingFailedText"></p>
+        <div class="actions"><button class="dl-button" type="button" data-retry>Retry</button><button class="dl-button" type="button" data-fix hidden>Check connection</button></div>
+      </div>
+    </section>
+  </div>
+
+  <p class="dl-loading whole" id="loading" role="status">Connecting to Radarr…</p>
+  <div class="dl-empty whole" id="unconnected" hidden>
+    <p>Choose a Radarr server for this widget.</p>
+    <button class="dl-button" type="button" data-settings>Choose a server</button>
+  </div>
+  <div class="dl-error whole" id="unavailable" role="alert" hidden>
+    <p id="unavailableText"></p>
+    <div class="actions"><button class="dl-button" type="button" data-retry>Retry</button><button class="dl-button" type="button" data-fix hidden>Check connection</button></div>
+  </div>
+  <div class="dl-error whole" id="stopped" role="alert" hidden>
+    <p id="stoppedText"></p>
+    <button class="dl-button" type="button" data-retry>Retry</button>
+  </div>
+</main>
+</body>
+</html>
