@@ -3,7 +3,7 @@
   "id": "plugin.dashledge.radarr",
   "title": "Radarr",
   "description": "Your Radarr download queue with progress and time left, beside the movies coming out soon, with posters.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "category": "Music & media",
   "icon": "icon.svg",
   "license": "MIT",
