@@ -2,8 +2,8 @@
   "apiVersion": 2,
   "id": "plugin.dashledge.sonarr",
   "title": "Sonarr",
-  "description": "Upcoming episodes and the download queue from your Sonarr server, with series posters. Search for a missed episode from the Edge.",
-  "version": "1.0.0",
+  "description": "Your Sonarr download queue over each series' artwork, beside a shelf of the episodes coming up. Search for a missed episode from the Edge.",
+  "version": "1.1.0",
   "category": "Music & media",
   "icon": "icon.svg",
   "license": "MIT",
@@ -21,7 +21,7 @@
   },
   "displayName": {"serverField": "status.instanceName"},
   "permissions": ["images", "settings", "ui"],
-  "images": ["api/v3/mediacover/*/poster-*.jpg"],
+  "images": ["api/v3/mediacover/*/poster*.jpg", "api/v3/mediacover/*/fanart*.jpg"],
   "settings": [
     {
       "id": "days",
@@ -31,21 +31,21 @@
       "max": 14,
       "step": 1,
       "default": 7,
-      "help": "How far ahead Upcoming looks, counting today."
+      "help": "How far ahead Coming up looks, counting today."
     },
     {
       "id": "hideDownloaded",
       "label": "Hide downloaded episodes",
       "type": "toggle",
       "default": false,
-      "help": "Upcoming then lists only episodes you don't have yet."
+      "help": "Coming up then lists only episodes you don't have yet."
     },
     {
       "id": "pane",
       "label": "In a small placement, show first",
       "type": "choice",
       "options": [
-        {"value": "upcoming", "label": "Upcoming"},
+        {"value": "upcoming", "label": "Coming up"},
         {"value": "queue", "label": "Queue"}
       ],
       "default": "upcoming",

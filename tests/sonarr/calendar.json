@@ -32,11 +32,6 @@
           "coverType": "poster",
           "url": "/MediaCover/103/poster.jpg?lastWrite=639000000000000000",
           "remoteUrl": "https://artworks.example/posters/900103.jpg"
-        },
-        {
-          "coverType": "fanart",
-          "url": "/MediaCover/103/fanart.jpg?lastWrite=639000000000000000",
-          "remoteUrl": "https://artworks.example/fanart/900103.jpg"
         }
       ],
       "originalLanguage": {
@@ -297,11 +292,6 @@
           "coverType": "poster",
           "url": "/MediaCover/103/poster.jpg?lastWrite=639000000000000000",
           "remoteUrl": "https://artworks.example/posters/900103.jpg"
-        },
-        {
-          "coverType": "fanart",
-          "url": "/MediaCover/103/fanart.jpg?lastWrite=639000000000000000",
-          "remoteUrl": "https://artworks.example/fanart/900103.jpg"
         }
       ],
       "originalLanguage": {

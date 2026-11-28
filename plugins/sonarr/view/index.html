@@ -9,41 +9,73 @@
 <script defer src="view.js"></script>
 </head>
 <body class="dl-surface">
-<main class="sonarr" id="app" data-pane="upcoming">
-  <div class="content" id="content" hidden>
-    <header class="top">
-      <p class="dl-caption server" id="server">Sonarr</p>
-      <div class="tabs" id="tabs">
-        <button class="dl-button tab" id="tabUpcoming" type="button" aria-pressed="true" aria-controls="paneUpcoming">Upcoming<span class="count" id="countUpcoming"></span></button>
-        <button class="dl-button tab" id="tabQueue" type="button" aria-pressed="false" aria-controls="paneQueue">Queue<span class="count" id="countQueue"></span></button>
-      </div>
-      <p class="stale" id="stale" role="status" hidden><span class="stale-text" id="staleText"></span><button class="dl-button" id="staleFix" type="button" hidden>Check connection</button><button class="dl-button" id="staleRetry" type="button">Retry</button></p>
-    </header>
-    <div class="panes">
-      <section class="dl-panel pane upcoming" id="paneUpcoming" aria-labelledby="upcomingTitle">
-        <h2 class="dl-caption pane-title"><span id="upcomingTitle">Upcoming</span><span class="pane-note" id="upcomingNote"></span></h2>
-        <ul class="dl-list rows" id="upcomingList"></ul>
-        <p class="dl-empty pane-state" id="upcomingEmpty" hidden></p>
-        <p class="dl-loading pane-state" id="upcomingLoading" role="status" hidden>Loading the calendar…</p>
-        <p class="dl-error pane-state" id="upcomingError" hidden></p>
-      </section>
-      <section class="dl-panel pane queue" id="paneQueue" aria-labelledby="queueTitle">
-        <h2 class="dl-caption pane-title"><span id="queueTitle">Queue</span><span class="pane-note" id="queueNote"></span></h2>
-        <ul class="dl-list rows" id="queueList"></ul>
-        <p class="dl-empty pane-state" id="queueEmpty" hidden>Nothing downloading</p>
-        <p class="dl-loading pane-state" id="queueLoading" role="status" hidden>Loading the queue…</p>
-        <p class="dl-error pane-state" id="queueError" hidden></p>
-      </section>
+<main class="sonarr" id="main" data-show="upcoming">
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="12.5" rx="2"/><path d="M8.5 21h7M9 2.8l3 2.7 3-2.7"/><path class="play" d="M10.4 9.3v5l4.2-2.5z"/></svg></span>
+      <b>Sonarr</b>
     </div>
+    <p class="server" id="server"></p>
+    <div class="tabs" role="group" aria-label="Show">
+      <button class="tab" id="tabQueue" type="button" aria-pressed="false" data-pane="queue">Queue <span class="count" id="tabQueueCount"></span></button>
+      <button class="tab" id="tabUpcoming" type="button" aria-pressed="true" data-pane="upcoming">Coming up <span class="count" id="tabUpcomingCount"></span></button>
+    </div>
+    <p class="stats" id="stats" aria-live="polite"></p>
+    <div class="status" id="status" data-kind="loading" role="status">
+      <span class="dot" aria-hidden="true"></span><span class="status-text" id="statusText">Connecting</span><span class="status-short" id="statusShort"></span>
+      <button class="dl-button retry" id="statusRetry" type="button" data-retry hidden>Retry</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage" hidden>
+    <section class="pane queue" id="queuePane" aria-labelledby="queueTitle">
+      <header class="pane-head"><h2 class="dl-caption" id="queueTitle">Queue</h2><span class="count" id="queueCount"></span></header>
+      <div class="cards" id="queueCards" tabindex="0" aria-label="Downloads"></div>
+      <article class="card idle" id="queueIdle" hidden>
+        <div class="backdrop"><img alt=""></div>
+        <div class="film">
+          <div class="sleeve"><span class="ph"></span><img alt=""></div>
+          <div class="copy">
+            <p class="eyebrow">Nothing downloading</p>
+            <h3 class="title" id="idleTitle"></h3>
+            <p class="meta" id="idleMeta"></p>
+          </div>
+        </div>
+      </article>
+      <p class="dl-loading" id="queueLoading" role="status">Loading the queue…</p>
+      <div class="dl-error" id="queueFailed" role="alert" hidden>
+        <p id="queueFailedText"></p>
+        <div class="actions"><button class="dl-button" type="button" data-retry>Retry</button><button class="dl-button" type="button" data-fix hidden>Check connection</button></div>
+      </div>
+    </section>
+
+    <section class="pane upcoming" id="upcomingPane" aria-labelledby="upcomingTitle">
+      <header class="pane-head"><h2 class="dl-caption" id="upcomingTitle">Coming up</h2><span class="count" id="upcomingCount"></span></header>
+      <ol class="shelf" id="shelf" tabindex="0" aria-label="Episodes coming up"></ol>
+      <p class="dl-loading" id="upcomingLoading" role="status">Loading the calendar…</p>
+      <div class="dl-empty" id="upcomingEmpty" hidden>
+        <p id="upcomingEmptyText"></p>
+        <button class="dl-button" type="button" data-settings>Change what’s shown</button>
+      </div>
+      <div class="dl-error" id="upcomingFailed" role="alert" hidden>
+        <p id="upcomingFailedText"></p>
+        <div class="actions"><button class="dl-button" type="button" data-retry>Retry</button><button class="dl-button" type="button" data-fix hidden>Check connection</button></div>
+      </div>
+    </section>
   </div>
-  <p class="dl-loading state" id="loading" role="status">Connecting to Sonarr…</p>
-  <div class="dl-empty state" id="empty" hidden>
+
+  <p class="dl-loading whole" id="loading" role="status">Connecting to Sonarr…</p>
+  <div class="dl-empty whole" id="unconnected" hidden>
     <p>Choose a Sonarr connection for this widget.</p>
-    <button class="dl-button" id="choose" type="button">Choose connection</button>
+    <button class="dl-button" type="button" data-settings>Choose connection</button>
   </div>
-  <div class="dl-error state" id="failed" role="alert" hidden>
-    <p id="failedText"></p>
-    <p class="actions"><button class="dl-button" id="fix" type="button" hidden>Check connection</button><button class="dl-button" id="retry" type="button">Retry</button></p>
+  <div class="dl-error whole" id="unavailable" role="alert" hidden>
+    <p id="unavailableText"></p>
+    <div class="actions"><button class="dl-button" type="button" data-retry>Retry</button><button class="dl-button" type="button" data-fix hidden>Check connection</button></div>
+  </div>
+  <div class="dl-error whole" id="stopped" role="alert" hidden>
+    <p id="stoppedText"></p>
+    <button class="dl-button" type="button" data-retry>Retry</button>
   </div>
 </main>
 </body>

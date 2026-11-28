@@ -1,9 +1,21 @@
-// Sonarr view model: what a placement shows, with no DOM, so tests run it in Node.
-// view.js draws it. Times are shown in `zone`, the Mac's time zone unless a test names one.
+// Sonarr view model: what each pane shows, with no DOM, so tests run it in Node. view.js
+// draws it. Times are shown in `zone`, the Mac's time zone unless a test names one, and
+// every function that depends on the time takes `now`, so nothing here reads the clock.
 (function (root) {
   const DAY = 24 * 60 * 60 * 1000;
   const pad = n => String(n).padStart(2, '0');
   const code = (season, episode) => 'S' + pad(season) + 'E' + pad(episode);
+  // Older than this, a section's data is stale even without an error, as after a restart.
+  const MAX_AGE = {queue: 2 * 60 * 1000, calendar: 60 * 60 * 1000};
+
+  // This placement's settings, tidied.
+  function settings(values) {
+    return {
+      days: Math.min(14, Math.max(1, Math.round(Number(values?.days) || 7))),
+      hideDownloaded: values?.hideDownloaded === true,
+      pane: values?.pane === 'queue' ? 'queue' : 'upcoming',
+    };
+  }
 
   // Days since 1970 of the calendar date `when` falls on in `zone`.
   function dayIndex(when, zone) {
@@ -14,16 +26,18 @@
   }
 
   // "Today", "Tomorrow", "Wed" this week, "Wed, Dec 9" further out; and "9:00 PM".
+  // `chip` is the short form a poster carries: "Dec 9" rather than "Wed, Dec 9".
   function when(iso, now, zone) {
     const at = Date.parse(iso);
-    if (!Number.isFinite(at)) return {day: '', time: ''};
+    if (!Number.isFinite(at)) return {day: '', time: '', chip: '', diff: NaN};
     const diff = dayIndex(at, zone) - dayIndex(now, zone);
-    const day = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : diff === -1 ? 'Yesterday'
-      : new Intl.DateTimeFormat('en-US', diff > 1 && diff < 7 ? {timeZone: zone, weekday: 'short'}
-        : {timeZone: zone, weekday: 'short', month: 'short', day: 'numeric'}).format(at);
+    const near = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : diff === -1 ? 'Yesterday' : '';
+    const format = options => new Intl.DateTimeFormat('en-US', {timeZone: zone, ...options}).format(at);
+    const day = near || (diff > 1 && diff < 7 ? format({weekday: 'short'}) : format({weekday: 'short', month: 'short', day: 'numeric'}));
+    const chip = near || (diff > 1 && diff < 7 ? day : format({month: 'short', day: 'numeric'}));
     // Some ICU versions put a narrow no-break space before AM/PM.
-    const time = new Intl.DateTimeFormat('en-US', {timeZone: zone, hour: 'numeric', minute: '2-digit'}).format(at).replace(/\s/g, ' ');
-    return {day, time};
+    const time = format({hour: 'numeric', minute: '2-digit'}).replace(/\s/g, ' ');
+    return {day, time, chip, diff};
   }
 
   // 754 → "12 min", 7500 → "2 h 05 min", 97200 → "1 d 3 h".
@@ -37,29 +51,39 @@
     return Math.floor(hours / 24) + ' d ' + (hours % 24) + ' h';
   }
 
+  function bytes(n) {
+    if (typeof n !== 'number' || !Number.isFinite(n) || n <= 0) return '';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let i = 0;
+    while (n >= 1000 && i < units.length - 1) { n /= 1000; i++; }
+    return (n >= 100 || i === 0 ? Math.round(n) : n.toFixed(1)) + ' ' + units[i];
+  }
+
   function ageLabel(at, now) {
     if (!at) return '';
     const minutes = Math.max(0, Math.round((now - at) / 60000));
     if (minutes < 1) return 'just now';
     if (minutes < 60) return minutes + ' min ago';
     const hours = Math.round(minutes / 60);
-    return hours + (hours === 1 ? ' hour ago' : ' hours ago');
+    if (hours < 48) return hours + (hours === 1 ? ' hour ago' : ' hours ago');
+    return Math.round(hours / 24) + ' days ago';
   }
 
+  // What a queue row is doing: its phase in words and the tone it's drawn in (active,
+  // done, warning, failed, paused or waiting).
   const STATES = {
-    downloading: ['Downloading', 'ok'], paused: ['Paused', 'paused'], queued: ['Queued', 'paused'],
-    delay: ['Delayed', 'paused'], completed: ['Completed', 'ok'], importPending: ['Waiting to import', 'warning'],
-    importing: ['Importing', 'ok'], imported: ['Imported', 'ok'], warning: ['Needs attention', 'warning'],
-    failed: ['Failed', 'error'],
+    downloading: ['Downloading', 'active'], importing: ['Importing', 'done'], imported: ['Imported', 'done'],
+    completed: ['Completed', 'done'], importPending: ['Waiting to import', 'done'], warning: ['Needs attention', 'warning'],
+    failed: ['Failed', 'failed'], paused: ['Paused', 'paused'], queued: ['Queued', 'waiting'], delay: ['Delayed', 'waiting'],
   };
   const stateOf = state => STATES[state] || STATES.downloading;
-  // Problems first, since they need someone; then what's downloading, soonest done first.
-  const RANK = {failed: 0, warning: 1, importPending: 2, importing: 3, downloading: 4, completed: 5, imported: 5,
-    queued: 6, delay: 7, paused: 8};
+  const needsAttention = tone => tone === 'warning' || tone === 'failed';
+  // Downloading first (soonest done first), then importing, then problems, then the rest.
+  const ORDER = {active: 0, done: 1, warning: 2, failed: 3, paused: 4, waiting: 5};
 
   const percent = progress => (typeof progress === 'number' && Number.isFinite(progress) ? Math.floor(progress * 100) : null);
 
-  // A queue row's second line: one episode, a season pack, or several episodes.
+  // What a download holds: one episode, a season pack, or several episodes.
   function episodesLabel(episodes) {
     const list = Array.isArray(episodes) ? episodes : [];
     if (list.length === 1) return code(list[0].season, list[0].episode) + (list[0].title ? ' · ' + list[0].title : '');
@@ -68,31 +92,52 @@
     return seasons.size === 1 ? 'Season ' + list[0].season + ' · ' + list.length + ' episodes' : list.length + ' episodes';
   }
 
-  // The queue, ready to draw.
+  // One card per download, ready to draw. The eyebrow carries the episode and phase
+  // ("S02E10 · Downloading"); the title is the series.
   function queueRows(items) {
     return (Array.isArray(items) ? items : []).map((row, index) => {
-      const [label, tone] = stateOf(row.state);
-      const pct = percent(row.progress);
-      const left = row.state === 'downloading' ? duration(row.timeLeft) : '';
-      const problem = (tone === 'warning' || tone === 'error') && row.message ? row.message : '';
+      const [phase, tone] = stateOf(row.state);
+      const progress = typeof row.progress === 'number' && Number.isFinite(row.progress) ? row.progress : null;
+      const pct = percent(progress);
+      const [which, ...rest] = episodesLabel(row.episodes).split(' · ');
+      const done = row.size > 0 ? bytes(row.size - (row.left || 0)) || '0 B' : '';
       return {
-        key: row.key, seriesId: row.seriesId, series: row.series,
-        detail: problem ? [episodesLabel(row.episodes).split(' · ')[0], problem].filter(Boolean).join(' · ') : episodesLabel(row.episodes),
-        progress: pct, percent: pct === null ? '—' : pct + '%',
-        note: left ? left + ' left' : label, state: row.state, label, tone,
-        order: [RANK[row.state] ?? 4, row.state === 'downloading' && typeof row.timeLeft === 'number' ? row.timeLeft : Infinity, index],
+        key: row.key, seriesId: row.seriesId, title: row.series, poster: row.poster !== false, fanart: row.fanart !== false,
+        phase, tone, eyebrow: [which, phase].filter(Boolean).join(' · '),
+        meta: [rest.join(' · '), row.quality, row.client].filter(Boolean).join(' · '),
+        note: needsAttention(tone) ? row.message || '' : '',
+        progress, percent: pct === null ? '' : pct + '%',
+        left: row.state === 'downloading' ? duration(row.timeLeft) : '',
+        amount: done && progress !== null && progress < 1 ? done + ' of ' + bytes(row.size) : bytes(row.size),
+        order: [ORDER[tone] ?? 9, row.state === 'downloading' && typeof row.timeLeft === 'number' ? row.timeLeft : Infinity, index],
       };
     }).sort((a, b) => a.order[0] - b.order[0] || a.order[1] - b.order[1] || a.order[2] - b.order[2])
       .map(({order, ...row}) => row);
   }
 
+  // The header's figures: [{text, tone}], such as "2 downloading", "4.8 GB left" and
+  // "1 needs attention" (tone warning), or "Nothing downloading".
+  function queueStats(items, more) {
+    const list = Array.isArray(items) ? items : [];
+    const rows = queueRows(list);
+    if (!rows.length) return [{text: 'Nothing downloading', tone: ''}];
+    const downloading = list.filter(i => i.state === 'downloading');
+    const problems = rows.filter(r => needsAttention(r.tone)).length;
+    const left = bytes(downloading.reduce((sum, i) => sum + (i.left || 0), 0));
+    const stats = [{text: downloading.length ? downloading.length + ' downloading' : rows.length + ' in queue', tone: ''}];
+    if (left) stats.push({text: left + ' left', tone: ''});
+    if (problems) stats.push({text: problems + (problems === 1 ? ' needs attention' : ' need attention'), tone: 'warning'});
+    if (more > 0) stats.push({text: more + ' more in Sonarr', tone: ''});
+    return stats;
+  }
+
   // Episodes from today through `days` days (counting today) in `zone`, joined with the
-  // queue: each says whether it's downloaded, downloading, being searched for, missing
-  // (aired, monitored, no file: it can be searched) or still to air. Yesterday's episodes
-  // stay while they have no file, so last night's missed episode can still be searched.
-  function upcoming(data, settings, now, zone) {
-    const days = Math.min(14, Math.max(1, Math.round(Number(settings?.days) || 7)));
-    const today = dayIndex(now, zone);
+  // queue: each says whether it's downloaded, downloading (or in trouble), being searched
+  // for, missing (aired, monitored, no file: it can be searched) or still to air.
+  // Yesterday's episodes stay while they have no file, so last night's missed episode can
+  // still be searched. Missing episodes come first, then the rest by air time.
+  function upcoming(data, values, now, zone) {
+    const {days, hideDownloaded} = settings(values);
     const queued = new Map();
     for (const row of data?.queue?.items || []) for (const e of row.episodes || []) queued.set(e.id, row);
     const searching = new Set(data?.searching || []);
@@ -100,62 +145,80 @@
     for (const e of data?.calendar?.items || []) {
       const at = Date.parse(e.airDateUtc);
       if (!Number.isFinite(at)) continue;
-      const diff = dayIndex(at, zone) - today;
-      if (diff < -1 || diff >= days || (diff === -1 && e.hasFile)) continue;
-      if (settings?.hideDownloaded && e.hasFile) continue;
+      const w = when(e.airDateUtc, now, zone);
+      if (w.diff < -1 || w.diff >= days || (w.diff === -1 && e.hasFile)) continue;
+      if (hideDownloaded && e.hasFile) continue;
       const q = queued.get(e.id);
-      let state, label, progress = null, canSearch = false;
+      let state, label, chip = w.chip, progress = null, canSearch = false;
       if (e.hasFile) { state = 'downloaded'; label = 'Downloaded'; }
       else if (q) {
-        const [qLabel, tone] = stateOf(q.state);
+        const [phase, tone] = stateOf(q.state);
         progress = percent(q.progress);
-        state = tone === 'error' || tone === 'warning' ? 'trouble' : 'downloading';
-        label = q.state === 'downloading' && progress !== null ? 'Downloading ' + progress + '%' : qLabel;
-      } else if (searching.has(e.id)) { state = 'searching'; label = 'Searching…'; }
-      else if (at <= now && e.monitored) { state = 'missing'; label = 'Missing'; canSearch = true; }
+        state = needsAttention(tone) ? 'trouble' : 'downloading';
+        label = q.state === 'downloading' && progress !== null ? 'Downloading ' + progress + '%' : phase;
+        chip = q.state === 'downloading' && progress !== null ? progress + '%' : phase;
+      } else if (searching.has(e.id)) { state = 'searching'; label = chip = 'Searching…'; }
+      else if (at <= now && e.monitored) { state = 'missing'; label = chip = 'Missing'; canSearch = true; }
       else { state = 'upcoming'; label = ''; }
-      const w = when(e.airDateUtc, now, zone);
       rows.push({
-        id: e.id, seriesId: e.seriesId, series: e.series,
+        key: 'e' + e.id, id: e.id, seriesId: e.seriesId, series: e.series, at,
+        poster: e.poster !== false, fanart: e.fanart !== false,
+        code: code(e.season, e.episode), title: e.title || '',
         detail: code(e.season, e.episode) + (e.title ? ' · ' + e.title : '') + (e.finale ? ' · ' + e.finale[0].toUpperCase() + e.finale.slice(1) + ' finale' : ''),
-        day: w.day, time: w.time, state, label, progress, canSearch,
+        day: w.day, time: w.time, chip, soon: state === 'upcoming' || state === 'downloaded' ? w.diff === 0 || w.diff === 1 : false,
+        state, label, progress, canSearch,
       });
     }
-    return {days, rows};
+    const rank = r => (r.state === 'missing' || r.state === 'searching' ? 0 : 1);
+    return {days, rows: rows.sort((a, b) => rank(a) - rank(b) || a.at - b.at || a.id - b.id)};
   }
 
-  // What the whole placement shows:
-  //   stopped (the connector stopped), noconnection, loading, failed (nothing to show:
-  //   wrong key or Sonarr unavailable), or ready, with a stale note when the last
-  //   refresh of something already shown failed.
+  // The episode an idle queue features: the next one still to air.
+  const nextUp = (rows, now) => (rows || []).find(r => r.state === 'upcoming' && r.at > now) || null;
+
+  // What the whole placement shows: stopped (the connector stopped), loading,
+  // noconnection, failed (nothing read yet and every read failed: one message for the
+  // widget, not one per pane), or ready.
   function status(data, stopped, now) {
     if (stopped && !data?.connected) return {kind: 'stopped', error: stopped};
     if (!data) return {kind: 'loading'};
     if (data.connected === false) return {kind: 'noconnection'};
-    const feeds = [data.calendar, data.queue].filter(Boolean);
-    const shown = feeds.filter(f => Array.isArray(f.items));
-    if (!shown.length) {
-      const failed = feeds.find(f => f.state === 'error');
-      if (failed && feeds.every(f => f.state === 'error')) {
-        return {kind: 'failed', auth: feeds.some(f => f.kind === 'auth'), error: failed.error || 'Sonarr didn’t answer.'};
-      }
-      return {kind: 'loading'};
-    }
-    const stale = shown.filter(f => f.state === 'error');
-    if (!stale.length && !stopped) return {kind: 'ready', stale: false, note: '', auth: false};
-    const oldest = Math.min(...(stale.length ? stale : shown).map(f => f.at || now));
-    const error = stale[0]?.error || stopped;
-    return {kind: 'ready', stale: true, auth: stale.some(f => f.kind === 'auth'),
-      note: 'Last updated ' + ageLabel(oldest, now) + (error ? ' · ' + error : '')};
+    const q = paneState(data.queue, now, MAX_AGE.queue), c = paneState(data.calendar, now, MAX_AGE.calendar);
+    if (q.kind === 'failed' && c.kind === 'failed') return {kind: 'failed', auth: q.auth || c.auth, error: q.error || c.error};
+    if (q.kind === 'loading' && c.kind === 'loading') return {kind: 'loading'};
+    return {kind: 'ready'};
   }
 
-  // One pane's own state, once the placement is ready.
-  function pane(feed) {
+  // One pane's state: loading (nothing yet), failed (nothing to show and the read
+  // failed), or ready, which is stale when the latest read failed or the data is old.
+  function paneState(feed, now, maxAge) {
     if (!feed || !Array.isArray(feed.items)) {
-      return feed?.state === 'error' ? {kind: 'failed', error: feed.error, auth: feed.kind === 'auth'} : {kind: 'loading'};
+      return feed?.state === 'error' ? {kind: 'failed', error: feed.error || 'Sonarr didn’t answer.', auth: feed.kind === 'auth'} : {kind: 'loading'};
     }
-    return {kind: feed.items.length ? 'list' : 'empty'};
+    const at = feed.at || 0;
+    const failed = feed.state === 'error';
+    const stale = failed || !at || now - at > maxAge;
+    const note = stale ? [at ? 'Last updated ' + ageLabel(at, now) : '', failed ? feed.error : ''].filter(Boolean).join(' · ') : '';
+    return {kind: 'ready', stale, note, auth: failed && feed.kind === 'auth'};
   }
 
-  root.SonarrModel = {code, dayIndex, when, duration, ageLabel, episodesLabel, queueRows, upcoming, status, pane};
+  // The header's status chip: live (something is downloading), idle, stale (with when
+  // and why, and Retry) or connecting. Stale wins when either section is.
+  function freshness(data, now) {
+    if (!data?.connected) return {kind: 'loading', label: data?.connected === false ? 'Not set up' : 'Connecting', short: '', note: ''};
+    const q = paneState(data.queue, now, MAX_AGE.queue), c = paneState(data.calendar, now, MAX_AGE.calendar);
+    if (q.kind === 'loading' && c.kind === 'loading') return {kind: 'loading', label: 'Connecting', short: '', note: ''};
+    const stale = [q, c].find(s => s.stale || s.kind === 'failed');
+    if (stale) {
+      const at = Math.max(data.queue?.at || 0, data.calendar?.at || 0);
+      const age = at ? ageLabel(at, now) : '';
+      return {kind: 'stale', label: at ? 'Updated ' + age : 'Unavailable', short: age ? age[0].toUpperCase() + age.slice(1) : 'Offline',
+        note: stale.note || stale.error || '', auth: Boolean(stale.auth)};
+    }
+    const busy = (data.queue?.items || []).some(i => i.state === 'downloading');
+    return {kind: busy ? 'live' : 'idle', label: busy ? 'Live' : 'Up to date', short: '', note: ''};
+  }
+
+  root.SonarrModel = {MAX_AGE, settings, code, dayIndex, when, duration, bytes, ageLabel, episodesLabel, queueRows, queueStats,
+    upcoming, nextUp, status, paneState, freshness};
 })(globalThis);
