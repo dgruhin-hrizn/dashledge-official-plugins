@@ -269,6 +269,23 @@ test('up to four tiles play live: offline cameras, snapshot-only cameras and ref
   assert.deepEqual(M.liveSet(many, M.settings({video: 'snapshots'}), {}), []);
 });
 
+test('filling crops a little, but shows a panorama whole over a blurred copy', () => {
+  // The front door's dual-lens panorama (5120 × 1552) in a 16 : 9 tile would lose 46 %.
+  const pano = M.fit(1280, 720, 5120 / 1552, true);
+  assert.equal(pano.cover, false);
+  assert.equal(pano.backdrop, true);
+  assert.deepEqual([pano.dw, Math.round(pano.dh), Math.round(pano.dy)], [1280, 388, 166]);
+  // The same panorama in a wide grid tile (853 × 356) loses 27 %: cropped to fill.
+  const wide = M.fit(853, 356, 5120 / 1552, true);
+  assert.equal(wide.cover, true);
+  assert.equal(Math.round(wide.dh), 356);
+  assert.ok(wide.dw > 853);
+  // A 16 : 9 camera fills a 16 : 9 tile exactly; with filling off nothing is cropped or blurred.
+  assert.deepEqual(M.fit(1280, 720, 16 / 9, true), {cover: true, backdrop: false, dw: 1280, dh: 720, dx: 0, dy: 0});
+  const off = M.fit(1280, 720, 5120 / 1552, false);
+  assert.deepEqual([off.cover, off.backdrop, off.dw], [false, false, 1280]);
+});
+
 test('quality picks the sub stream for small tiles', () => {
   const cam = {main: 'front_door', sub: 'front_door_sub'};
   assert.equal(M.stream(cam, 300, 'auto'), 'front_door_sub');

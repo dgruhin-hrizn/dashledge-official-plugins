@@ -140,7 +140,7 @@
         },
         // source: a playing <video> or a loaded <img>, or null for snow.
         // Returns false when the picture can't be read (the view then drops the shader).
-        draw(source, {mono = false, noSignal = false, cover = true, time = 0, motion = true, fresh = true} = {}) {
+        draw(source, {mono = false, noSignal = false, cover = true, aspect = 0, time = 0, motion = true, fresh = true} = {}) {
           if (lost) return false;
           const w = canvas.width, h = canvas.height;
           let sw = 0, sh = 0;
@@ -160,7 +160,8 @@
           // Scale the texture so the picture covers (or fits inside) the screen.
           let fx = 1, fy = 1;
           if (has) {
-            const screen = w / h, picture = sw / sh;
+            // `aspect` is the picture's real shape when the source is squashed (a snapshot).
+            const screen = w / h, picture = aspect || sw / sh;
             if (cover ? picture > screen : picture < screen) fx = screen / picture; else fy = picture / screen;
           }
           gl.uniform2f(uni.size, w, h);

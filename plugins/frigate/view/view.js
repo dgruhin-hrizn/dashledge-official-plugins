@@ -13,6 +13,13 @@
   const MISSING_FOR = 5 * 60 * 1000;  // before asking go2rtc for a stream it didn't have
   const FRAME_MS = 1000 / 30;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  // How long a tile keeps its last video frame while the video reconnects, before the
+  // latest snapshot replaces it.
+  const HOLD_FRAME = 15 * 1000;
+  // Each camera's real picture shape, learned from its video. Frigate's snapshots come at
+  // its detect size, which can squash a panorama (5120 × 1552 into 1280 × 720); they're
+  // drawn back at this shape so a snapshot frames the scene as the video does.
+  const shapes = new Map();
 
   let data = null, stopped = '', prefs = M.settings(D.settings.values);
   let focused = '';                   // a camera shown full size after a tap
@@ -48,7 +55,7 @@
     const q = s => el.querySelector(s);
     const tile = {
       name: camera.name, camera, el,
-      screen: q('.screen'), img: q('.snap'), video: q('.video'), canvas: q('.crt'), paint: q('.paint'), paintCtx: null, paintTime: -1,
+      screen: q('.screen'), img: q('.snap'), video: q('.video'), canvas: q('.crt'), paint: q('.paint'), paintCtx: null, paintTime: -1, painted: '', videoAt: 0, backdrop: null,
       parts: {name: q('.name'), det: q('.detection'), detText: q('.det-text'), detWhen: q('.det-when'),
         pill: q('.pill'), pillText: q('.pill-text'), why: q('.why'), message: q('.message'),
         osdCam: q('.osd-cam'), osdDate: q('.osd-date'), osdTime: q('.osd-time'), osdRec: q('.osd-rec')},
@@ -57,10 +64,11 @@
       crt: null, glFailed: false, lastVideoTime: -1, index: 0,
     };
     el.dataset.name = camera.name;
-    tile.video.addEventListener('playing', () => { tile.playing = true; tile.why = ''; tile.paintTime = -1; refreshTile(tile); });
+    tile.video.addEventListener('playing', () => { tile.playing = true; tile.why = ''; tile.paintTime = -1; learnShape(tile); refreshTile(tile); });
+    tile.video.addEventListener('resize', () => learnShape(tile));
     tile.video.addEventListener('loadeddata', wake);
     tile.video.addEventListener('waiting', () => { if (tile.video.readyState < 2) { tile.playing = false; refreshTile(tile); } });
-    tile.img.addEventListener('load', () => { tile.hasSnap = true; tile.snapVersion++; refreshTile(tile); });
+    tile.img.addEventListener('load', () => { tile.hasSnap = true; tile.snapVersion++; paintStill(tile); refreshTile(tile); });
     el.addEventListener('click', () => toggleFocus(tile.name));
     el.addEventListener('keydown', event => {
       if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleFocus(tile.name); }
@@ -161,6 +169,7 @@
     }
     tile.parts.osdRec.hidden = !det?.active;
     set(tile.parts.osdCam, M.osd(index, new Date(now)).cam + ' ' + M.label(camera, prefs).toUpperCase());
+    if (!(tile.player && tile.playing)) paintStill(tile);
     refreshTile(tile);
   }
 
@@ -199,7 +208,9 @@
     tile.state = state;
     const el = tile.el;
     el.dataset.state = state;
-    el.dataset.picture = video ? 'video' : tile.hasSnap && state !== 'off' && state !== 'offline' ? 'snap' : 'none';
+    // Everything shows on the paint canvas: live frames, the last frame while video comes
+    // back, or the latest snapshot.
+    el.dataset.picture = state !== 'off' && state !== 'offline' && (video || tile.painted) ? 'paint' : 'none';
     set(tile.parts.pillText, M.pill(state));
     tile.parts.pill.hidden = !M.pill(state);
     // Why live video is down, once it has failed: small, under the pill.
@@ -307,7 +318,7 @@
 
     const box = wall.getBoundingClientRect();
     const gap = parseFloat(getComputedStyle(wall).columnGap) || 0;
-    const aspect = M.aspectOf(cameras);
+    const aspect = M.aspectOf(cameras.map(c => (shapes.has(c.name) ? {...c, aspect: shapes.get(c.name)} : c)));
     const shown = focused ? cameras.filter(c => c.name === focused) : cameras;
     const rects = focused ? [{x: 0, y: 0, w: Math.round(box.width), h: Math.round(box.height)}]
       : M.rects(prefs.layout, shown.length, box.width, box.height, aspect, gap);
@@ -340,20 +351,68 @@
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; return true; }
     return false;
   }
-  // The latest video frame, scaled to cover (or fit inside) the tile.
+  function learnShape(tile) {
+    const v = tile.video;
+    if (!v.videoWidth || !v.videoHeight) return;
+    const aspect = Math.round(v.videoWidth / v.videoHeight * 1000) / 1000;
+    if (shapes.get(tile.name) === aspect) return;
+    shapes.set(tile.name, aspect);
+    draw();
+  }
+  // Draw `source` at `aspect` into the tile's canvas: cropped to fill, or whole over a
+  // blurred, darkened copy of itself (drawn tiny and stretched, which blurs for free).
+  function drawPicture(tile, source, aspect) {
+    const c = tile.paint;
+    const ctx = tile.paintCtx || (tile.paintCtx = c.getContext('2d', {alpha: false}));
+    if (!ctx) return false;
+    const f = M.fit(c.width, c.height, aspect, prefs.fill);
+    if (!f.cover) {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, c.width, c.height);
+    }
+    if (f.backdrop) {
+      const b = tile.backdrop || (tile.backdrop = document.createElement('canvas'));
+      b.width = 48; b.height = Math.max(8, Math.round(48 * c.height / c.width));
+      const bf = M.fit(b.width, b.height, aspect, true, 1);
+      b.getContext('2d').drawImage(source, bf.dx, bf.dy, bf.dw, bf.dh);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      // A real blur where the canvas has filters; past the edges so they don't darken.
+      const r = Math.round(Math.max(c.width, c.height) / 40);
+      if ('filter' in ctx) ctx.filter = 'blur(' + r + 'px)';
+      ctx.drawImage(b, -2 * r, -2 * r, c.width + 4 * r, c.height + 4 * r);
+      if ('filter' in ctx) ctx.filter = 'none';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+      ctx.fillRect(0, 0, c.width, c.height);
+    }
+    ctx.drawImage(source, f.dx, f.dy, f.dw, f.dh);
+    return true;
+  }
+  // The latest video frame.
   function paint(tile, dpr) {
     if (!playing(tile)) return;
-    const v = tile.video, c = tile.paint;
-    const resized = fitCanvas(c, dpr);
+    const v = tile.video;
+    const resized = fitCanvas(tile.paint, dpr);
     if (!resized && v.currentTime === tile.paintTime) return;
     tile.paintTime = v.currentTime;
-    const ctx = tile.paintCtx || (tile.paintCtx = c.getContext('2d', {alpha: false}));
-    const sw = v.videoWidth, sh = v.videoHeight;
-    if (!ctx || !sw || !sh) return;
-    const scale = prefs.fill ? Math.max(c.width / sw, c.height / sh) : Math.min(c.width / sw, c.height / sh);
-    const dw = sw * scale, dh = sh * scale;
-    if (!prefs.fill) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, c.width, c.height); }
-    ctx.drawImage(v, (c.width - dw) / 2, (c.height - dh) / 2, dw, dh);
+    if (!v.videoWidth || !v.videoHeight) return;
+    if (drawPicture(tile, v, v.videoWidth / v.videoHeight)) { tile.painted = 'video'; tile.videoAt = Date.now(); }
+  }
+  // The latest snapshot, at the camera's real shape, unless a recent video frame is
+  // holding the tile while the video reconnects.
+  function paintStill(tile) {
+    if (!tile.hasSnap || tile.el.hidden || (tile.player && tile.playing)) return;
+    if (tile.painted === 'video' && Date.now() - tile.videoAt < HOLD_FRAME) {
+      clearTimeout(tile.holdTimer);
+      tile.holdTimer = setTimeout(() => { paintStill(tile); refreshTile(tile); }, HOLD_FRAME);
+      return;
+    }
+    const img = tile.img, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const resized = fitCanvas(tile.paint, dpr);
+    if (!resized && tile.painted === 'snap' && tile.drawnStill === tile.snapVersion) return;
+    if (!img.naturalWidth || !img.naturalHeight) return;
+    tile.drawnStill = tile.snapVersion;
+    if (drawPicture(tile, img, shapes.get(tile.name) || img.naturalWidth / img.naturalHeight)) tile.painted = 'snap';
   }
   function render(t) {
     frame = 0;
@@ -389,7 +448,9 @@
         fresh = tile.drawnSnap !== tile.snapVersion;
         tile.drawnSnap = tile.snapVersion;
       }
-      const ok = tile.crt.draw(source, {mono: prefs.look === 'crt-mono', noSignal, cover: prefs.fill, time: t / 1000, motion, fresh});
+      const shape = video ? tile.video.videoWidth / tile.video.videoHeight : shapes.get(tile.name) || (tile.img.naturalWidth / tile.img.naturalHeight) || 16 / 9;
+      const cover = M.fit(w, h, shape, prefs.fill).cover;
+      const ok = tile.crt.draw(source, {mono: prefs.look === 'crt-mono', noSignal, cover, aspect: shape, time: t / 1000, motion, fresh});
       if (!ok) {
         tile.crt.destroy();
         tile.crt = null;

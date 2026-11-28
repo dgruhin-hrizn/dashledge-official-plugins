@@ -35,7 +35,8 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .screen>img,.screen>video,.screen>canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
 .frigate[data-fill=false] .screen>img,.frigate[data-fill=false] .screen>video{object-fit:contain}
 /* Video decodes in the hidden <video> and is drawn on the .paint canvas (see view.js). */
-.tile[data-picture=video] .paint,.tile[data-picture=snap] .snap{opacity:1}
+.tile[data-picture=paint] .paint{opacity:1}
+.screen>img{opacity:0!important}
 .screen>video{opacity:0!important}
 .crt,.osd,.noise,.glass{display:none}
 
@@ -129,7 +130,7 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 
 /* The tube's picture: the shader's canvas, or CSS scanlines when WebGL isn't there. */
 .frigate[data-look^=crt] .crt{display:block;opacity:1}
-.frigate[data-look^=crt] .tile[data-gl=on] .paint,.frigate[data-look^=crt] .tile[data-gl=on] .snap{opacity:0!important}
+.frigate[data-look^=crt] .tile[data-gl=on] .paint{opacity:0!important}
 .frigate[data-look^=crt] .tile:not([data-gl=on]) .crt{opacity:0}
 
 .frigate[data-look^=crt] .tile:not([data-gl=on]) .snap,.frigate[data-look^=crt] .tile:not([data-gl=on]) .paint{filter:contrast(1.2) saturate(.8) brightness(1.05) blur(.3px)}

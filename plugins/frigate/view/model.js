@@ -218,6 +218,18 @@
     }[state] ?? '';
   }
 
+  // Where a picture of `aspect` goes in a w × h tile. Filling crops at most `maxCrop` of
+  // the picture: a panorama (a dual-lens camera's 3.3 : 1) in a 16 : 9 tile shows whole,
+  // over a blurred copy of itself (`backdrop`), instead of losing both sides.
+  function fit(w, h, aspect, fill, maxCrop = 0.3) {
+    const tile = w / h;
+    const crop = 1 - Math.min(aspect / tile, tile / aspect);
+    const cover = !!fill && crop <= maxCrop;
+    let dw, dh;
+    if (cover ? aspect > tile : aspect < tile) { dh = h; dw = h * aspect; } else { dw = w; dh = w / aspect; }
+    return {cover, backdrop: !!fill && !cover, dw, dh, dx: (w - dw) / 2, dy: (h - dh) / 2};
+  }
+
   // The whole widget's state from the connector's snapshot. Once cameras are known they
   // stay on screen through a failed read, with a banner instead.
   function status(data, stopped) {
@@ -232,7 +244,7 @@
   }
 
   global.FrigateModel = {
-    MAX_LIVE, status, settings, toValue, fromValue, chosen, missing, label, offer, aspectOf, grid, gridRects, spotlightRects, rects,
+    MAX_LIVE, status, settings, toValue, fromValue, fit, chosen, missing, label, offer, aspectOf, grid, gridRects, spotlightRects, rects,
     signal, stream, liveSet, snapshotHeight, isCapError, isMissingStream, word, ago, detection, osd, pill,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
