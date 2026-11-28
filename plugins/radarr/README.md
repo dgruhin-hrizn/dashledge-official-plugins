@@ -56,5 +56,6 @@ One connector serves every placement on a connection. Placement settings reach o
 
 ## Changes
 
+- **1.1.1:** Lighter to swipe through Coming up and the queue on the Edge, as in Sonarr 1.2.1. The date chips on posters drop their blur for a solid backing, the icons and downloaded posters lose their filters, and artwork appears only once it's ready to draw.
 - **1.1.0:** The connection form explains where to find Radarr's address and API key, and links to Radarr's security settings. Needs Dashledge 0.10.0.
 - **1.0.0:** First release. The queue as cards over each movie's fanart, and Coming up as a shelf of posters. They sit side by side on the Edge, or a tap apart in a small placement. It searches for missing movies, and each placement chooses its days ahead, release dates and first pane.
