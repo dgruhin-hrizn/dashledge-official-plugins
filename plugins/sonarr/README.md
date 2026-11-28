@@ -30,6 +30,8 @@ Your [Sonarr](https://sonarr.tv) download queue over each series' artwork, besid
 
 ## Connection
 
+The connection form in Widget Studio walks you through it: where to find the address and the key, with a link to the guide. Dashledge 0.10.0 or later.
+
 Add a connection with your **Sonarr URL**, such as `http://sonarr.local:8989/`, and its **API key**, from Sonarr's Settings › General › Security. Test reads `api/v3/system/status`: it passes on an HTTP 2xx JSON reply, and a wrong key gets HTTP 401. The server's own instance name (Settings › General) names the widget unless you name the connection.
 
 ## Settings (per placement)
@@ -54,5 +56,6 @@ It reads the queue every 10 seconds while something is downloading and every 30 
 
 ## Changes
 
+- **1.2.0:** The connection form explains where to find Sonarr's address and API key, and links to Sonarr's security settings. Needs Dashledge 0.10.0.
 - **1.1.0:** The same design as the Radarr plugin: Sonarr's mark, queue figures and a live status chip in the header; queue cards over each series' fanart with a progress rail and sizes; and Coming up as a shelf of posters with day chips and Search on the poster. Cards show the quality and download client. The image grant adds `fanart*.jpg` (and the full-size `poster.jpg`), so existing users are asked to approve it.
 - **1.0.0:** First release.
