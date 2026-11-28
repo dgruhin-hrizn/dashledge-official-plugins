@@ -284,7 +284,8 @@ test('quality picks the sub stream for small tiles', () => {
 
 test('Dashledge’s refusal and go2rtc’s missing stream are recognised', () => {
   assert.equal(M.isCapError('A widget may keep at most 4 streams open.'), true);
-  assert.equal(M.isCapError('This placement may keep at most 4 streams open.'), true);
+  assert.equal(M.isCapError('Stream limit: this placement may keep at most 4 streams open.'), true);
+  assert.equal(M.isCapError('Stream limit: this widget may keep at most 16 streams open across its placements.'), true);
   assert.equal(M.isCapError('Stream error'), false);
   assert.equal(M.isMissingStream('mse: stream not found'), true);
 });

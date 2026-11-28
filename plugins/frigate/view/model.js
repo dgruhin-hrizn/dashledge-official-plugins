@@ -162,8 +162,10 @@
     return SNAPSHOT_HEIGHTS.find(s => s >= px) || SNAPSHOT_HEIGHTS[SNAPSHOT_HEIGHTS.length - 1];
   }
 
-  // Dashledge's answer when a placement has all the streams it may keep.
-  const isCapError = message => /at most \d+ streams?/i.test(String(message || ''));
+  // Dashledge's answer when a placement or widget has all the streams it may keep:
+  // "Stream limit: …" from the release with per-placement limits, "A widget may keep at
+  // most 4 streams open." before it.
+  const isCapError = message => /^Stream limit:|at most \d+ streams?/i.test(String(message || ''));
   // go2rtc's answer for a stream it doesn't serve.
   const isMissingStream = message => /stream not found|no such stream|not found/i.test(String(message || ''));
 
