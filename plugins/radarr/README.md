@@ -54,7 +54,12 @@ In Widget Studio, add a connection with your **Radarr URL**, such as `http://rad
 
 One connector serves every placement on a connection. Placement settings reach only the view, so the connector always reads the widest window any placement may ask for, and each view filters it. The last good queue and calendar are stored, up to 256 KiB, so a restart shows them at once, marked stale until Radarr answers.
 
+## Logo
+
+The header and the package icon use Radarr's own logo, from [`Logo/Radarr.svg`](https://github.com/Radarr/Radarr/blob/develop/Logo/Radarr.svg) in the Radarr repository, drawn smaller on a light disc so its dark marks show on Dashledge's dark background. It is © the Radarr project under the GPL-3.0, whose text ships beside it as `LICENSE-GPL-3.0.txt`. It identifies Radarr and implies no endorsement. The plugin's own code stays MIT.
+
 ## Changes
 
+- **1.1.1:** Radarr's own logo, in the header and as the package icon, in place of a drawn film frame.
 - **1.1.0:** The connection form explains where to find Radarr's address and API key, and links to Radarr's security settings. Needs Dashledge 0.10.0.
 - **1.0.0:** First release. The queue as cards over each movie's fanart, and Coming up as a shelf of posters. They sit side by side on the Edge, or a tap apart in a small placement. It searches for missing movies, and each placement chooses its days ahead, release dates and first pane.
