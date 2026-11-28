@@ -21,6 +21,8 @@
     if (text !== undefined) node.textContent = text;
     return node;
   };
+  // Product initials are decoration: the name beside them already says which client it is.
+  const decor = className => { const node = el('span', className); node.setAttribute('aria-hidden', 'true'); return node; };
   function set(node, text) { if (node.textContent !== text) node.textContent = text; }
 
   function notice(text) {
@@ -75,7 +77,7 @@
         if (c.state === 'failed' || c.state === 'stale') send('refresh', {client: c.i}, 'refresh:' + c.i);
         else send(c.paused ? 'resume' : 'pause', {client: c.i}, 'client:' + c.i);
       });
-      node.append(el('span', 'tile'), who, el('span', 'note'), act);
+      node.append(decor('tile'), who, el('span', 'note'), act);
       chips.set(c.i, node);
     }
     node.client = c;
@@ -110,14 +112,14 @@
         const i = node.item;
         send(i.paused ? 'resume' : 'pause', {client: i.client, item: i.id}, 'item:' + i.key);
       });
-      head.append(el('span', 'tile'), label, toggle);
+      head.append(decor('tile'), label, toggle);
       const rail = el('div', 'rail');
       const track = el('span', 'track');
       track.append(el('i'));
       const sub = el('p', 'sub');
       sub.append(el('span', 'amount'), el('span', 'left'));
       rail.append(track, el('span', 'pct'), sub);
-      node.append(el('span', 'ghost'), head, el('h3', 'title'), el('p', 'meta'), rail);
+      node.append(decor('ghost'), head, el('h3', 'title'), el('p', 'meta'), rail);
       cards.set(item.key, node);
     }
     node.item = item;
@@ -271,8 +273,9 @@
     $('doneEmpty').hidden = s.finished.length > 0;
     set($('doneCount'), s.finished.length ? String(s.finished.length) : '');
 
-    // A small placement opens on the queue when something is downloading, else on the speed.
-    if (!chosen) select(s.items.some(i => i.state === 'downloading') ? 'queue' : 'now');
+    // A small placement opens on the queue when something is downloading, else on the speed,
+    // decided once at the first reading; after that it stays where it is.
+    if (!chosen) { select(s.items.some(i => i.state === 'downloading') ? 'queue' : 'now'); chosen = true; }
   }
 
   function retry() { stopped = ''; send('refresh', {}, 'refresh:all'); }

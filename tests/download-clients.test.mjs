@@ -393,6 +393,13 @@ test('model: paused, stale, failed and empty are told apart', async () => {
   assert.match(stale.clients[0].note, /^Server unreachable · from /);
   assert.equal(stale.fresh.kind, 'stale');
   assert.match(stale.fresh.label, /^updated (just now|\d+ (min|h) ago)$/);
+  const two = (await reading([SAB, NZB])).last();
+  two.clients[1].ok = false;
+  two.clients[1].error = 'Server unreachable';
+  const some = M.summarize(two, {}, now);
+  assert.equal(some.fresh.kind, 'stale');
+  assert.equal(some.fresh.short, '1 of 2 down', 'a narrow chip says how many are down, not "Offline"');
+  assert.match(some.fresh.label, /^nzbget\.local:6789 updated /);
 
   const empty = await reading([SAB], {'sab-queue': {json: {queue: {paused: false, kbpersec: '0', mbleft: '0', timeleft: '0:00:00', slots: [], noofslots_total: 0}}}, 'sab-history': {json: {history: {slots: []}}}});
   const e = M.summarize(empty.last(), {}, now);

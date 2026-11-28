@@ -170,7 +170,7 @@ button{font:inherit;color:inherit;touch-action:manipulation}
 .fin .meta{font-size:var(--dl-small)}
 .fin .when{color:var(--dl-sub);font-size:var(--dl-small);white-space:nowrap;font-variant-numeric:tabular-nums}
 .fin[data-ok=false] .when{color:var(--dl-danger)}
-.quiet{grid-row:2;align-self:start;margin:0;padding:calc(12px*var(--s)) 0;color:var(--dl-sub)}
+.quiet{grid-row:2;align-self:start;justify-self:start;margin:0;padding:calc(12px*var(--s)) 0;color:var(--dl-sub)}
 .quiet[hidden]{display:none}
 .notice{position:fixed;left:50%;bottom:var(--dl-gap);transform:translateX(-50%);max-width:80vw;margin:0;padding:calc(10px*var(--s)) calc(18px*var(--s));background:var(--dl-panel);border:1px solid var(--dl-danger);border-radius:999px;color:var(--dl-danger);box-shadow:0 calc(8px*var(--s)) calc(24px*var(--s)) #0008}
 
@@ -183,7 +183,7 @@ button{font:inherit;color:inherit;touch-action:manipulation}
   .pane:not(.now){grid-template-rows:minmax(0,1fr)}
   .pane:not(.now)>.pane-head{display:none}
   .pane:not(.now)>*{grid-row:1!important}
-  .stats span:nth-child(n+3){display:none}
+  .stats span:nth-child(n+3):not([data-tone]){display:none}
 }
 
 @media (prefers-reduced-motion:no-preference){

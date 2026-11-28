@@ -110,8 +110,10 @@
       const raw = usable.find(c => c.i === first.i);
       const age = first.state === 'stale' && raw ? ago(raw.at, now) : '';
       const who = views.length > 1 ? first.name + ' ' : '';
+      // The short label (narrow placements) says how many are down when it isn't all of them.
+      const some = down.length < views.length ? down.length + ' of ' + views.length + ' down' : '';
       return {kind: 'stale', label: age ? who + 'updated ' + age : who + 'unavailable',
-        short: age ? age[0].toUpperCase() + age.slice(1) : 'Offline', note: down.map(v => v.name + ': ' + v.note).join('\n')};
+        short: some || (age ? age[0].toUpperCase() + age.slice(1) : 'Offline'), note: down.map(v => v.name + ': ' + v.note).join('\n')};
     }
     if (allPaused) return {kind: 'paused', label: 'Paused', short: '', note: ''};
     return total > 0 ? {kind: 'live', label: 'Live', short: '', note: ''} : {kind: 'idle', label: 'Up to date', short: '', note: ''};
