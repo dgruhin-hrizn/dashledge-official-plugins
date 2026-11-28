@@ -8,6 +8,8 @@ set -euo pipefail
 
 # The oldest Dashledge a first-party plugin may target: the first with the Marketplace.
 MIN_APP=0.9.0
+# The first Dashledge with sources.setup, which every plugin with a connection uses.
+SETUP_APP=0.10.0
 tool=${DASHLEDGE_PACKAGE:?Set DASHLEDGE_PACKAGE to the dashledge-package binary.}
 out=${OUT:-dist}
 summary=${GITHUB_STEP_SUMMARY:-/dev/null}
@@ -51,7 +53,16 @@ for manifest in plugins/*/widget.json; do
       (if ((.permissions // []) | index("ui")) == null then "the \"ui\" permission (Dashledge’s kit)" else empty end),
       (if .view.theme != true then "\"view\": {\"theme\": true}" else empty end),
       (if .view.viewport != "native" then "\"view\": {\"viewport\": \"native\"}" else empty end),
-      (if .collector != null then "no collector" else empty end)
+      (if .collector != null then "no collector" else empty end),
+      (if .sources == null then empty else
+        (.sources as $s | ($s.types // []) as $types |
+          (if [$s, $types[]] | any(has("addressLabel") or has("addressPlaceholder") or has("credentialLabel") or has("usernameLabel"))
+             then "its connection texts in sources.setup, not addressLabel, addressPlaceholder, credentialLabel or usernameLabel" else empty end),
+          (if ($s.setup.intro // "") == "" and (($types | length) == 0 or ($types | any((.setup.intro // "") == "")))
+             then "a sources.setup.intro: what connecting gives the user" else empty end),
+          (if (($s.setup.steps // []) | length) == 0 and (($types | length) == 0 or ($types | any(((.setup.steps // []) | length) == 0)))
+             then "sources.setup.steps: where to find the address and the credential, for every connection type" else empty end))
+      end)
     ] | join(", ")' "$manifest")
   if [ -n "$spec" ]; then
     fail "$manifest" "First-party plugins need $spec. See AGENTS.md."
@@ -60,6 +71,10 @@ for manifest in plugins/*/widget.json; do
   min=$(jq -r .minAppVersion "$manifest")
   if [ "$(printf '%s\n%s\n' "$MIN_APP" "$min" | sort -V | head -1)" != "$MIN_APP" ]; then
     fail "$manifest" "minAppVersion $min is older than $MIN_APP, the first Dashledge with the Marketplace."
+    continue
+  fi
+  if jq -e '.sources != null' "$manifest" > /dev/null && [ "$(printf '%s\n%s\n' "$SETUP_APP" "$min" | sort -V | head -1)" != "$SETUP_APP" ]; then
+    fail "$manifest" "minAppVersion $min is older than $SETUP_APP, the first Dashledge with sources.setup."
     continue
   fi
   if [ ! -f "$dir/README.md" ]; then
