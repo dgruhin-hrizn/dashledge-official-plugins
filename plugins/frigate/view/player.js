@@ -17,7 +17,7 @@
   const STALL = 12000;
 
   window.FrigatePlayer = function play(video, stream, {onState = () => {}, maxBuffer = 10} = {}) {
-    let lastError = '', socket = null, source = null, buffer = null, queue = [], stopped = false, retry = 1000, timer = 0, watchdog = 0, lastData = 0, lastTrim = 0;
+    let dropped = 0, appended = 0, lastError = '', socket = null, source = null, buffer = null, queue = [], stopped = false, retry = 1000, timer = 0, watchdog = 0, lastData = 0, lastTrim = 0;
     video.muted = true;
     video.playsInline = true;
     video.disableRemotePlayback = true; // ManagedMediaSource needs this before attaching.
@@ -30,27 +30,36 @@
       source = null;
     };
     // Append queued segments one at a time; stay near the live edge and trim old video.
-    // WebKit won't evict the group of pictures being played, so with a camera's long
-    // keyframe interval a trim can remove nothing. Trimming at most every 5 seconds, behind
-    // the playhead, keeps that from looping on remove and starving the appends.
+    // WebKit won't evict the group of pictures being played, and a trim can leave a 0.1 s
+    // sliver of a removed keyframe behind as its own range. So the buffer is measured from
+    // the range being played, trims run behind the playhead at most every 5 seconds (which
+    // keeps them from looping on remove and starving the appends), and they take any old
+    // slivers with them.
     const pump = () => {
       if (!buffer || buffer.updating) return;
       const ranges = buffer.buffered;
       if (ranges.length) {
-        const start = ranges.start(0), end = ranges.end(ranges.length - 1);
+        const last = ranges.length - 1, end = ranges.end(last), oldest = ranges.start(0);
         if (end - video.currentTime > 2.5) video.currentTime = end - 0.4;
-        const now = Date.now();
-        // A camera that rarely sends a keyframe can't be trimmed at all; start it afresh
-        // before its buffer grows without bound.
+        const t = video.currentTime;
+        let playing = last;
+        for (let i = 0; i < ranges.length; i++) if (t >= ranges.start(i) - 0.1 && t <= ranges.end(i) + 0.1) playing = i;
+        const start = ranges.start(playing);
+        // A camera whose playing range really can't be trimmed is started afresh before
+        // its buffer grows without bound.
         if (end - start > 90) return restart('reconnecting', 'buffer full');
-        if (video.currentTime - start > maxBuffer * 1.5 && now - lastTrim > 5000) {
+        const now = Date.now();
+        if (now - lastTrim > 5000 && (t - start > maxBuffer * 1.5 || playing > 0)) {
           lastTrim = now;
-          try { buffer.remove(start, video.currentTime - maxBuffer); return; } catch {}
+          const to = Math.max(oldest, t - maxBuffer);
+          if (to > oldest + 0.05) {
+            try { buffer.remove(oldest, to); return; } catch {}
+          }
         }
       }
       const next = queue.shift();
       if (next) {
-        try { buffer.appendBuffer(next); } catch (error) { restart('error', 'append: ' + (error?.name || error)); }
+        try { appended++; buffer.appendBuffer(next); } catch (error) { restart('error', 'append: ' + (error?.name || error)); }
       }
     };
     let objectURL = '';
@@ -134,7 +143,7 @@
         lastData = Date.now();
         if (typeof data !== 'string') {
           queue.push(data);
-          if (queue.length > 90) queue.splice(0, queue.length - 45); // fell behind: drop the oldest
+          if (queue.length > 90) { dropped += queue.length - 45; queue.splice(0, queue.length - 45); } // fell behind: drop the oldest
           return pump();
         }
         let message;
@@ -154,6 +163,8 @@
     }
     start();
     return {
+      // For diagnosis: segments waiting, appended and dropped since this player started.
+      stats: () => ({queue: queue.length, appended, dropped}),
       stop() {
         stopped = true;
         clearTimeout(timer);
