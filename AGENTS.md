@@ -25,6 +25,15 @@ The Dashledge repository's `AGENTS.md` (section *First-party and third-party plu
 
 - **(CI)** `description`, `category`, an SVG `icon`, `"license": "MIT"`, and `homepage` set to `https://github.com/dgruhin-hrizn/dashledge-official-plugins/tree/main/plugins/<folder>`.
 - **(CI)** `minAppVersion` is at least `0.9.0`. Raise it to the first Dashledge release with every platform piece the plugin uses.
+- **(CI)** A plugin with `sources` writes its connection form in `sources.setup`, with `minAppVersion` at least `0.10.0`:
+  - an `intro`: what connecting gives the user;
+  - `steps` for every connection type: where to find the address and the credential, in the product's own words for its menus;
+  - its field labels in `setup`, never the older `addressLabel`, `addressPlaceholder`, `credentialLabel` or `usernameLabel`.
+
+  Reviewers also check:
+  - a `link` to the product's own guide when one exists;
+  - `"optional": true` only for a credential the server really works without;
+  - each step against the product's current release.
 - Use an existing category where one fits: Music & media, Productivity, Clocks, Finance, Servers & storage, AI & development.
 - Declare only what the plugin uses. Every host, image route, stream, command and permission is a grant the user approves, and an update that adds one waits for their approval.
 
