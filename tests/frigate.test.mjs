@@ -210,17 +210,20 @@ test('a placement shows every dashboard camera by default, or the ones it names'
   const data = await cams();
   const all = M.chosen(data.cameras, M.settings({}));
   assert.equal(all.length, 6);
-  const two = M.chosen(data.cameras, M.settings({cameras: ['driveway', 'front.door', 'gone']}));
+  const two = M.chosen(data.cameras, M.settings({cameras: ['driveway', 'front_door', 'gone']}));
   assert.deepEqual(two.map(c => c.name), ['front_door', 'driveway'], 'in Frigate’s order');
   assert.deepEqual(M.missing(data.cameras, M.settings({cameras: ['driveway', 'gone.cam']})), ['gone_cam']);
+  assert.equal(M.label(two[0], M.settings({names: {front_door: 'Porch'}})), 'Porch');
+  // Early 1.0.0 builds saved "front.door"; those placements keep their cameras and names.
+  assert.deepEqual(M.chosen(data.cameras, M.settings({cameras: ['front.door']})).map(c => c.name), ['front_door']);
   assert.equal(M.label(two[0], M.settings({names: {'front.door': 'Porch'}})), 'Porch');
   const offered = M.offer(data.cameras);
-  assert.deepEqual(offered[0], {value: 'front.door', label: 'Front door', detail: 'Live video'});
+  assert.deepEqual(offered[0], {value: 'front_door', label: 'Front door', detail: 'Live video'});
   assert.equal(offered.find(o => o.value === 'driveway').detail, 'Snapshots only (no go2rtc stream)');
 });
 
 // Dashledge's rule for dynamic setting values and names keys (CHOICE_VALUE in
-// ui/package-choices.js, choice_value in package-core): no underscore.
+// ui/package-choices.js, choice_value in package-core).
 const CHOICE_VALUE = /^[A-Za-z0-9._:@/-]{1,128}$/;
 test('every camera value Dashledge stores passes its setting-value rule, and maps back', async () => {
   const data = await cams();

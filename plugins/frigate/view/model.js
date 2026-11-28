@@ -25,10 +25,10 @@
     };
   }
 
-  // A camera's value in the placement's settings. Dashledge's setting values may use
-  // letters, digits and . _ : @ / - but not _, which nearly every Frigate camera name has
-  // ("front_door"). Frigate names never contain ".", so _ is stored as "." and back.
-  const toValue = name => String(name).replace(/_/g, '.');
+  // A camera's value in the placement's settings is its Frigate name. Early 1.0.0 builds
+  // stored "front.door" for "front_door" (from a misread of Dashledge's value rule, which
+  // allows _); Frigate names never contain ".", so reading "." as "_" keeps those working.
+  const toValue = name => String(name);
   const fromValue = value => String(value).replace(/\./g, '_');
 
   // The cameras this placement shows, in Frigate's order. "*" is every camera Frigate
@@ -48,7 +48,9 @@
   }
 
   function label(camera, prefs) {
-    const own = prefs.names && typeof prefs.names[toValue(camera.name)] === 'string' ? prefs.names[toValue(camera.name)].trim() : '';
+    const names = prefs.names || {};
+    const saved = names[camera.name] ?? names[camera.name.replace(/_/g, '.')];
+    const own = typeof saved === 'string' ? saved.trim() : '';
     return own || camera.label || camera.name;
   }
 
