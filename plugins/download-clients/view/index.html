@@ -9,27 +9,63 @@
 <script defer src="view.js"></script>
 </head>
 <body class="dl-surface">
-<main class="downloads" id="content" hidden>
-  <section class="summary" aria-live="polite">
-    <p class="dl-caption">Downloads</p>
-    <p class="dl-reading"><strong id="speed">0</strong><span class="dl-unit" id="speedUnit">B/s</span></p>
-    <p class="line" id="line"></p>
-    <ul class="clients" id="clients" aria-label="Download clients"></ul>
-  </section>
-  <section class="queue" aria-label="Queue">
-    <ol class="dl-list items" id="items"></ol>
-    <p class="nothing" id="nothing" hidden>Nothing in the queue.</p>
-  </section>
-  <section class="finished" id="finishedBox" aria-label="Finished" hidden>
-    <p class="dl-caption">Finished</p>
-    <ol class="dl-list" id="finished"></ol>
-  </section>
+<main class="downloads" id="main" data-show="now">
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4v10.5M7.5 10.5 12 15l4.5-4.5"/><path class="bar" d="M5 19.5h14"/></svg></span>
+      <b>Downloads</b>
+    </div>
+    <div class="tabs" role="group" aria-label="Show">
+      <button class="tab" id="tabNow" type="button" aria-pressed="true" data-pane="now">Speed</button>
+      <button class="tab" id="tabQueue" type="button" aria-pressed="false" data-pane="queue">Queue <span class="count" id="tabQueueCount"></span></button>
+      <button class="tab" id="tabDone" type="button" aria-pressed="false" data-pane="done">Finished</button>
+    </div>
+    <p class="stats" id="stats" aria-live="polite"></p>
+    <div class="status" id="status" data-kind="loading" role="status">
+      <span class="dot" aria-hidden="true"></span><span class="status-text" id="statusText">Connecting</span><span class="status-short" id="statusShort"></span>
+      <button class="dl-button retry" id="statusRetry" type="button" data-retry hidden>Retry</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage" hidden>
+    <section class="pane now" id="nowPane" aria-label="Speed">
+      <div class="meter">
+        <svg class="trend" id="trend" viewBox="0 0 600 200" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="from"/><stop offset="1" class="to"/></linearGradient></defs>
+          <path class="area" id="trendArea" fill="url(#trendFill)"/><path class="line" id="trendLine" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <div class="readout">
+          <p class="eyebrow">Total speed</p>
+          <p class="speed"><strong id="speed">0</strong><span class="unit" id="speedUnit">B/s</span></p>
+          <p class="peak" id="peak"></p>
+        </div>
+      </div>
+      <ul class="clients" id="clients" aria-label="Download clients"></ul>
+    </section>
+
+    <section class="pane queue" id="queuePane" aria-labelledby="queueTitle">
+      <header class="pane-head"><h2 class="dl-caption" id="queueTitle">Queue</h2><span class="count" id="queueCount"></span></header>
+      <div class="cards" id="cards" tabindex="0" aria-label="Downloads"></div>
+      <article class="card idle" id="idle" hidden>
+        <div class="head"><span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><p class="eyebrow">Nothing downloading</p></div>
+        <h3 class="title" id="idleTitle"></h3>
+        <p class="meta" id="idleMeta"></p>
+      </article>
+    </section>
+
+    <section class="pane done" id="donePane" aria-labelledby="doneTitle">
+      <header class="pane-head"><h2 class="dl-caption" id="doneTitle">Finished</h2><span class="count" id="doneCount"></span></header>
+      <ol class="finished" id="finished" tabindex="0" aria-label="Finished downloads"></ol>
+      <p class="dl-empty quiet" id="doneEmpty" hidden>Nothing has finished lately.</p>
+    </section>
+  </div>
+
+  <p class="dl-loading whole" id="loading" role="status">Connecting to your download clients…</p>
+  <div class="dl-error whole" id="failed" role="alert" hidden>
+    <p id="failedText"></p>
+    <div class="actions"><button class="dl-button" type="button" data-retry>Retry</button><button class="dl-button" type="button" data-settings>Check connections</button></div>
+  </div>
+  <p class="notice" id="notice" role="alert" hidden></p>
 </main>
-<p class="dl-loading" id="loading" role="status">Connecting to your download clients…</p>
-<div class="dl-error" id="failed" role="alert" hidden>
-  <p id="failedText"></p>
-  <button class="dl-button" id="retry" type="button">Retry</button>
-</div>
-<p class="notice" id="notice" role="alert" hidden></p>
 </body>
 </html>
