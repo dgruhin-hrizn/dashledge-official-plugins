@@ -3,7 +3,7 @@
   "id": "plugin.dashledge.sonarr",
   "title": "Sonarr",
   "description": "Your Sonarr download queue over each series' artwork, beside a shelf of the episodes coming up. Search for a missed episode from the Edge.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "category": "Music & media",
   "icon": "icon.svg",
   "license": "MIT",
